@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hassan - Python Django & AI Automation Developer Portfolio">
+    <title>Hassan | AI & Django Developer</title>
+
+    <!-- CSS Linked -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Navigation -->
+    <header>
+        <div class="logo">MH.</div>
+        <ul class="nav-links">
+            <li><a href="#home" class="active">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#reviews">Reviews</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><button id="admin-login-btn" class="login-nav-btn"><i class="fas fa-lock"></i> Login</button></li>
+        </ul>
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content animate-ready">
+            <h1>Hi, I'm <span>Hassan</span></h1>
+            <span class="typewriter-text"></span>
+            <p style="color:var(--text-muted); margin-bottom:30px;">
+                Building scalable web applications and intelligent AI automation systems.
+            </p>
+            <a href="#projects" class="btn">View My Work</a>
+            <a href="#contact" class="btn btn-outline" style="margin-left:15px">Contact Me</a>
+        </div>
+        <div class="scroll-down">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="section-title animate-ready">
+            <h2>About Me</h2>
+            <p>Get to know who I am and what I do.</p>
+        </div>
+        <div class="about-container animate-ready">
+            <div class="about-img">
+                <img src="assets/avatar.png" alt="Hassan">
+            </div>
+            <div class="about-text">
+                <h3>I'm a Python Django & AI Automation Developer</h3>
+                <p>
+                    I specialize in building robust backend systems using Python and Django, and integrating
+                    cutting-edge AI automation solutions using tools like n8n and Voice Agents.
+                    With a passion for efficiency and innovation, I help businesses streamline their workflows and
+                    create intelligent digital experiences.
+                </p>
+                <p>
+                    My expertise extends to CRM integrations (GoHighLevel), API development, and creating custom
+                    automation workflows that save time and reduce manual effort.
+                </p>
+                <div style="margin-top:20px;">
+                    <a href="#contact" class="btn">Let's Talk</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Skills Section -->
+    <section id="skills" style="background: rgba(255,255,255,0.02);">
+        <div class="section-title animate-ready">
+            <h2>Technical Skills</h2>
+            <p>The technologies and tools I work with.</p>
+        </div>
+        <div class="skills-grid animate-ready">
+            <!-- Skill Badges -->
+            <div class="skill-badge"><i class="fab fa-python" style="color:#FFD43B;"></i> Python</div>
+            <div class="skill-badge"><i class="fas fa-server" style="color:#092E20;"></i> Django</div>
+            <div class="skill-badge"><i class="fas fa-robot" style="color:#A855F7;"></i> AI Automation</div>
+            <div class="skill-badge"><i class="fas fa-microphone" style="color:#F43F5E;"></i> Voice Agents</div>
+            <div class="skill-badge"><i class="fas fa-chart-line" style="color:#3B82F6;"></i> GoHighLevel</div>
+            <div class="skill-badge"><i class="fas fa-project-diagram" style="color:#EA580C;"></i> n8n Workflows</div>
+            <div class="skill-badge"><i class="fas fa-code" style="color:#10B981;"></i> Python APIs</div>
+            <div class="skill-badge"><i class="fas fa-database" style="color:#64748B;"></i> Backend Dev</div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects">
+        <div class="section-title animate-ready">
+            <h2>Featured Projects</h2>
+            <p>A selection of my recent work.</p>
+        </div>
+        <div class="projects-grid">
+
+            <!-- Project 1 -->
+            <div class="project-card animate-ready">
+                <div class="project-img">
+                    <img src="assets/project-thumb.png" alt="Project 1">
+                </div>
+                <div class="project-content">
+                    <h3>AI Voice Assistant</h3>
+                    <div class="project-tech">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">Deepgram</span>
+                        <span class="tech-tag">WebSockets</span>
+                    </div>
+                    <p style="color:#aaa; font-size:0.9rem; margin-bottom:15px;">
+                        A real-time voice conversational agent capable of handling concurrent users with low latency.
+                    </p>
+                    <div class="project-links">
+                        <a href="https://github.com/MHassanGull" target="_blank"><i class="fab fa-github"></i>
+                            GitHub</a>
+                        <a href="project-1.html" class="live-demo"><i class="fas fa-external-link-alt"></i> View
+                            Details</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 2 -->
+            <div class="project-card animate-ready" style="transition-delay: 0.1s;">
+                <div class="project-img">
+                    <img src="assets/project-thumb.png" alt="Project 2">
+                </div>
+                <div class="project-content">
+                    <h3>CRM Automation System</h3>
+                    <div class="project-tech">
+                        <span class="tech-tag">Django</span>
+                        <span class="tech-tag">GoHighLevel</span>
+                        <span class="tech-tag">Rest API</span>
+                    </div>
+                    <p style="color:#aaa; font-size:0.9rem; margin-bottom:15px;">
+                        Automated lead management system syncing data between custom Django backend and GHL.
+                    </p>
+                    <div class="project-links">
+                        <a href="https://github.com/MHassanGull" target="_blank"><i class="fab fa-github"></i>
+                            GitHub</a>
+                        <a href="project-2.html" class="live-demo"><i class="fas fa-external-link-alt"></i> View
+                            Details</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 3 -->
+            <div class="project-card animate-ready" style="transition-delay: 0.2s;">
+                <div class="project-img">
+                    <img src="assets/project-thumb.png" alt="Project 3">
+                </div>
+                <div class="project-content">
+                    <h3>n8n Workflow Engine</h3>
+                    <div class="project-tech">
+                        <span class="tech-tag">n8n</span>
+                        <span class="tech-tag">JavaScript</span>
+                        <span class="tech-tag">Webhooks</span>
+                    </div>
+                    <p style="color:#aaa; font-size:0.9rem; margin-bottom:15px;">
+                        Complex workflow automation handling email marketing, data enrichment, and notification
+                        dispatch.
+                    </p>
+                    <div class="project-links">
+                        <a href="https://github.com/MHassanGull" target="_blank"><i class="fab fa-github"></i>
+                            GitHub</a>
+                        <a href="project-3.html" class="live-demo"><i class="fas fa-external-link-alt"></i> View
+                            Details</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="reviews-section">
+        <div class="section-title animate-ready">
+            <h2>Reviews</h2>
+            <p>What people are saying about my work.</p>
+        </div>
+
+        <div class="reviews-container animate-ready">
+            <div id="reviews-grid" class="reviews-grid">
+                <!-- Reviews will be loaded here dynamically -->
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <button id="open-review-modal" class="btn">Write a Review</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Review Modal -->
+    <div id="review-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h3>Share Your Experience</h3>
+                <p>Your feedback helps me improve and grow.</p>
+            </div>
+            <form id="review-form">
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="star-rating">
+                        <i class="far fa-star" data-rating="1"></i>
+                        <i class="far fa-star" data-rating="2"></i>
+                        <i class="far fa-star" data-rating="3"></i>
+                        <i class="far fa-star" data-rating="4"></i>
+                        <i class="far fa-star" data-rating="5"></i>
+                        <input type="hidden" id="rating-input" name="rating" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="review-name">Your Name</label>
+                    <input type="text" id="review-name" name="name" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="review-project">Project Name</label>
+                    <input type="text" id="review-project" name="project" placeholder="e.g. Portfolio Website" required>
+                </div>
+                <div class="form-group">
+                    <label for="review-content">Overall Experience</label>
+                    <textarea id="review-content" name="content" rows="4" placeholder="How was the quality of work?"
+                        required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="review-link">Project Link (Optional)</label>
+                    <input type="url" id="review-link" name="link" placeholder="https://yourproject.com">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h3>Admin Access</h3>
+                <p>Please enter your credentials to manage reviews.</p>
+            </div>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="admin-user">Username</label>
+                    <input type="text" id="admin-user" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="admin-pass">Password</label>
+                    <input type="password" id="admin-pass" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Connect</button>
+                <p id="login-error"
+                    style="color: #ef4444; font-size: 0.8rem; margin-top: 10px; display: none; text-align: center;">
+                    Invalid credentials.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section id="contact" style="background: rgba(255,255,255,0.02);">
+        <div class="section-title animate-ready">
+            <h2>Contact Me</h2>
+            <p>Get in touch for collaborations or freelance work.</p>
+        </div>
+        <div class="contact-container animate-ready">
+            <form id="contact-form" class="contact-form">
+                <!-- Web3Forms Access Key - GET YOUR KEY AT https://web3forms.com/ -->
+                <input type="hidden" name="access_key" value="1e8ee232-587b-40f2-9e5d-cde7cf815432">
+                <input type="hidden" name="subject" value="New Submission from Portfolio">
+
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Your Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone (Optional)</label>
+                    <input type="tel" id="phone" name="phone" placeholder="+92...">
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="5" placeholder="Your Message" required></textarea>
+                </div>
+                <button type="submit" class="btn" style="width:100%">Send Message</button>
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i> Message Sent Successfully!
+                </div>
+                <div class="error-message" style="display:none; color: #ef4444; margin-top: 10px; font-size: 0.9rem;">
+                    <i class="fas fa-times-circle"></i> Something went wrong. Please try again.
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="social-links">
+            <a href="https://www.linkedin.com/in/muhammadhassan00/" target="_blank" aria-label="LinkedIn"><i
+                    class="fab fa-linkedin-in"></i></a>
+            <a href="https://github.com/MHassanGull" target="_blank" aria-label="GitHub"><i
+                    class="fab fa-github"></i></a>
+            <a href="https://www.instagram.com/muhammadhassan_gull" target="_blank" aria-label="Instagram"><i
+                    class="fab fa-instagram"></i></a>
+            <a href="mailto:muhammadhassan.9677@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+        </div>
+        <p>&copy; 2026 Hassan. All rights reserved.</p>
+        <p style="font-size:0.8rem; margin-top:10px; opacity:0.6;">+92-3036877026</p>
+    </footer>
+
+    <!-- Main JS -->
+    <script src="js/main.js"></script>
+</body>
+
+</html>

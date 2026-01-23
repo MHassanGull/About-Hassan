@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details | Muhammad Hassan</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .project-hero {
+            padding: 150px 10% 80px;
+            background: rgba(255, 255, 255, 0.02);
+            text-align: center;
+        }
+
+        .project-hero h1 {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .project-detail-container {
+            padding: 50px 10%;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 60px;
+        }
+
+        .project-main img {
+            width: 100%;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .project-sidebar {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            height: fit-content;
+        }
+
+        .sidebar-item {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 992px) {
+            .project-detail-container {
+                grid-template-columns: 1fr;
+                padding: 30px 5%;
+                gap: 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .project-hero {
+                padding: 120px 20px 60px;
+            }
+
+            .project-hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .project-sidebar {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">MH.</div>
+        <a href="index.html" class="btn" style="padding: 8px 20px;">Back Home</a>
+    </header>
+
+    <div class="project-hero">
+        <h1>Project Title</h1>
+        <p style="color: var(--text-muted);">Short overview of the project goal and impact.</p>
+    </div>
+
+    <div class="project-detail-container">
+        <div class="project-main">
+            <a href="index.html#projects" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Projects</a>
+            <img src="assets/project-thumb.png" alt="Project Large Image">
+            <h3>Project Overview</h3>
+            <p>This is a detailed description of the project. You can talk about the challenges you faced, the solutions
+                you implemented, and the final results achieved.</p>
+            <br>
+            <p>Key features include real-time data sync, AI-driven automation workflows, and a responsive user interface
+                designed for high conversion.</p>
+        </div>
+
+        <div class="sidebar">
+            <div class="project-sidebar">
+                <div class="sidebar-item">
+                    <h4>Technologies Used</h4>
+                    <div class="project-tech">
+                        <span class="tech-tag">Python</span>
+                        <span class="tech-tag">Django</span>
+                        <span class="tech-tag">JavaScript</span>
+                    </div>
+                </div>
+                <div class="sidebar-item">
+                    <h4>Client</h4>
+                    <p>Company Name / Freelance</p>
+                </div>
+                <div class="sidebar-item">
+                    <h4>Live Links</h4>
+                    <div class="project-links" style="flex-direction: column;">
+                        <a href="#"><i class="fas fa-external-link-alt"></i> View Live Site</a>
+                        <a href="#"><i class="fab fa-github"></i> Repository Code</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Hassan. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>
