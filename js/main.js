@@ -17,9 +17,24 @@ document.addEventListener('DOMContentLoaded', () => {
         let particles = [];
         let mouse = { x: null, y: null };
 
+        // Theme-aware particle color
+        let particleColor = 'rgba(99, 102, 241, 0.4)'; // Default
+
+        const updateParticleColor = () => {
+            const style = getComputedStyle(document.documentElement);
+            const color = style.getPropertyValue('--particle-color').trim();
+            if (color) particleColor = color;
+        };
+
+        // Update color on theme change
+        window.addEventListener('themechange', updateParticleColor);
+        // Also update on load
+        updateParticleColor();
+
         const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            updateParticleColor(); // Ensure color is correct after resize/layout refresh
         };
 
         window.addEventListener('resize', resize);
@@ -57,8 +72,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.size = Math.random() * 2 + 1;
                 this.speedX = (Math.random() - 0.5) * 2;
                 this.speedY = (Math.random() - 0.5) * 2;
-                this.color = 'rgba(99, 102, 241, 0.4)';
                 this.life = 100;
+                // Use current dynamic color
+                this.color = particleColor;
             }
             update() {
                 this.x += this.speedX;
@@ -67,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.life--;
             }
             draw() {
-                ctx.fillStyle = this.color;
+                ctx.fillStyle = this.color; // Use instance color (snapshot at creation)
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -84,7 +100,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dy = mouse.y - particles[i].y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
                 if (distance < 150) {
-                    ctx.strokeStyle = `rgba(99, 102, 241, ${0.2 * (1 - distance / 150)})`;
+                    // Use dynamic color for lines too (fade out based on distance)
+                    // We need to extract RGB from the rgba string to handle opacity correctly
+                    // Or cheat and just use the particleColor variable but manipulate opacity if possible.
+                    // Simple approach: Use the global current color but apply distance opacity
+                    // Since particleColor is normally rgba(r,g,b, a), we can try to replace the alpha
+
+                    // Helper to inject alpha into the current color string
+                    let colorWithAlpha = particleColor;
+                    if (particleColor.startsWith('rgba')) {
+                        colorWithAlpha = particleColor.replace(/[\d\.]+\)$/g, `${0.2 * (1 - distance / 150)})`);
+                    } else if (particleColor.startsWith('rgb')) {
+                        colorWithAlpha = particleColor.replace(')', `, ${0.2 * (1 - distance / 150)})`).replace('rgb', 'rgba');
+                    } else {
+                        // Fallback for hex or others (browser converts computed style to rgb/rgba mostly)
+                        // If it's hex, just use it as is, opacity might not work perfectly without conversion
+                        // But Antigravity engine uses rgba variables for particles, so we are good.
+                        colorWithAlpha = particleColor;
+                    }
+
+                    ctx.strokeStyle = colorWithAlpha;
                     ctx.lineWidth = 1;
                     ctx.beginPath();
                     ctx.moveTo(particles[i].x, particles[i].y);

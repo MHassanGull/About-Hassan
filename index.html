@@ -9,12 +9,14 @@
 
     <!-- CSS Linked -->
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/theme-engine.css">
 
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
+
     <canvas id="bg-canvas"></canvas>
 
     <!-- Navigation -->
@@ -29,6 +31,26 @@
             <li><a href="#contact">Contact</a></li>
             <li><button id="admin-login-btn" class="login-nav-btn"><i class="fas fa-lock"></i> Login</button></li>
         </ul>
+
+        <!-- Theme Picker -->
+        <div class="theme-picker-wrapper">
+            <button class="theme-picker-toggle" aria-label="Change Theme" title="Change Theme">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M12 1v6m0 6v6m9.66-9.66l-4.24 4.24m-6.84 0l-4.24-4.24M23 12h-6m-6 0H1m20.66 9.66l-4.24-4.24m-6.84 0l-4.24 4.24">
+                    </path>
+                </svg>
+            </button>
+            <div class="theme-picker-dropdown">
+                <div class="theme-picker-header">
+                    <h4>Choose Theme</h4>
+                </div>
+                <div class="theme-picker-grid" id="theme-picker-grid"></div>
+            </div>
+        </div>
+
         <div class="hamburger">
             <span class="bar"></span>
             <span class="bar"></span>
@@ -38,6 +60,9 @@
 
     <!-- Hero Section -->
     <section id="home" class="hero">
+        <!-- Advanced Interactive Background -->
+        <canvas id="hero-gradient-canvas" class="hero-animated-bg"></canvas>
+
         <div class="hero-content animate-ready">
             <h1>Hi, I'm <span>Hassan</span></h1>
             <span class="typewriter-text"></span>
@@ -293,20 +318,21 @@
                 </div>
                 <div class="form-group">
                     <label for="phone">Phone (Optional)</label>
-                    <div style="display:flex; gap:10px;">
-                        <select id="country-code"
-                            style="width: 35%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-family: inherit; cursor:pointer;"
-                            aria-label="Country Code">
-                            <option value="+92" selected>PAK (+92)</option>
-                            <option value="+1">USA (+1)</option>
-                            <option value="+44">UK (+44)</option>
-                            <option value="+971">UAE (+971)</option>
-                            <option value="+91">IND (+91)</option>
-                            <option value="+61">AUS (+61)</option>
-                            <option value="+86">CHN (+86)</option>
-                            <option value="">Other</option>
+                    <div class="phone-input-wrapper">
+                        <select id="country-code" class="country-selector" aria-label="Country Code">
+                            <option value="+92" selected>🇵🇰 +92</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+971">🇦🇪 +971</option>
+                            <option value="+91">🇮🇳 +91</option>
+                            <option value="+61">🇦🇺 +61</option>
+                            <option value="+86">🇨🇳 +86</option>
+                            <option value="+81">🇯🇵 +81</option>
+                            <option value="+49">🇩🇪 +49</option>
+                            <option value="+33">🇫🇷 +33</option>
+                            <option value="">🌍 Other</option>
                         </select>
-                        <input type="tel" id="phone-number" placeholder="xxxxxxxxxx" style="flex:1;">
+                        <input type="tel" id="phone-number" class="phone-number-input" placeholder="3XX XXXXXXX">
                     </div>
                     <input type="hidden" id="full-phone" name="phone">
                 </div>
@@ -340,8 +366,14 @@
         <p style="font-size:0.8rem; margin-top:10px; opacity:0.6;">+92-3036877026</p>
     </footer>
 
+    <!-- Theme Engine (BEFORE main.js) -->
+    <script src="js/theme-manager.js"></script>
+    <script src="js/theme-picker.js"></script>
+    <script src="js/hero-background.js"></script>
+
     <!-- Main JS -->
     <script src="js/main.js"></script>
 </body>
 
 </html>
+```
