@@ -216,6 +216,45 @@ document.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
 
+            // --- Validation Logic ---
+            const email = form.querySelector('#email').value;
+            const countryCode = form.querySelector('#country-code').value;
+            const phoneNumber = form.querySelector('#phone-number').value.trim();
+            const fullPhoneInput = form.querySelector('#full-phone');
+
+            // Reset Error
+            if (errorMsg) errorMsg.style.display = 'none';
+
+            // Email Validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                if (errorMsg) {
+                    errorMsg.style.display = 'block';
+                    errorMsg.innerText = 'Please enter a valid email address (e.g., user@example.com).';
+                }
+                return;
+            }
+
+            // Phone Validation
+            if (phoneNumber) {
+                const cleanedPhone = phoneNumber.replace(/[\s-]/g, '');
+                if (!/^\d+$/.test(cleanedPhone)) {
+                    if (errorMsg) {
+                        errorMsg.style.display = 'block';
+                        errorMsg.innerText = 'Phone number must contain only digits.';
+                    }
+                    return;
+                }
+                if (cleanedPhone.length < 7) {
+                    if (errorMsg) {
+                        errorMsg.style.display = 'block';
+                        errorMsg.innerText = 'Phone number is too short. Please enter a valid number.';
+                    }
+                    return;
+                }
+                fullPhoneInput.value = `${countryCode} ${phoneNumber}`;
+            }
+
             const btn = form.querySelector('button');
             const originalText = btn.textContent;
 
@@ -333,8 +372,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             try {
                 const response = await fetch('login.txt');
+                if (!response.ok) throw new Error("Login file not found");
                 const text = await response.text();
-                const [storedUser, storedPass] = text.split('\n').map(s => s.trim());
+                // Robust parsing: split by any newline, remove empty lines, trim whitespace
+                const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+
+                if (lines.length < 2) throw new Error("Invalid login file format");
+
+                const storedUser = lines[0];
+                const storedPass = lines[1];
 
                 if (user === storedUser && pass === storedPass) {
                     isAdmin = true;

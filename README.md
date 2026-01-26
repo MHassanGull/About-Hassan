@@ -1,57 +1,48 @@
-# Muhammad Hassan - Portfolio Website
+# Hassan | Python Django & AI Automation Portfolio
 
-A modern, animated personal portfolio website built with HTML, CSS, and JavaScript.
+A high-performance, animated portfolio website showcasing expertise in **Python Django** and **AI Automation**. Built with a focus on modern aesthetics, user interaction, and seamless validation.
 
-## 🚀 Features
-- **Responsive Design:** Optimized for Mobile, Tablet, and Desktop.
-- **Animations:** Smooth scroll, fade-in effects, and typing animation.
-- **Interactive:** Sticky navigation, hover effects, and contact form validation.
-- **Dark Mode:** Premium dark aesthetic with neon accents.
+## 🚀 Key Features
+
+*   **Premium Glassmorphism UI**: A layered "Midnight" aesthetic with deep indigo gradients and blur effects.
+*   **Dynamic Mouse Trail**: Custom HTML5 Canvas particle system that interacts with user movement.
+*   **Interactive Review System**:
+    *   Full CRUD (Create, Read, Update, Delete) functionality.
+    *   Admin moderation mode.
+    *   Star rating system with local storage persistence.
+*   **Smart Contact Form**:
+    *   Integrated country-code selector.
+    *   Real-time validation for email validity and phone number structure.
+    *   Powered by Web3Forms.
+*   **Responsive & Fast**: Fully optimized for diverse screen sizes with typing animations and scroll reveals.
+
+## 🛠️ Tech Stack
+
+*   **Core**: HTML5, Modern CSS3 (Variables, Flexbox/Grid), Vanilla JavaScript (ES6+).
+*   **Fonts**: "Outfit" (Google Fonts) for a clean, modern typography.
+*   **Icons**: Font Awesome 6.
 
 ## 📂 Project Structure
-```
+
+```bash
 portfolio/
-├── index.html       # Main HTML file
+├── index.html       # Main application entry point
 ├── css/
-│   └── styles.css   # Global styles and animations
+│   └── styles.css   # Global design system & animations
 ├── js/
-│   └── main.js      # Interaction logic
-└── assets/          # Images and resources
+│   └── main.js      # Animation logic, validation, & reviews
+├── assets/          # Static assets (images)
+├── login.txt        # Encrypted local admin credentials (GitIgnored in production)
+└── doc_version.txt  # Comprehensive Replication Guide (Prompts)
 ```
 
-## 🌐 Alignment
-Inspired by [dixieraizpacheco.com](https://dixieraizpacheco.com/), adapting the layout conventions and premium feel.
+## 🔧 Usage & Customization
 
-## 📦 Deployment Instructions (GitHub Pages)
+This project includes a unique `doc_version.txt` file containing **Replication Prompts**. You can copy these prompts to any AI assistant to instantly generate specific features of this site, including:
+1.  **Mouse Animation**: The exact canvas particle system.
+2.  **Contact Form**: The validation and UI logic.
+3.  **Review System**: The complete rating and storage mechanism.
+4.  **Admin Login**: The secure session management system.
 
-1.  **Initialize Git:**
-    Open a terminal in this folder and run:
-    ```bash
-    git init
-    git add .
-    git commit -m "Initial commit: Portfolio website"
-    ```
-
-2.  **Create a Repository:**
-    Go to [GitHub.com/new](https://github.new) and create a repository named `About-Hassan`.
-
-3.  **Push Code:**
-    ```bash
-    git branch -M main
-    git remote add origin https://github.com/MHassanGull/About-Hassan.git
-    # (Replace URL with your actual new repo URL)
-    git push -u origin main
-    ```
-
-4.  **Enable GitHub Pages:**
-    - Go to your Repository **Settings** > **Pages**.
-    - Under **Source**, select `Deploy from a branch`.
-    - Select `main` branch and `/ (root)` folder.
-    - Click **Save**.
-    - GitHub will give you a live URL (e.g., `https://mhassangull.github.io/About-Hassan/`).
-
-## 🐍 Optional Backend (Django)
-This site is static. If you want to handle the contact form with a real Python backend later:
-1. Create a simple Django/FastAPI service.
-2. Host it on Vercel/Render.
-3. Update `js/main.js` to `fetch()` your API endpoint on form submit.
+## © Copyright
+© 2026 Muhammad Hassan. All Rights Reserved.
