@@ -25,7 +25,6 @@
             const option = document.createElement('div');
             option.className = 'theme-option';
             option.setAttribute('data-theme-id', theme.id);
-            option.style.position = 'relative';
 
             option.innerHTML = `
                 <div class="theme-color-swatch" style="background: ${theme.color};"></div>

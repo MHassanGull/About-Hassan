@@ -10,17 +10,17 @@ const AntigravityThemes = (() => {
 
     // Theme Registry
     const THEMES = [
-        { id: 'default', name: 'Deep Black (Default)', color: '#030712' },
-        { id: 'soft-blues', name: 'Soft Blues', color: '#e0f2fe' },
-        { id: 'sage-greens', name: 'Sage Greens', color: '#dcfce7' },
-        { id: 'pale-yellows', name: 'Pale Yellows', color: '#fef9c3' },
-        { id: 'warm-greys', name: 'Warm Greys', color: '#e7e5e4' },
-        { id: 'muted-terracotta', name: 'Muted Terracotta', color: '#fed7aa' },
-        { id: 'calming-blues', name: 'Calming Blues', color: '#dbeafe' },
-        { id: 'earthy-greens', name: 'Earthy Greens', color: '#d1fae5' },
-        { id: 'soft-warm-tones', name: 'Soft Warm Tones', color: '#ffe4e6' },
-        { id: 'pure-white', name: 'Pure White', color: '#ffffff' },
-        { id: 'deep-black', name: 'Deep Black', color: '#000000' }
+        { id: 'default', name: 'Dark', color: '#030712' },
+        { id: 'soft-blues', name: 'Sky', color: '#e0f2fe' },
+        { id: 'sage-greens', name: 'Sage', color: '#dcfce7' },
+        { id: 'pale-yellows', name: 'Sun', color: '#fef9c3' },
+        { id: 'warm-greys', name: 'Stone', color: '#e7e5e4' },
+        { id: 'muted-terracotta', name: 'Clay', color: '#fed7aa' },
+        { id: 'calming-blues', name: 'Ocean', color: '#dbeafe' },
+        { id: 'earthy-greens', name: 'Leaf', color: '#d1fae5' },
+        { id: 'soft-warm-tones', name: 'Rose', color: '#ffe4e6' },
+        { id: 'pure-white', name: 'White', color: '#ffffff' },
+        { id: 'deep-black', name: 'Black', color: '#000000' }
     ];
 
     const STORAGE_KEY = 'antigravity-theme';
@@ -32,7 +32,7 @@ const AntigravityThemes = (() => {
     function init() {
         // Load saved theme or default
         loadTheme();
-        
+
         // Listen for theme changes from other tabs
         window.addEventListener('storage', (e) => {
             if (e.key === STORAGE_KEY) {
@@ -64,7 +64,7 @@ const AntigravityThemes = (() => {
      */
     function applyTheme(themeId, save = true) {
         const theme = THEMES.find(t => t.id === themeId);
-        
+
         if (!theme) {
             console.error(`Theme "${themeId}" not found`);
             return;
