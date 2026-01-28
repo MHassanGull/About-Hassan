@@ -302,6 +302,14 @@ section {
     max-width: 800px;
 }
 
+.hero-btns {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
 .hero h1 {
     font-size: 4rem;
     font-weight: 700;
@@ -1111,7 +1119,22 @@ footer {
     }
 
     .hero-content {
-        padding: 0 20px;
+        padding: 0 15px;
+    }
+
+    .hero-btns {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 280px;
+        margin: 0 auto;
+    }
+
+    .hero-btns .btn {
+        width: 100%;
+        margin-left: 0 !important;
+        text-align: center;
+        padding: 14px 20px;
     }
 
     .profile-frame {
@@ -1141,7 +1164,7 @@ footer {
     }
 
     .btn {
-        padding: 10px 20px;
+        padding: 12px 24px;
         font-size: 0.9rem;
     }
 
