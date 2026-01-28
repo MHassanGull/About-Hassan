@@ -23,6 +23,7 @@
     padding: 0;
     box-sizing: border-box;
     scroll-behavior: smooth;
+    scroll-padding-top: var(--nav-height);
 }
 
 body {
@@ -990,12 +991,43 @@ footer {
     .about-container {
         flex-direction: column;
         text-align: center;
-        gap: 30px;
+        gap: 50px;
+        align-items: center;
     }
 
-    .about-img img {
+    .about-text {
+        padding: 0 10px;
+    }
+
+    .about-text h3 {
+        font-size: 1.5rem;
+    }
+
+    .about-text p {
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+
+    .profile-frame {
+        width: 260px;
+        height: 260px;
+    }
+
+    .profile-img-inner {
         width: 220px;
         height: 220px;
+    }
+
+    .profile-orbit-1 {
+        width: 270px;
+        height: 270px;
+        border-width: 1px;
+    }
+
+    .profile-orbit-2 {
+        width: 300px;
+        height: 300px;
+        border-width: 1px;
     }
 
     .nav-links {
@@ -1070,7 +1102,42 @@ footer {
 
 @media (max-width: 480px) {
     .hero h1 {
-        font-size: 2rem;
+        font-size: 2.2rem;
+    }
+
+    .hero .typewriter-text {
+        font-size: 1.1rem;
+        padding: 0 20px;
+    }
+
+    .hero-content {
+        padding: 0 20px;
+    }
+
+    .profile-frame {
+        width: 220px;
+        height: 220px;
+    }
+
+    .profile-img-inner {
+        width: 180px;
+        height: 180px;
+    }
+
+    .profile-orbit-1 {
+        width: 230px;
+        height: 230px;
+        border-width: 1px;
+    }
+
+    .profile-orbit-2 {
+        width: 260px;
+        height: 260px;
+        border-width: 1px;
+    }
+
+    .section-title h2 {
+        font-size: 1.8rem;
     }
 
     .btn {
