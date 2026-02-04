@@ -5,7 +5,9 @@ import {
     signInAnonymously,
     onAuthStateChanged,
     signInWithEmailAndPassword,
-    signOut
+    signOut,
+    GoogleAuthProvider,
+    signInWithPopup
 } from "firebase/auth";
 import {
     getFirestore,
@@ -195,15 +197,16 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
-            // Check if user is admin (you can check by UID or custom claim)
-            // For now, we'll use a session flag or check if email exists
-            isAdmin = user.email !== null;
+            // STRICT ADMIN CHECK: Only this specific email gets admin powers
+            isAdmin = user.email === 'projectsbuilding55@gmail.com';
             updateAdminUI();
-            console.log("Logged in as:", user.uid, isAdmin ? "(Admin)" : "(User)");
+            console.log("Logged in:", user.email || "Anonymous", isAdmin ? "(Admin)" : "(Visitor)");
         } else {
             currentUser = null;
             isAdmin = false;
             updateAdminUI();
+            // Auto-sign in anonymously if logged out
+            signInAnonymously(auth);
         }
     });
 
@@ -452,22 +455,28 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    if (loginForm) {
-        loginForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('admin-user').value;
-            const pass = document.getElementById('admin-pass').value;
+    const googleLoginBtn = document.getElementById('google-login-btn');
 
+    if (googleLoginBtn) {
+        googleLoginBtn.onclick = async () => {
+            const provider = new GoogleAuthProvider();
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
-                isAdmin = true;
-                loginModal.style.display = 'none';
-                updateAdminUI();
-                // Firestore snapshot will handle UI update
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+
+                if (user.email === 'projectsbuilding55@gmail.com') {
+                    isAdmin = true;
+                    loginModal.style.display = 'none';
+                    updateAdminUI();
+                } else {
+                    // Not the admin? Sign them out or just show error
+                    // We allow them to stay logged in with Google, but rules will prevent admin actions
+                    loginError.style.display = 'block';
+                }
             } catch (err) {
-                console.error("Login Error:", err);
+                console.error("Google Login Error:", err);
                 loginError.style.display = 'block';
-                loginError.innerText = "Invalid credentials or unauthorized.";
+                loginError.innerText = "Login failed. Please try again.";
             }
         };
     }
@@ -603,7 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const controlBtns = canControl ? `
             <div class="review-controls">
                 <button title="Edit" class="edit-btn" onclick="openEditModal('${review.id}')"><i class="fas fa-edit"></i></button>
-                ${isAdmin ? `<button title="Delete" class="delete-btn" onclick="deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>` : ''}
+                <button title="Delete" class="delete-btn" onclick="deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
             </div>
         ` : '';
 
@@ -626,15 +635,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Global Methods for HTML (Required for modules) ---
     window.deleteReview = async function (id) {
-        if (!isAdmin) {
-            alert("Only admin can delete reviews.");
-            return;
-        }
+        // Find the review to check ownership locally before bothering Firestore
+        const card = document.querySelector(`.review-card[data-id="${id}"]`);
+        if (!card) return;
+
         if (!confirm("Are you sure you want to delete this review?")) return;
+
         try {
             await deleteDoc(doc(db, "reviews", id));
+            console.log("Deleted review:", id);
         } catch (error) {
             console.error("Delete Error:", error);
+            alert("Only the owner or admin can delete this review.");
         }
     };
 
