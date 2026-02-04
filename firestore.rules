@@ -2,13 +2,13 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     match /reviews/{reviewId} {
-      // 1. Everyone can see reviews
+      // Allow reading for everyone
       allow read: if true;
       
-      // 2. Anyone can create a review (if they have an ID from Firebase)
-      allow create: if request.auth != null;
+      // Allow creation for anyone (we want visitors to be able to post)
+      allow create: if true;
       
-      // 3. ONLY the Admin email can Edit or Delete
+      // ONLY the specific Admin email can Update or Delete
       allow update, delete: if request.auth != null && request.auth.token.email == 'projectsbuilding55@gmail.com';
     }
   }

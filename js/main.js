@@ -197,15 +197,18 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
-            // STRICT ADMIN CHECK: Only this specific email gets admin powers
-            isAdmin = user.email === 'projectsbuilding55@gmail.com';
+            // Detect if this user is the Admin
+            isAdmin = (user.email === 'projectsbuilding55@gmail.com');
             updateAdminUI();
-            console.log("Logged in:", user.email || "Anonymous", isAdmin ? "(Admin)" : "(Visitor)");
+
+            // If they just logged in as Admin, reload reviews to show Edit/Delete buttons
+            if (isAdmin) loadReviews();
+
+            console.log("Auth State:", user.email || "Anonymous", isAdmin ? "[ADMIN]" : "[VISITOR]");
         } else {
             currentUser = null;
             isAdmin = false;
             updateAdminUI();
-            // Auto-sign in anonymously if logged out
             signInAnonymously(auth);
         }
     });
