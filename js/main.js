@@ -1,3 +1,46 @@
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import {
+    getAuth,
+    signInAnonymously,
+    onAuthStateChanged,
+    signInWithEmailAndPassword,
+    signOut
+} from "firebase/auth";
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    onSnapshot,
+    query,
+    orderBy,
+    serverTimestamp,
+    doc,
+    updateDoc,
+    deleteDoc
+} from "firebase/firestore";
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyBaKx-44S1kzci7svdUMzGXbcQ9aSdLtdw",
+    authDomain: "portfolio-reviews-31ea5.firebaseapp.com",
+    projectId: "portfolio-reviews-31ea5",
+    storageBucket: "portfolio-reviews-31ea5.firebasestorage.app",
+    messagingSenderId: "179982247451",
+    appId: "1:179982247451:web:b8cb608b39728e6cb3fabe",
+    measurementId: "G-Q318KMHD8T"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Global State
+let currentUser = null;
+let isAdmin = false;
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- Prevent Scroll to Hash on Refresh ---
@@ -144,11 +187,25 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentText = '';
     let letter = '';
 
-    // --- One-time Database Cleanup (Clearing old test reviews) ---
-    if (!localStorage.getItem('reviews_cleaned_v2')) {
-        localStorage.removeItem('client_reviews');
-        localStorage.setItem('reviews_cleaned_v2', 'true');
-    }
+    // --- Firebase Auth Initialization ---
+    signInAnonymously(auth).catch((error) => {
+        console.error("Auth Error:", error);
+    });
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUser = user;
+            // Check if user is admin (you can check by UID or custom claim)
+            // For now, we'll use a session flag or check if email exists
+            isAdmin = user.email !== null;
+            updateAdminUI();
+            console.log("Logged in as:", user.uid, isAdmin ? "(Admin)" : "(User)");
+        } else {
+            currentUser = null;
+            isAdmin = false;
+            updateAdminUI();
+        }
+    });
 
     (function type() {
         if (count === texts.length) {
@@ -359,12 +416,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let editingReviewId = null;
 
-    // Identify Visitor (Simple Ownership)
-    let visitorId = localStorage.getItem('visitor_id');
-    if (!visitorId) {
-        visitorId = 'user_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('visitor_id', visitorId);
-    }
+    // Identify Visitor (Handled by Firebase Auth now)
+
 
     // --- Admin Authentication System ---
     const loginModal = document.getElementById('login-modal');
@@ -402,35 +455,29 @@ document.addEventListener('DOMContentLoaded', () => {
     if (loginForm) {
         loginForm.onsubmit = async (e) => {
             e.preventDefault();
-            const user = document.getElementById('admin-user').value;
+            const email = document.getElementById('admin-user').value;
             const pass = document.getElementById('admin-pass').value;
 
             try {
-                const response = await fetch('login.txt');
-                if (!response.ok) throw new Error("Login file not found");
-                const text = await response.text();
-                // Robust parsing: split by any newline, remove empty lines, trim whitespace
-                const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
-
-                if (lines.length < 2) throw new Error("Invalid login file format");
-
-                const storedUser = lines[0];
-                const storedPass = lines[1];
-
-                if (user === storedUser && pass === storedPass) {
-                    isAdmin = true;
-                    sessionStorage.setItem('is_admin', 'true');
-                    loginModal.style.display = 'none';
-                    updateAdminUI();
-                    location.reload(); // Refresh to show all controls
-                } else {
-                    loginError.style.display = 'block';
-                }
+                const userCredential = await signInWithEmailAndPassword(auth, email, pass);
+                isAdmin = true;
+                loginModal.style.display = 'none';
+                updateAdminUI();
+                // Firestore snapshot will handle UI update
             } catch (err) {
                 console.error("Login Error:", err);
+                loginError.style.display = 'block';
+                loginError.innerText = "Invalid credentials or unauthorized.";
             }
         };
     }
+
+    // Expose Logout function
+    window.logoutAdmin = () => {
+        if (confirm("Logout from Admin session?")) {
+            signOut(auth);
+        }
+    };
 
     // Open Modal for New Review
     if (openModalBtn) {
@@ -495,38 +542,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle Review Submission
     if (reviewForm) {
-        reviewForm.onsubmit = function (e) {
+        reviewForm.onsubmit = async function (e) {
             e.preventDefault();
 
             const formData = new FormData(this);
             const reviewData = {
-                id: editingReviewId || 'rev_' + Date.now(),
-                ownerId: editingReviewId ? getReviewOwner(editingReviewId) : visitorId,
                 name: formData.get('name'),
-                project: formData.get('project'),
-                content: formData.get('content'),
-                link: formData.get('link'), // Optional link
-                rating: formData.get('rating'),
-                date: new Date().toLocaleDateString()
+                projectName: formData.get('project'),
+                description: formData.get('content'),
+                link: formData.get('link') || "",
+                rating: parseInt(formData.get('rating')),
+                userId: currentUser.uid,
+                createdAt: serverTimestamp()
             };
 
-            if (editingReviewId) {
-                updateReview(reviewData);
-            } else {
-                saveReview(reviewData);
-                addReviewToGrid(reviewData);
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Processing...";
+
+            try {
+                if (editingReviewId) {
+                    const reviewRef = doc(db, "reviews", editingReviewId);
+                    await updateDoc(reviewRef, {
+                        ...reviewData,
+                        createdAt: serverTimestamp() // Update timestamp on edit? User choice. Let's keep it.
+                    });
+                } else {
+                    await addDoc(collection(db, "reviews"), reviewData);
+                }
+
+                this.reset();
+                reviewModal.style.display = "none";
+                resetStars();
+            } catch (error) {
+                console.error("Error saving review:", error);
+                alert("Failed to save review. " + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = editingReviewId ? "Update Review" : "Submit Review";
+                editingReviewId = null;
             }
-
-            this.reset();
-            reviewModal.style.display = "none";
-            resetStars();
         };
-    }
-
-    function getReviewOwner(id) {
-        let reviews = JSON.parse(localStorage.getItem('client_reviews')) || [];
-        const found = reviews.find(r => r.id === id);
-        return found ? found.ownerId : visitorId;
     }
 
     function addReviewToGrid(review) {
@@ -535,99 +591,92 @@ document.addEventListener('DOMContentLoaded', () => {
         card.setAttribute('data-id', review.id);
 
         let starsHtml = '';
+        const rating = parseInt(review.rating) || 0;
         for (let i = 1; i <= 5; i++) {
-            starsHtml += `<i class="${i <= review.rating ? 'fas' : 'far'} fa-star"></i>`;
+            starsHtml += `<i class="${i <= rating ? 'fas' : 'far'} fa-star"></i>`;
         }
 
-        // Check if current user is owner or admin
-        const canControl = review.ownerId === visitorId || isAdmin;
+        // Check ownership or admin status
+        const isOwner = currentUser && review.userId === currentUser.uid;
+        const canControl = isOwner || isAdmin;
+
         const controlBtns = canControl ? `
             <div class="review-controls">
                 <button title="Edit" class="edit-btn" onclick="openEditModal('${review.id}')"><i class="fas fa-edit"></i></button>
-                <button title="Delete" class="delete-btn" onclick="deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
+                ${isAdmin ? `<button title="Delete" class="delete-btn" onclick="deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>` : ''}
             </div>
         ` : '';
 
         const projectDisplay = review.link
-            ? `<a href="${review.link}" target="_blank" class="review-project-link">${review.project} <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a>`
-            : review.project;
+            ? `<a href="${review.link}" target="_blank" class="review-project-link">${review.projectName} <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a>`
+            : review.projectName;
 
         card.innerHTML = `
             ${controlBtns}
             <div class="review-stars">${starsHtml}</div>
-            <p class="review-text">"${review.content}"</p>
+            <p class="review-text">"${review.description}"</p>
             <div class="review-footer">
                 <span class="client-name">${review.name}</span>
                 <span class="project-tag">${projectDisplay}</span>
             </div>
         `;
 
-        reviewsGrid.prepend(card);
+        reviewsGrid.appendChild(card); // Snapshot is ordered, so we use append
     }
 
-    // Storage Functions
-    function saveReview(review) {
-        let reviews = JSON.parse(localStorage.getItem('client_reviews')) || [];
-        reviews.push(review);
-        localStorage.setItem('client_reviews', JSON.stringify(reviews));
-    }
-
-    function updateReview(updatedReview) {
-        let reviews = JSON.parse(localStorage.getItem('client_reviews')) || [];
-        reviews = reviews.map(r => r.id === updatedReview.id ? updatedReview : r);
-        localStorage.setItem('client_reviews', JSON.stringify(reviews));
-        location.reload(); // Quick refresh to update the grid
-    }
-
-    window.deleteReview = function (id) {
+    // --- Global Methods for HTML (Required for modules) ---
+    window.deleteReview = async function (id) {
+        if (!isAdmin) {
+            alert("Only admin can delete reviews.");
+            return;
+        }
         if (!confirm("Are you sure you want to delete this review?")) return;
-        let reviews = JSON.parse(localStorage.getItem('client_reviews')) || [];
-        reviews = reviews.filter(r => r.id !== id);
-        localStorage.setItem('client_reviews', JSON.stringify(reviews));
-        document.querySelector(`.review-card[data-id="${id}"]`).remove();
+        try {
+            await deleteDoc(doc(db, "reviews", id));
+        } catch (error) {
+            console.error("Delete Error:", error);
+        }
     };
 
-    window.openEditModal = function (id) {
-        let reviews = JSON.parse(localStorage.getItem('client_reviews')) || [];
-        const review = reviews.find(r => r.id === id);
-        if (!review) return;
+    window.openEditModal = async function (id) {
+        // We'll find it in the current data
+        // Actually it's cleaner to just fetch it or pass data
+        const card = document.querySelector(`.review-card[data-id="${id}"]`);
+        if (!card) return;
 
+        // For simplicity, we'll use attributes or find in local cache
+        // But since we want precision, let's keep it simple
         editingReviewId = id;
         if (modalTitle) modalTitle.innerText = "Edit Your Review";
 
-        reviewForm.querySelector('[name="name"]').value = review.name;
-        reviewForm.querySelector('[name="project"]').value = review.project;
-        reviewForm.querySelector('[name="content"]').value = review.content;
-        if (reviewForm.querySelector('[name="link"]')) {
-            reviewForm.querySelector('[name="link"]').value = review.link || '';
-        }
-        setRating(review.rating);
+        // Pre-fill is handled by the state if we had one, but let's grab from UI text
+        const name = card.querySelector('.client-name').innerText;
+        const project = card.querySelector('.review-project-link') ? card.querySelector('.review-project-link').innerText : card.querySelector('.project-tag').innerText;
+        const content = card.querySelector('.review-text').innerText.replace(/"/g, '');
+        const rating = card.querySelectorAll('.review-stars .fas').length;
+
+        reviewForm.querySelector('[name="name"]').value = name;
+        reviewForm.querySelector('[name="project"]').value = project;
+        reviewForm.querySelector('[name="content"]').value = content;
+        setRating(rating);
 
         reviewModal.style.display = "block";
     };
 
     function loadReviews() {
-        let reviews = JSON.parse(localStorage.getItem('client_reviews')) || [];
+        const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
 
-        // Migration: Give IDs and Legacy tags to reviews created before October 2023 System
-        let migrated = false;
-        reviews = reviews.map((r, index) => {
-            if (!r.id) {
-                r.id = 'rev_' + Date.now() + '_' + index;
-                migrated = true;
+        onSnapshot(q, (snapshot) => {
+            reviewsGrid.innerHTML = ""; // Clear grid
+            if (snapshot.empty) {
+                reviewsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5;">No reviews yet. Be the first!</p>';
+                return;
             }
-            if (!r.ownerId) {
-                r.ownerId = 'legacy'; // Admin can still delete these
-                migrated = true;
-            }
-            return r;
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                addReviewToGrid({ id: doc.id, ...data });
+            });
         });
-
-        if (migrated) {
-            localStorage.setItem('client_reviews', JSON.stringify(reviews));
-        }
-
-        reviews.forEach(review => addReviewToGrid(review));
     }
 
     loadReviews();

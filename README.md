@@ -9,7 +9,8 @@ A high-performance, animated portfolio website showcasing expertise in **Python 
 *   **Interactive Review System**:
     *   Full CRUD (Create, Read, Update, Delete) functionality.
     *   Admin moderation mode.
-    *   Star rating system with local storage persistence.
+    *   Global persistence powered by **Firebase Firestore**.
+    *   Anonymous Authentication for secure user identifying.
 *   **Smart Contact Form**:
     *   Integrated country-code selector.
     *   Real-time validation for email validity and phone number structure.
@@ -30,9 +31,9 @@ portfolio/
 ├── css/
 │   └── styles.css   # Global design system & animations
 ├── js/
-│   └── main.js      # Animation logic, validation, & reviews
+│   └── main.js      # Animation logic, validation, & Firebase integration
 ├── assets/          # Static assets (images)
-├── login.txt        # Encrypted local admin credentials (GitIgnored in production)
+├── firestore.rules  # Firestore security configuration
 └── doc_version.txt  # Comprehensive Replication Guide (Prompts)
 ```
 

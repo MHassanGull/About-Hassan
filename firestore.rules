@@ -1,0 +1,20 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /reviews/{reviewId} {
+      // Allow read for everyone
+      allow read: if true;
+      
+      // Allow create if user is authenticated (anonymous counts)
+      allow create: if request.auth != null;
+      
+      // Allow update if the user is the owner of the review
+      // OR if the user is authenticated with an email (Admin)
+      allow update: if (request.auth != null && request.auth.uid == resource.data.userId) 
+                    || (request.auth.token.email != null);
+
+      // Allow delete ONLY if the user is authenticated with an email (Admin)
+      allow delete: if request.auth.token.email != null;
+    }
+  }
+}
