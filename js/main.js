@@ -455,28 +455,20 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    const googleLoginBtn = document.getElementById('google-login-btn');
+    if (loginForm) {
+        loginForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
 
-    if (googleLoginBtn) {
-        googleLoginBtn.onclick = async () => {
-            const provider = new GoogleAuthProvider();
             try {
-                const result = await signInWithPopup(auth, provider);
-                const user = result.user;
-
-                if (user.email === 'projectsbuilding55@gmail.com') {
-                    isAdmin = true;
-                    loginModal.style.display = 'none';
-                    updateAdminUI();
-                } else {
-                    // Not the admin? Sign them out or just show error
-                    // We allow them to stay logged in with Google, but rules will prevent admin actions
-                    loginError.style.display = 'block';
-                }
+                await signInWithEmailAndPassword(auth, email, pass);
+                loginModal.style.display = 'none';
+                updateAdminUI();
             } catch (err) {
-                console.error("Google Login Error:", err);
+                console.error("Login Error:", err);
                 loginError.style.display = 'block';
-                loginError.innerText = "Login failed. Please try again.";
+                loginError.innerText = "Invalid credentials. Please try again.";
             }
         };
     }
@@ -554,6 +546,12 @@ document.addEventListener('DOMContentLoaded', () => {
         reviewForm.onsubmit = async function (e) {
             e.preventDefault();
 
+            if (!currentUser) {
+                alert("Please wait for the connection to stabilize or try again.");
+                signInAnonymously(auth); // Try re-signing in
+                return;
+            }
+
             const formData = new FormData(this);
             const reviewData = {
                 name: formData.get('name'),
@@ -605,9 +603,8 @@ document.addEventListener('DOMContentLoaded', () => {
             starsHtml += `<i class="${i <= rating ? 'fas' : 'far'} fa-star"></i>`;
         }
 
-        // Check ownership or admin status
-        const isOwner = currentUser && review.userId === currentUser.uid;
-        const canControl = isOwner || isAdmin;
+        // Check if Admin
+        const canControl = isAdmin;
 
         const controlBtns = canControl ? `
             <div class="review-controls">

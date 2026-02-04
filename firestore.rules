@@ -5,14 +5,11 @@ service cloud.firestore {
       // 1. Everyone can see reviews
       allow read: if true;
       
-      // 2. Anyone who is signed in (Anonymous or Google) can create a review
+      // 2. Anyone can create a review (if they have an ID from Firebase)
       allow create: if request.auth != null;
       
-      // 3. Edit/Delete Rules:
-      // - You (the Admin) can edit or delete ANY review.
-      // - Regular users can ONLY edit or delete their own reviews (matching UIDs).
-      allow update, delete: if (request.auth != null && request.auth.uid == resource.data.userId) 
-                            || (request.auth.token.email == 'projectsbuilding55@gmail.com');
+      // 3. ONLY the Admin email can Edit or Delete
+      allow update, delete: if request.auth != null && request.auth.token.email == 'projectsbuilding55@gmail.com';
     }
   }
 }
