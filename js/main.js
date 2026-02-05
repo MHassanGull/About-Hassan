@@ -599,6 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'review-card';
         card.setAttribute('data-id', review.id);
+        card.setAttribute('data-link', review.link || '');
 
         let starsHtml = '';
         const rating = parseInt(review.rating) || 0;
@@ -664,12 +665,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Pre-fill is handled by the state if we had one, but let's grab from UI text
         const name = card.querySelector('.client-name').innerText;
         const project = card.querySelector('.review-project-link') ? card.querySelector('.review-project-link').innerText : card.querySelector('.project-tag').innerText;
-        const content = card.querySelector('.review-text').innerText.replace(/"/g, '');
+        const content = card.querySelector('.review-text').innerText.replace(/^"|"$/g, '');
         const rating = card.querySelectorAll('.review-stars .fas').length;
+        const link = card.getAttribute('data-link') || "";
 
         reviewForm.querySelector('[name="name"]').value = name;
         reviewForm.querySelector('[name="project"]').value = project;
         reviewForm.querySelector('[name="content"]').value = content;
+        reviewForm.querySelector('[name="link"]').value = link;
         setRating(rating);
 
         reviewModal.style.display = "block";
