@@ -10,9 +10,15 @@
     <!-- CSS Linked -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="css/theme-engine.css">
+    <link rel="stylesheet" href="css/ai-skill-universe.css">
 
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Animation Libraries for AI Skill Universe -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
 </head>
 
 <body>
@@ -115,24 +121,152 @@
         </div>
     </section>
 
-
-
-    <!-- Skills Section -->
-    <section id="skills" class="skills-section">
+    <!-- Premium Skills Section -->
+    <section id="skills" class="premium-skills-section">
+        <!-- Section title -->
         <div class="section-title animate-ready">
             <h2>Technical Skills</h2>
-            <p>The technologies and tools I work with.</p>
+            <p>Core Expertise in AI Engineering, Automation, and Global Scale Systems</p>
         </div>
-        <div class="skills-grid animate-ready">
-            <!-- Skill Badges -->
-            <div class="skill-badge"><i class="fab fa-python" style="color:#FFD43B;"></i> Python</div>
-            <div class="skill-badge"><i class="fas fa-server" style="color:#092E20;"></i> Django</div>
-            <div class="skill-badge"><i class="fas fa-robot" style="color:#A855F7;"></i> AI Automation</div>
-            <div class="skill-badge"><i class="fas fa-microphone" style="color:#F43F5E;"></i> Voice Agents</div>
-            <div class="skill-badge"><i class="fas fa-chart-line" style="color:#3B82F6;"></i> GoHighLevel</div>
-            <div class="skill-badge"><i class="fas fa-project-diagram" style="color:#EA580C;"></i> n8n Workflows</div>
-            <div class="skill-badge"><i class="fas fa-code" style="color:#10B981;"></i> Python APIs</div>
-            <div class="skill-badge"><i class="fas fa-database" style="color:#64748B;"></i> Backend Dev</div>
+
+        <!-- Skills Grid -->
+        <div class="skills-grid-container">
+            <!-- SVG Lines Background -->
+            <svg id="skills-lines-svg" class="skills-lines-container">
+                <defs>
+                    <linearGradient id="line-pulse-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="0" />
+                        <stop offset="50%" stop-color="var(--accent-primary)" stop-opacity="0.8" />
+                        <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <!-- Gen AI Systems -->
+            <div class="skill-card" data-category="gen-ai">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-brain"></i></div>
+                    <h3>LLM Engineering</h3>
+                    <p>Large Language Model architecture and fine-tuning</p>
+                    <div class="detailed-desc">Expertly architecting and fine-tuning large-scale language models for
+                        specialized domains and high-performance applications.</div>
+                </div>
+            </div>
+            <div class="skill-card" data-category="gen-ai">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-database"></i></div>
+                    <h3>RAG Systems</h3>
+                    <p>Retrieval Augmented Generation architectures</p>
+                    <div class="detailed-desc">Designing high-performance retrieval-augmented architectures with
+                        advanced vector search and precise context injection strategies.</div>
+                </div>
+            </div>
+            <div class="skill-card" data-category="gen-ai">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-robot"></i></div>
+                    <h3>AI Agents</h3>
+                    <p>Autonomous intelligent agent development</p>
+                    <div class="detailed-desc">Building autonomous agents with complex reasoning, tool-use capabilities,
+                        and robust multi-step planning for real-world tasks.</div>
+                </div>
+            </div>
+            <div class="skill-card" data-category="gen-ai">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+                    <h3>Prompt Engineering</h3>
+                    <p>Advanced prompt design and optimization</p>
+                    <div class="detailed-desc">Advanced prompt design utilizing chain-of-thought, few-shot techniques,
+                        and automated evaluation to maximize model output quality.</div>
+                </div>
+            </div>
+
+            <!-- AI Automation -->
+            <div class="skill-card" data-category="automation">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-diagram-project"></i></div>
+                    <h3>Workflow Orchestration</h3>
+                    <p>Complex automation pipeline design</p>
+                    <div class="detailed-desc">Designing resilient automation pipelines that seamlessly connect complex
+                        AI services with existing business logic and distributed systems.</div>
+                </div>
+            </div>
+            <div class="skill-card" data-category="automation">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-network-wired"></i></div>
+                    <h3>n8n Systems</h3>
+                    <p>Advanced workflow automation development</p>
+                    <div class="detailed-desc">Building enterprise-grade automation using advanced n8n workflows, custom
+                        node integrations, and complex data transformation logic.</div>
+                </div>
+            </div>
+            <div class="skill-card" data-category="automation">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-chart-line"></i></div>
+                    <h3>GoHighLevel</h3>
+                    <p>CRM automation and integration</p>
+                    <div class="detailed-desc">Deep integration with CRM systems to automate complex marketing funnels,
+                        sales pipelines, and customer engagement lead flows.</div>
+                </div>
+            </div>
+            <div class="skill-card" data-category="automation">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-plug"></i></div>
+                    <h3>API Integrations</h3>
+                    <p>Seamless third-party service connections</p>
+                    <div class="detailed-desc">Seamlessly connecting distributed systems through high-performance REST
+                        and GraphQL API layers with robust error handling.</div>
+                </div>
+            </div>
+
+            <!-- Backend Engineering -->
+            <div class="skill-card" data-category="backend">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fab fa-python"></i></div>
+                    <h3>Python</h3>
+                    <p>Advanced Python development and architecture</p>
+                    <div class="detailed-desc">Architecting scalable backend solutions with clean, performant, and
+                        maintainable Python codebases and advanced data structures.</div>
+                </div>
+            </div>
+            <div class="skill-card" data-category="backend">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-server"></i></div>
+                    <h3>Django</h3>
+                    <p>Full-stack Django application development</p>
+                    <div class="detailed-desc">Developing feature-rich, secure, and performant full-stack applications
+                        with the robust Django framework and ecosystem.</div>
+                </div>
+            </div>
+            <div class="skill-card" data-category="backend">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-code"></i></div>
+                    <h3>Scalable APIs</h3>
+                    <p>High-performance RESTful and GraphQL APIs</p>
+                    <div class="detailed-desc">Engineering high-traffic API architectures focused on ultra-low latency,
+                        maximum availability, and seamless scalability.</div>
+                </div>
+            </div>
+            <div class="skill-card" data-category="backend">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-database"></i></div>
+                    <h3>Database Architecture</h3>
+                    <p>Optimized data modeling and query design</p>
+                    <div class="detailed-desc">Optimizing complex data models and queries for both traditional
+                        relational databases and high-performance vector search systems.</div>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -311,9 +445,48 @@
             <h2>Contact Me</h2>
             <p>Get in touch for collaborations or freelance work.</p>
         </div>
-        <div class="contact-container animate-ready">
+        <div class="contact-split-container animate-ready">
+            <!-- Left Side: Contact Objective Card -->
+            <div class="contact-objective-card">
+                <h3>Let's Connect</h3>
+                <p class="contact-card-subtitle">Ready to build something amazing together</p>
+
+                <div class="contact-info-items">
+                    <a href="tel:+923036877026" class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">Phone</span>
+                            <span class="contact-value">+92 303 6877026</span>
+                        </div>
+                    </a>
+
+                    <a href="mailto:muhammadhassan.9677@gmail.com" class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">Email</span>
+                            <span class="contact-value">muhammadhassan.9677@gmail.com</span>
+                        </div>
+                    </a>
+
+                    <a href="https://www.linkedin.com/in/muhammadhassan00/" target="_blank" class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">LinkedIn</span>
+                            <span class="contact-value">Muhammad Hassan</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Side: Contact Form -->
             <form id="contact-form" class="contact-form">
-                <!-- Web3Forms Access Key - GET YOUR KEY AT https://web3forms.com/ -->
+                <!-- Web3Forms Access Key -->
                 <input type="hidden" name="access_key" value="1e8ee232-587b-40f2-9e5d-cde7cf815432">
                 <input type="hidden" name="subject" value="New Submission from Portfolio">
 
@@ -349,7 +522,9 @@
                     <label for="message">Message</label>
                     <textarea id="message" name="message" rows="5" placeholder="Your Message" required></textarea>
                 </div>
-                <button type="submit" class="btn" style="width:100%">Send Message</button>
+                <button type="submit" class="btn contact-submit-btn">
+                    <span>Send Message</span>
+                </button>
                 <div class="success-message">
                     <i class="fas fa-check-circle"></i> Message Sent Successfully!
                 </div>
@@ -372,13 +547,14 @@
             <a href="mailto:muhammadhassan.9677@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
         </div>
         <p>&copy; 2026 Hassan. All rights reserved.</p>
-        <p style="font-size:0.8rem; margin-top:10px; opacity:0.6;">+92-3036877026</p>
     </footer>
+
 
     <!-- Theme Engine (BEFORE main.js) -->
     <script src="js/theme-manager.js"></script>
     <script src="js/theme-picker.js"></script>
     <script src="js/hero-background.js"></script>
+    <script src="js/ai-skill-universe.js"></script>
 
     <!-- Firebase SDK (Modular) -->
     <script type="importmap">
@@ -397,4 +573,3 @@
 </body>
 
 </html>
-```

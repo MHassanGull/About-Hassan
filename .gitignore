@@ -4,3 +4,5 @@ doc_version.txt
 node_modules/
 dist/
 .env
+my_website.txt
+portfolio_info.txt

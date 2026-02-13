@@ -55,15 +55,17 @@ document.addEventListener('DOMContentLoaded', () => {
         window.history.replaceState('', document.title, window.location.pathname + window.location.search);
     }
 
-    // --- Background Canvas Animation (Mouse Following Lines) ---
+    // --- Background Canvas Animation (Optimized) ---
     const canvas = document.getElementById('bg-canvas');
     if (canvas) {
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { alpha: true });
         let particles = [];
         let mouse = { x: null, y: null };
+        let isActive = true;
+        let animationFrameId = null;
 
         // Theme-aware particle color
-        let particleColor = 'rgba(99, 102, 241, 0.4)'; // Default
+        let particleColor = 'rgba(99, 102, 241, 0.4)';
 
         const updateParticleColor = () => {
             const style = getComputedStyle(document.documentElement);
@@ -71,42 +73,38 @@ document.addEventListener('DOMContentLoaded', () => {
             if (color) particleColor = color;
         };
 
-        // Update color on theme change
         window.addEventListener('themechange', updateParticleColor);
-        // Also update on load
         updateParticleColor();
 
         const resize = () => {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            updateParticleColor(); // Ensure color is correct after resize/layout refresh
+            updateParticleColor();
         };
 
-        window.addEventListener('resize', resize);
+        // Throttled resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resize, 200);
+        });
         resize();
 
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
-            for (let i = 0; i < 2; i++) {
-                particles.push(new Particle(e.x, e.y));
+        // Optimized Mouse/Touch tracking
+        const handlePointer = (x, y, count) => {
+            mouse.x = x;
+            mouse.y = y;
+            if (isActive) {
+                for (let i = 0; i < count; i++) {
+                    particles.push(new Particle(x, y));
+                }
             }
-        });
+        };
 
-        window.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 0) {
-                mouse.x = e.touches[0].clientX;
-                mouse.y = e.touches[0].clientY;
-            }
-        }, { passive: true });
-
+        window.addEventListener('mousemove', (e) => handlePointer(e.clientX, e.clientY, 2), { passive: true });
         window.addEventListener('touchmove', (e) => {
             if (e.touches.length > 0) {
-                mouse.x = e.touches[0].clientX;
-                mouse.y = e.touches[0].clientY;
-                for (let i = 0; i < 1; i++) {
-                    particles.push(new Particle(mouse.x, mouse.y));
-                }
+                handlePointer(e.touches[0].clientX, e.touches[0].clientY, 1);
             }
         }, { passive: true });
 
@@ -114,11 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
             constructor(x, y) {
                 this.x = x || Math.random() * canvas.width;
                 this.y = y || Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.speedX = (Math.random() - 0.5) * 2;
-                this.speedY = (Math.random() - 0.5) * 2;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 1.5;
+                this.speedY = (Math.random() - 0.5) * 1.5;
                 this.life = 100;
-                // Use current dynamic color
                 this.color = particleColor;
             }
             update() {
@@ -128,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.life--;
             }
             draw() {
-                ctx.fillStyle = this.color; // Use instance color (snapshot at creation)
+                ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
@@ -136,49 +133,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const animate = () => {
+            if (!isActive) return;
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (particles.length > 100) particles.shift();
+
+            // Limit max particles for performance
+            if (particles.length > 150) particles.shift();
+
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
                 particles[i].draw();
+
                 const dx = mouse.x - particles[i].x;
                 const dy = mouse.y - particles[i].y;
                 const distance = Math.sqrt(dx * dx + dy * dy);
-                if (distance < 150) {
-                    // Use dynamic color for lines too (fade out based on distance)
-                    // We need to extract RGB from the rgba string to handle opacity correctly
-                    // Or cheat and just use the particleColor variable but manipulate opacity if possible.
-                    // Simple approach: Use the global current color but apply distance opacity
-                    // Since particleColor is normally rgba(r,g,b, a), we can try to replace the alpha
 
-                    // Helper to inject alpha into the current color string
+                if (distance < 120) {
+                    let alpha = 0.15 * (1 - distance / 120);
                     let colorWithAlpha = particleColor;
-                    if (particleColor.startsWith('rgba')) {
-                        colorWithAlpha = particleColor.replace(/[\d\.]+\)$/g, `${0.2 * (1 - distance / 150)})`);
-                    } else if (particleColor.startsWith('rgb')) {
-                        colorWithAlpha = particleColor.replace(')', `, ${0.2 * (1 - distance / 150)})`).replace('rgb', 'rgba');
+
+                    if (particleColor.includes('rgba')) {
+                        colorWithAlpha = particleColor.replace(/[\d\.]+\)$/g, `${alpha})`);
                     } else {
-                        // Fallback for hex or others (browser converts computed style to rgb/rgba mostly)
-                        // If it's hex, just use it as is, opacity might not work perfectly without conversion
-                        // But Antigravity engine uses rgba variables for particles, so we are good.
-                        colorWithAlpha = particleColor;
+                        colorWithAlpha = particleColor.replace('rgb', 'rgba').replace(')', `, ${alpha})`);
                     }
 
                     ctx.strokeStyle = colorWithAlpha;
-                    ctx.lineWidth = 1;
+                    ctx.lineWidth = 0.8;
                     ctx.beginPath();
                     ctx.moveTo(particles[i].x, particles[i].y);
                     ctx.lineTo(mouse.x, mouse.y);
                     ctx.stroke();
                 }
+
                 if (particles[i].life <= 0) {
                     particles.splice(i, 1);
                     i--;
                 }
             }
-            requestAnimationFrame(animate);
+            animationFrameId = requestAnimationFrame(animate);
         };
-        animate();
+
+        // Intersection Observer to stop animation when not in viewport
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                isActive = entry.isIntersecting;
+                if (isActive) {
+                    animate();
+                } else {
+                    cancelAnimationFrame(animationFrameId);
+                }
+            });
+        }, { threshold: 0.01 });
+
+        observer.observe(canvas);
     }
 
     // --- Typing Effect ---
@@ -197,13 +205,9 @@ document.addEventListener('DOMContentLoaded', () => {
     onAuthStateChanged(auth, (user) => {
         if (user) {
             currentUser = user;
-            // Detect if this user is the Admin
             isAdmin = (user.email === 'projectsbuilding55@gmail.com');
             updateAdminUI();
-
-            // If they just logged in as Admin, reload reviews to show Edit/Delete buttons
             if (isAdmin) loadReviews();
-
             console.log("Auth State:", user.email || "Anonymous", isAdmin ? "[ADMIN]" : "[VISITOR]");
         } else {
             currentUser = null;
@@ -213,7 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    (function type() {
+    let typingActive = true;
+    function type() {
+        if (!typingActive) return;
         if (count === texts.length) {
             count = 0;
         }
@@ -226,21 +232,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (letter.length === currentText.length) {
             setTimeout(() => {
-                // Delete effect (optional) or just wait
-                // specific implementation for simple typing forward then clearing
                 count++;
                 index = 0;
-                // A small pause before typing next
+                if (typingActive) type();
             }, 2000);
-            // To make it delete, we would need a delete loop. 
-            // Let's keep it simple: clear and start next after 2s
+        } else {
+            let speed = 100;
+            setTimeout(type, speed);
         }
+    }
 
-        let speed = 100;
-        if (letter.length === currentText.length) speed = 2000;
+    const typeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            typingActive = entry.isIntersecting;
+            if (typingActive) type();
+        });
+    }, { threshold: 0.1 });
 
-        setTimeout(type, speed);
-    })();
+    if (textElement) {
+        typeObserver.observe(textElement.closest('section') || textElement);
+    }
 
 
     // --- Mobile Menu Toggle ---
