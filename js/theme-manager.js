@@ -24,7 +24,7 @@ const AntigravityThemes = (() => {
     ];
 
     const STORAGE_KEY = 'antigravity-theme';
-    let currentTheme = 'default';
+    let currentTheme = 'deep-black';
 
     /**
      * Initialize the theme system
@@ -47,14 +47,9 @@ const AntigravityThemes = (() => {
      * Load theme from localStorage
      */
     function loadTheme() {
-        try {
-            const saved = localStorage.getItem(STORAGE_KEY);
-            if (saved && THEMES.find(t => t.id === saved)) {
-                applyTheme(saved, false);
-            }
-        } catch (error) {
-            console.warn('Failed to load theme from localStorage:', error);
-        }
+        // Disabled per user request for non-permanent default
+        console.log('ℹ️ Theme persistence is disabled. Defaulting to Black.');
+        applyTheme('deep-black', false);
     }
 
     /**
@@ -79,7 +74,8 @@ const AntigravityThemes = (() => {
 
         currentTheme = themeId;
 
-        // Save to localStorage
+        // Save to localStorage (Disabled per user request)
+        /*
         if (save) {
             try {
                 localStorage.setItem(STORAGE_KEY, themeId);
@@ -87,6 +83,7 @@ const AntigravityThemes = (() => {
                 console.warn('Failed to save theme to localStorage:', error);
             }
         }
+        */
 
         // Dispatch custom event for advanced integrations
         window.dispatchEvent(new CustomEvent('themechange', {
