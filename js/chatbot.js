@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setLoading(true);
 
         try {
+            // Production fetch with explicit HTTPS absolute URL
             const response = await fetch(API_URL, {
                 method: 'POST',
                 headers: {
@@ -75,10 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             });
 
-            // Debug log for production connectivity
-            console.log("Chatbot API Response:", response);
+            // Log status code for connectivity diagnosis
+            console.log("Chatbot API Response Status:", response.status);
 
             if (!response.ok) {
+                // Log raw error body for detailed troubleshooting
+                const errorBody = await response.text();
+                console.error("Chatbot API Error Body:", errorBody);
+
                 if (response.status === 429 || response.status === 503) {
                     throw new Error("AI service limit reached. Please try again later.");
                 }
@@ -100,7 +105,8 @@ document.addEventListener('DOMContentLoaded', () => {
             appendMessage('ai', aiText);
 
         } catch (error) {
-            console.error('Chatbot Error:', error);
+            // Detailed fetch exception logging (CORS, network, etc.)
+            console.error('Chatbot Fetch Exception:', error);
             setLoading(false);
 
             // Check for specific rate-limit error message
