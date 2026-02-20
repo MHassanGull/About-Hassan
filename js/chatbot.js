@@ -6,7 +6,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // UI Elements
     const chatTrigger = document.getElementById('chat-trigger');
-    const chatWidget = document.getElementById('chat-widget');
+    const chatbotWidget = document.getElementById('chat-widget');
     const chatClose = document.getElementById('chat-close');
     const chatMessages = document.getElementById('chat-messages');
     const chatForm = document.getElementById('chat-form');
@@ -14,56 +14,76 @@ document.addEventListener('DOMContentLoaded', () => {
     const typingIndicator = document.getElementById('typing-indicator');
     const sendBtn = document.getElementById('chat-send-btn');
 
-    const API_ENDPOINT = 'https://hassankhan00-ai-assistant.hf.space/chat';
+    // --- Configuration ---
+    const API_URL = 'https://hassankhan00-ai-assistant.hf.space/chat';
+    const SESSION_KEY = 'ai_session_id';
+    let isTyping = false;
 
-    // Toggle Chat
-    chatTrigger.addEventListener('click', () => {
-        chatWidget.classList.toggle('active');
-        chatTrigger.classList.remove('idle');
+    /**
+     * Initializes or retrieves the session ID from localStorage
+     */
+    function getSessionId() {
+        let sessionId = localStorage.getItem(SESSION_KEY);
+        if (!sessionId) {
+            sessionId = crypto.randomUUID();
+            localStorage.setItem(SESSION_KEY, sessionId);
+        }
+        return sessionId;
+    }
 
-        if (chatWidget.classList.contains('active')) {
+    /**
+     * Toggles the chatbot widget visibility
+     */
+    function toggleChat() {
+        const isActive = chatbotWidget.classList.toggle('active');
+        chatTrigger.classList.toggle('idle', !isActive);
+
+        if (isActive) {
             chatInput.focus();
             // Initial welcome message if empty
-            if (chatMessages.children.length === 1) { // Only typing indicator exists
+            if (chatMessages.querySelectorAll('.message-bubble').length === 0) {
                 setTimeout(() => {
                     appendMessage('ai', "Hi! I'm Hassan's AI assistant. How can I help you today?");
                 }, 500);
             }
-        } else {
-            chatTrigger.classList.add('idle');
         }
-    });
+    }
 
-    chatClose.addEventListener('click', () => {
-        chatWidget.classList.remove('active');
-        chatTrigger.classList.add('idle');
-    });
-
-    // Send Message
-    chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    /**
+     * Sends a message to the AI assistant
+     */
+    async function sendMessage() {
         const message = chatInput.value.trim();
+        if (!message || isTyping) return;
 
-        if (!message) return;
-
-        // UI Update: User Message
+        // Add user message to UI
         appendMessage('user', message);
         chatInput.value = '';
 
-        // Show Loading
+        // Show typing indicator
         setLoading(true);
 
         try {
-            const response = await fetch(API_ENDPOINT, {
+            const response = await fetch(API_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({
                     question: message,
-                    session_id: getSessionId() // Include session ID
+                    session_id: getSessionId()
                 })
             });
 
-            if (!response.ok) throw new Error('API Error');
+            // Debug log for production connectivity
+            console.log("Chatbot API Response:", response);
+
+            if (!response.ok) {
+                if (response.status === 429 || response.status === 503) {
+                    throw new Error("AI service limit reached. Please try again later.");
+                }
+                throw new Error(`API error: ${response.status}`);
+            }
 
             const data = await response.json();
 
@@ -72,16 +92,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.setItem(SESSION_KEY, data.session_id);
             }
 
-            const cleanResponse = processAIResponse(data.response);
+            // Extract and clean AI response
+            const aiText = processAIResponse(data.response);
 
-            appendMessage('ai', cleanResponse);
-        } catch (error) {
-            console.error('Chat Error:', error);
-            appendMessage('ai', "Sorry, I'm having trouble connecting right now. Please try again later.");
-        } finally {
+            // Hide loading and append AI message
             setLoading(false);
+            appendMessage('ai', aiText);
+
+        } catch (error) {
+            console.error('Chatbot Error:', error);
+            setLoading(false);
+
+            // Check for specific rate-limit error message
+            const displayMessage = error.message.includes("limit reached")
+                ? error.message
+                : "I'm having trouble connecting to the AI assistant. Please try again in a moment.";
+
+            appendMessage('ai', displayMessage);
         }
-    });
+    }
 
     /**
      * Appends a message bubble to the chat area
@@ -107,22 +136,15 @@ document.addEventListener('DOMContentLoaded', () => {
      * Clean and truncate AI response based on rules
      */
     function processAIResponse(text) {
-        if (!text) return "...";
+        if (!text) return "I'm sorry, I couldn't process that.";
 
         // 1. Remove <think> and reasoning blocks
         let clean = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
 
-        // 2. Remove other common reasoning markers or long explanations
-        clean = clean.split('\n')[0]; // Take only the first line
-
-        // 3. Truncate if still too long (ensure it's a short clean sentence)
-        if (clean.length > 150) {
-            const index = clean.indexOf('.', 100);
-            if (index !== -1 && index < 180) {
-                clean = clean.substring(0, index + 1);
-            } else {
-                clean = clean.substring(0, 147) + "...";
-            }
+        // 2. Format as a single clean sentence if it's very long
+        if (clean.length > 300) {
+            const firstSnippet = clean.split(/[.!?]/)[0];
+            clean = firstSnippet ? firstSnippet + '.' : clean.substring(0, 297) + '...';
         }
 
         return clean || "I'm here to help!";
@@ -132,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Toggle loading state
      */
     function setLoading(isLoading) {
+        isTyping = isLoading;
         if (isLoading) {
             typingIndicator.style.display = 'block';
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -144,4 +167,24 @@ document.addEventListener('DOMContentLoaded', () => {
             chatInput.focus();
         }
     }
+
+    // --- Event Listeners ---
+    chatTrigger.addEventListener('click', toggleChat);
+    chatClose.addEventListener('click', toggleChat);
+
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        sendMessage();
+    });
+
+    // Enter key also sends message
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    console.log('🤖 Chatbot initialized in production mode');
 });
+
