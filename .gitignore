@@ -6,3 +6,9 @@ dist/
 .env
 my_website.txt
 portfolio_info.txt
+
+# AI Assistant Environment
+ai-assistant/.env
+ai-assistant/.venv/
+**/__pycache__/
+*.pyc

@@ -19,12 +19,11 @@ const AntigravityThemes = (() => {
         { id: 'calming-blues', name: 'Ocean', color: '#dbeafe' },
         { id: 'earthy-greens', name: 'Leaf', color: '#d1fae5' },
         { id: 'soft-warm-tones', name: 'Rose', color: '#ffe4e6' },
-        { id: 'pure-white', name: 'White', color: '#ffffff' },
-        { id: 'deep-black', name: 'Black', color: '#000000' }
+        { id: 'pure-white', name: 'White', color: '#ffffff' }
     ];
 
     const STORAGE_KEY = 'antigravity-theme';
-    let currentTheme = 'deep-black';
+    let currentTheme = 'default';
 
     /**
      * Initialize the theme system
@@ -48,8 +47,8 @@ const AntigravityThemes = (() => {
      */
     function loadTheme() {
         // Disabled per user request for non-permanent default
-        console.log('ℹ️ Theme persistence is disabled. Defaulting to Black.');
-        applyTheme('deep-black', false);
+        console.log('ℹ️ Theme persistence is disabled. Defaulting to Dark.');
+        applyTheme('default', false);
     }
 
     /**
