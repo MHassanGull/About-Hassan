@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Portfolio Assistant - RAG Chatbot Architecture & Details">
+    <title>AI Portfolio Assistant | Project Details</title>
+
+    <!-- CSS Linked -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/theme-engine.css">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <link rel="stylesheet" href="css/chatbot-detail.css">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body class="detail-body">
+
+    <!-- Navigation (Simplified or Same as Index) -->
+    <header>
+        <div class="logo"><a href="index.html">MH.</a></div>
+        <ul class="nav-links">
+            <li><a href="index.html#home">Home</a></li>
+            <li><a href="index.html#projects">Projects</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+
+        <!-- Theme Picker -->
+        <div class="theme-picker-wrapper">
+            <button class="theme-picker-toggle" aria-label="Change Theme" title="Change Theme">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M12 1v6m0 6v6m9.66-9.66l-4.24 4.24m-6.84 0l-4.24-4.24M23 12h-6m-6 0H1m20.66 9.66l-4.24-4.24m-6.84 0l-4.24 4.24">
+                    </path>
+                </svg>
+            </button>
+            <div class="theme-picker-dropdown">
+                <div class="theme-picker-grid" id="theme-picker-grid"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- SECTION 1 — Hero Section -->
+    <section class="hero-detail animate-ready">
+        <h1>AI Portfolio Assistant — End-to-End Architecture</h1>
+        <p>A full-stack, production-grade Retrieval-Augmented Generation (RAG) chatbot designed to engage users and
+            provide dynamic responses based on my professional background.</p>
+    </section>
+
+    <!-- SECTION 2 — Problem & Solution -->
+    <section class="detail-section animate-ready">
+        <div class="section-title">
+            <h2>Problem & Solution</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+            <div class="tech-card">
+                <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
+                <h3>The Problem</h3>
+                <p>Static portfolios often fail to engage visitors effectively. Users may have specific questions about
+                    a developer's experience or skills that aren't immediately obvious from a list of bullet points.</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                <h3>The Solution</h3>
+                <p>An AI-powered assistant that uses RAG to answer questions dynamically. By retrieving context from my
+                    specific data, it provides accurate, personalized information 24/7.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3 — Architecture Flow Diagram -->
+    <section class="detail-section animate-ready">
+        <div class="section-title">
+            <h2>Architecture Flow</h2>
+            <p>A visual representation of the data flow from user query to AI response.</p>
+        </div>
+
+        <div class="architecture-container">
+            <!-- Row 1: Input Phase (Horizontal) -->
+            <div class="flow-step step-user step-item-1">
+                <i class="fas fa-user"></i>
+                <h4>User Query</h4>
+                <p>Natural Language Input</p>
+            </div>
+
+            <div class="flow-arrow arrow-right arrow-1-2">
+                <i class="fas fa-long-arrow-alt-down"></i>
+            </div>
+
+            <div class="flow-step step-frontend step-item-2">
+                <i class="fas fa-code"></i>
+                <h4>Frontend Client</h4>
+                <p>GitHub Pages (JS)</p>
+            </div>
+
+            <!-- Transition to Processing -->
+            <div class="flow-arrow arrow-down arrow-2-3">
+                <i class="fas fa-long-arrow-alt-down"></i>
+            </div>
+
+            <!-- Row 3: Backend & RAG Phase (Backwards Horizontal) -->
+            <div class="flow-step step-backend step-item-3">
+                <i class="fas fa-server"></i>
+                <h4>FastAPI API</h4>
+                <p>HuggingFace Spaces</p>
+            </div>
+
+            <div class="flow-arrow arrow-left arrow-3-4">
+                <i class="fas fa-long-arrow-alt-down"></i>
+            </div>
+
+            <div class="flow-step step-memory step-item-4">
+                <i class="fas fa-database"></i>
+                <h4>Vector Search</h4>
+                <p>Pinecone Semantic DB</p>
+            </div>
+
+            <!-- Transition to AI -->
+            <div class="flow-arrow arrow-down arrow-4-5">
+                <i class="fas fa-long-arrow-alt-down"></i>
+            </div>
+
+            <!-- Final Row: AI & Output -->
+            <div class="flow-step step-hf step-item-5">
+                <i class="fas fa-brain"></i>
+                <h4>AI Inference Engine</h4>
+                <p>Retrieval-Augmented SmolLM-3B Generation & Clean Response</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4 — Technologies Used -->
+    <section class="detail-section animate-ready">
+        <div class="section-title">
+            <h2>Technologies Used</h2>
+        </div>
+        <div class="tech-grid">
+            <div class="tech-card">
+                <i class="fas fa-bolt"></i>
+                <h4>FastAPI</h4>
+                <p>High-performance Python API framework</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-tree"></i>
+                <h4>Pinecone</h4>
+                <p>Vector database for semantic search</p>
+            </div>
+            <div class="tech-card">
+                <i class="fab fa-hugging-face"></i>
+                <h4>HuggingFace</h4>
+                <p>Model hosting and LLM inference</p>
+            </div>
+            <div class="tech-card">
+                <i class="fas fa-language"></i>
+                <h4>SentenceTransformers</h4>
+                <p>State-of-the-art text embeddings</p>
+            </div>
+            <div class="tech-card">
+                <i class="fab fa-docker"></i>
+                <h4>Docker</h4>
+                <p>Containerized deployment</p>
+            </div>
+            <div class="tech-card">
+                <i class="fab fa-github"></i>
+                <h4>GitHub Pages</h4>
+                <p>Static frontend hosting</p>
+            </div>
+            <div class="tech-card">
+                <i class="fab fa-js"></i>
+                <h4>JavaScript Fetch</h4>
+                <p>Asynchronous API communication</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5 — Deployment Details -->
+    <section class="detail-section animate-ready">
+        <div class="section-title">
+            <h2>Deployment Details</h2>
+        </div>
+        <div class="tech-card" style="text-align: left;">
+            <h3>Backend Deployment</h3>
+            <ul>
+                <li><strong>Docker:</strong> The entire backend is containerized for consistency.</li>
+                <li><strong>HuggingFace Spaces:</strong> Provides the infrastructure for running the GPU-accelerated
+                    LLM.</li>
+                <li><strong>Endpoint:</strong> <a href="https://hassankhan00-ai-assistant.hf.space/chat" target="_blank"
+                        style="color: var(--accent-primary);">https://hassankhan00-ai-assistant.hf.space/chat</a></li>
+            </ul>
+            <h3 style="margin-top: 30px;">Frontend Deployment</h3>
+            <ul>
+                <li><strong>GitHub Pages:</strong> Hosts the static portfolio and the chatbot client.</li>
+                <li><strong>Fetch API:</strong> Handles real-time communication with the HF endpoint.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- SECTION 6 — Live Links -->
+    <section class="detail-section animate-ready" style="text-align: center; padding-bottom: 10px;">
+        <div class="section-title">
+            <h2>Live Links</h2>
+        </div>
+        <div class="live-links-container">
+            <a href="https://www.linkedin.com/posts/muhammadhassan00_webdevelopment-chatbotdevelopment-businessautomation-ugcPost-7431990886911283201-xTti"
+                target="_blank" class="link-btn btn-linkedin">
+                <i class="fab fa-linkedin"></i> LinkedIn Video Demo
+            </a>
+            <a href="https://github.com/MHassanGull/ai-assistant" target="_blank" class="link-btn btn-github">
+                <i class="fab fa-github"></i> GitHub Repository
+            </a>
+        </div>
+    </section>
+
+    <!-- SECTION 7 — Key Features -->
+    <section class="detail-section animate-ready" style="padding-top: 10px;">
+        <div class="section-title">
+            <h2>Key Features</h2>
+        </div>
+        <div class="tech-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <div class="tech-card" style="text-align: left;">
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 15px;"><i class="fas fa-check"
+                            style="color: var(--accent-primary); margin-right: 10px;"></i> Multi-page website crawler
+                    </li>
+                    <li style="margin-bottom: 15px;"><i class="fas fa-check"
+                            style="color: var(--accent-primary); margin-right: 10px;"></i> Retrieval-Augmented
+                        Generation</li>
+                    <li style="margin-bottom: 15px;"><i class="fas fa-check"
+                            style="color: var(--accent-primary); margin-right: 10px;"></i> Pinecone semantic search</li>
+                    <li style="margin-bottom: 15px;"><i class="fas fa-check"
+                            style="color: var(--accent-primary); margin-right: 10px;"></i> Session-based memory</li>
+                    <li style="margin-bottom: 15px;"><i class="fas fa-check"
+                            style="color: var(--accent-primary); margin-right: 10px;"></i> Rate limiting enforcement
+                    </li>
+                    <li style="margin-bottom: 15px;"><i class="fas fa-check"
+                            style="color: var(--accent-primary); margin-right: 10px;"></i> Clean reasoning stripping
+                    </li>
+                    <li style="margin-bottom: 15px;"><i class="fas fa-check"
+                            style="color: var(--accent-primary); margin-right: 10px;"></i> Dockerized backend</li>
+                    <li style="margin-bottom: 15px;"><i class="fas fa-check"
+                            style="color: var(--accent-primary); margin-right: 10px;"></i> Public HTTPS API</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 8 — Professional Conclusion -->
+    <section class="detail-section animate-ready" style="text-align: center; padding-bottom: 60px;">
+        <p style="font-size: 1.5rem; font-weight: 500; font-style: italic;">
+            "AI-focused Full-Stack Engineer building scalable intelligent systems."
+        </p>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 <a href="https://www.linkedin.com/in/muhammadhassan00/" target="_blank"
+                class="copyright-link">Hassan</a>. All rights reserved.</p>
+    </footer>
+
+    <!-- Scripts (Maintaining Theme Consistency) -->
+    <script src="js/theme-manager.js"></script>
+    <script src="js/theme-picker.js"></script>
+
+    <script>
+        // Simple scroll animation trigger for detail page
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-ready').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>
