@@ -45,12 +45,38 @@
             });
 
             this.setupScrollTrigger();
+            this.setupMobileToggle();
             if (!this.isMobile) {
                 this.setupCursorParallax();
                 // Delay initial line drawing to ensure layout is stable
                 setTimeout(() => this.updateLines(), 500);
             }
             this.setupResizeHandler();
+        }
+
+        setupMobileToggle() {
+            this.cards.forEach(card => {
+                card.addEventListener('click', (e) => {
+                    if (window.innerWidth < 768) {
+                        const isActive = card.classList.contains('active');
+
+                        // Close all other cards
+                        this.cards.forEach(c => c.classList.remove('active'));
+
+                        // Toggle current card
+                        if (!isActive) {
+                            card.classList.add('active');
+                        }
+                    }
+                });
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.skill-card')) {
+                    this.cards.forEach(c => c.classList.remove('active'));
+                }
+            });
         }
 
         setupScrollTrigger() {
