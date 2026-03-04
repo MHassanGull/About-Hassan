@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /reviews/{reviewId} {
+      // Allow reading for everyone
+      allow read: if true;
+      
+      // Allow creation for anyone (we want visitors to be able to post)
+      allow create: if true;
+      
+      // ONLY the specific Admin email can Update or Delete
+      allow update, delete: if request.auth != null && request.auth.token.email == 'projectsbuilding55@gmail.com';
+    }
+  }
+}

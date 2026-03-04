@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Hassan - Python Django & AI Automation Developer Portfolio">
+    <title>Hassan | AI & Django Developer</title>
+
+    <!-- CSS Linked -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/theme-engine.css">
+    <link rel="stylesheet" href="css/ai-skill-universe.css">
+    <link rel="stylesheet" href="css/chatbot.css">
+    <link rel="stylesheet" href="css/chatbot-detail.css">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Animation Libraries for AI Skill Universe -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+</head>
+
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Navigation -->
+    <header>
+        <div class="logo">MH.</div>
+        <ul class="nav-links">
+            <li><a href="#home" class="active">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#reviews">Reviews</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><button id="admin-login-btn" class="login-nav-btn"><i class="fas fa-lock"></i> Login</button></li>
+        </ul>
+
+        <!-- Theme Picker -->
+        <div class="theme-picker-wrapper">
+            <button class="theme-picker-toggle" aria-label="Change Theme" title="Change Theme">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path
+                        d="M12 1v6m0 6v6m9.66-9.66l-4.24 4.24m-6.84 0l-4.24-4.24M23 12h-6m-6 0H1m20.66 9.66l-4.24-4.24m-6.84 0l-4.24 4.24">
+                    </path>
+                </svg>
+            </button>
+            <div class="theme-picker-dropdown">
+                <div class="theme-picker-header">
+                    <h4>Choose Theme</h4>
+                </div>
+                <div class="theme-picker-grid" id="theme-picker-grid"></div>
+            </div>
+        </div>
+
+        <div class="hamburger">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <!-- Advanced Interactive Background -->
+        <canvas id="hero-gradient-canvas" class="hero-animated-bg"></canvas>
+
+        <div class="hero-content animate-ready">
+            <h1>Hi, I'm <span>Hassan</span></h1>
+            <span class="typewriter-text"></span>
+            <p style="color:var(--text-muted); margin-bottom:30px;">
+                Building scalable web applications and intelligent AI automation systems.
+            </p>
+            <div class="hero-btns">
+                <a href="#projects" class="btn">View My Work</a>
+                <a href="#contact" class="btn btn-outline">Contact Me</a>
+            </div>
+        </div>
+        <div class="scroll-down">
+            <i class="fas fa-chevron-down"></i>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="section-title animate-ready">
+            <h2>About Me</h2>
+            <p>Get to know who I am and what I do.</p>
+        </div>
+        <div class="about-container animate-ready">
+            <div class="about-img animate-ready">
+                <div class="profile-frame">
+                    <div class="profile-glow"></div>
+                    <div class="profile-orbit-1"></div>
+                    <div class="profile-orbit-2"></div>
+                    <div class="profile-img-inner">
+                        <img src="assets/hassan-profile.jpg" alt="Hassan">
+                    </div>
+                </div>
+            </div>
+            <div class="about-text">
+                <h3>I'm a Python Django & AI Automation Developer</h3>
+                <p>
+                    I specialize in building robust backend systems using Python and Django, and integrating
+                    cutting-edge AI automation solutions using tools like n8n and Voice Agents.
+                    With a passion for efficiency and innovation, I help businesses streamline their workflows and
+                    create intelligent digital experiences.
+                </p>
+                <p>
+                    My expertise extends to CRM integrations (GoHighLevel), API development, and creating custom
+                    automation workflows that save time and reduce manual effort.
+                </p>
+                <div style="margin-top:20px;">
+                    <a href="#contact" class="btn">Let's Talk</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Premium Skills Section -->
+    <section id="skills" class="premium-skills-section">
+        <!-- Section title -->
+        <div class="section-title animate-ready">
+            <h2>Technical Skills</h2>
+            <p>Core Expertise in AI Engineering, Automation, and Global Scale Systems</p>
+        </div>
+
+        <!-- Skills Grid -->
+        <div class="skills-grid-container">
+            <!-- SVG Lines Background -->
+            <svg id="skills-lines-svg" class="skills-lines-container">
+                <defs>
+                    <linearGradient id="line-pulse-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="var(--accent-primary)" stop-opacity="0" />
+                        <stop offset="50%" stop-color="var(--accent-primary)" stop-opacity="0.8" />
+                        <stop offset="100%" stop-color="var(--accent-primary)" stop-opacity="0" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <!-- 1. Voice AI & Real-Time Agents -->
+            <div class="skill-card" data-category="voice-ai" tabindex="0">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-microphone-lines"></i></div>
+                    <h3>Voice AI & Agents</h3>
+                    <p>Real-time conversational voice systems</p>
+                    <ul class="skills-list">
+                        <li>Retell AI</li>
+                        <li>Vapi</li>
+                        <li>LiveKit</li>
+                        <li>Conversational AI Systems</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 2. Backend Engineering -->
+            <div class="skill-card" data-category="backend" tabindex="0">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fab fa-python"></i></div>
+                    <h3>Backend Engineering</h3>
+                    <p>Robust Python-based server architectures</p>
+                    <ul class="skills-list">
+                        <li>Django</li>
+                        <li>DRF</li>
+                        <li>FastAPI</li>
+                        <li>Flask</li>
+                        <li>RESTful API Development</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3. Generative AI & LLMs -->
+            <div class="skill-card" data-category="gen-ai" tabindex="0">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-brain"></i></div>
+                    <h3>Gen AI & LLM Systems</h3>
+                    <p>Advanced RAG and Agentic workflows</p>
+                    <ul class="skills-list">
+                        <li>LangChain</li>
+                        <li>LangGraph</li>
+                        <li>OpenAI API</li>
+                        <li>Google Gemini</li>
+                        <li>Hugging Face</li>
+                        <li>Prompt Engineering</li>
+                        <li>RAG</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 4. Automation & Workflows -->
+            <div class="skill-card" data-category="automation" tabindex="0">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-diagram-project"></i></div>
+                    <h3>Automation Engineering</h3>
+                    <p>Scaling business logic via workflows</p>
+                    <ul class="skills-list">
+                        <li>n8n</li>
+                        <li>Zapier</li>
+                        <li>Make</li>
+                        <li>CloseBot</li>
+                        <li>GoHighLevel (GHL)</li>
+                        <li>HubSpot Automation</li>
+                        <li>Custom Logic</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 5. Deployment & DevOps -->
+            <div class="skill-card" data-category="devops" tabindex="0">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-infinity"></i></div>
+                    <h3>Deployment & DevOps</h3>
+                    <p>CI/CD and infrastructure management</p>
+                    <ul class="skills-list">
+                        <li>Git & GitHub</li>
+                        <li>Docker</li>
+                        <li>Hugging Face Spaces</li>
+                        <li>CI/CD Concepts</li>
+                        <li>Env Configuration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 6. Chatbot Systems -->
+            <div class="skill-card" data-category="chatbots" tabindex="0">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-comments"></i></div>
+                    <h3>Chatbot Systems</h3>
+                    <p>Intelligent conversational interfaces</p>
+                    <ul class="skills-list">
+                        <li>AI Chatbot Development</li>
+                        <li>n8n-based Bot Logic</li>
+                        <li>Custom API Systems</li>
+                        <li>Webhook Integrations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 7. Databases & Data Systems -->
+            <div class="skill-card" data-category="databases" tabindex="0">
+                <div class="card-shimmer"></div>
+                <div class="card-content">
+                    <div class="card-icon"><i class="fas fa-database"></i></div>
+                    <h3>Databases & Data</h3>
+                    <p>Vector search and relational systems</p>
+                    <ul class="skills-list">
+                        <li>PostgreSQL</li>
+                        <li>SQL</li>
+                        <li>Vector Databases</li>
+                        <li>Pinecone</li>
+                        <li>Schema Design</li>
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects">
+        <div class="section-title animate-ready">
+            <h2>Featured Projects</h2>
+            <p>A selection of my recent work.</p>
+        </div>
+        <div class="projects-grid">
+
+            <!-- Project 0: AI Portfolio Assistant -->
+            <div class="project-card animate-ready">
+                <div class="project-img">
+                    <img src="assets/projects/website-project-img.png" alt="AI Portfolio Assistant">
+                </div>
+                <div class="project-content">
+                    <h3>AI Portfolio Assistant</h3>
+                    <p class="project-card-subtitle">(RAG-Based Chatbot)</p>
+                    <div class="project-links">
+                        <a href="chatbot.html" class="view-details-btn">View Details <i
+                                class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 1 -->
+            <div class="project-card animate-ready">
+                <div class="project-img">
+                    <img src="assets/projects/voice-assistant.png" alt="AI Voice Assistant">
+                </div>
+                <div class="project-content">
+                    <h3>AI voice agents</h3>
+                    <p class="project-card-subtitle">Real-time Voice Conversational Agent</p>
+                    <div class="project-links">
+                        <a href="voice-agent.html" class="view-details-btn">View Details <i
+                                class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 2 -->
+            <div class="project-card animate-ready" style="transition-delay: 0.1s;">
+                <div class="project-img">
+                    <img src="assets/projects/crm-automation.png" alt="CRM Automation System">
+                </div>
+                <div class="project-content">
+                    <h3>CRM Automation System</h3>
+                    <p class="project-card-subtitle">Lead Management Sync System</p>
+                    <div class="project-links">
+                        <a href="#contact" class="view-details-btn">View Details <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="reviews-section">
+        <div class="section-title animate-ready">
+            <h2>Reviews</h2>
+            <p>What people are saying about my work.</p>
+        </div>
+
+        <div class="reviews-container animate-ready">
+            <div id="reviews-grid" class="reviews-grid">
+                <!-- Reviews will be loaded here dynamically -->
+            </div>
+
+            <div style="text-align: center; margin-top: 40px;">
+                <button id="open-review-modal" class="btn">Write a Review</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Review Modal -->
+    <div id="review-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h3>Share Your Experience</h3>
+                <p>Your feedback helps me improve and grow.</p>
+            </div>
+            <form id="review-form">
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="star-rating">
+                        <i class="far fa-star" data-rating="1"></i>
+                        <i class="far fa-star" data-rating="2"></i>
+                        <i class="far fa-star" data-rating="3"></i>
+                        <i class="far fa-star" data-rating="4"></i>
+                        <i class="far fa-star" data-rating="5"></i>
+                        <input type="hidden" id="rating-input" name="rating" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="review-name">Your Name</label>
+                    <input type="text" id="review-name" name="name" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="review-project">Project Name</label>
+                    <input type="text" id="review-project" name="project" placeholder="e.g. Portfolio Website" required>
+                </div>
+                <div class="form-group">
+                    <label for="review-content">Overall Experience</label>
+                    <textarea id="review-content" name="content" rows="4" placeholder="How was the quality of work?"
+                        required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="review-link">Project Link (Optional)</label>
+                    <input type="url" id="review-link" name="link" placeholder="https://yourproject.com">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Submit Review</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h3>Admin Access</h3>
+                <p>Please enter your credentials to manage reviews.</p>
+            </div>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <label for="admin-user">Admin Email</label>
+                    <input type="email" id="admin-user" required placeholder="Enter Admin Email">
+                </div>
+                <div class="form-group">
+                    <label for="admin-pass">Password</label>
+                    <input type="password" id="admin-pass" required placeholder="Enter password">
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Connect</button>
+                <p id="login-error"
+                    style="color: #ef4444; font-size: 0.8rem; margin-top: 15px; display: none; text-align: center;">
+                    Invalid credentials.</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div class="section-title animate-ready">
+            <h2>Contact Me</h2>
+            <p>Get in touch for collaborations or freelance work.</p>
+        </div>
+        <div class="contact-split-container animate-ready">
+            <!-- Left Side: Contact Objective Card -->
+            <div class="contact-objective-card">
+                <h3>Let's Connect</h3>
+                <p class="contact-card-subtitle">Ready to build something amazing together</p>
+
+                <div class="contact-info-items">
+                    <a href="tel:+923036877026" class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">Phone</span>
+                            <span class="contact-value">+92 303 6877026</span>
+                        </div>
+                    </a>
+
+                    <a href="mailto:muhammadhassan.9677@gmail.com" class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">Email</span>
+                            <span class="contact-value">muhammadhassan.9677@gmail.com</span>
+                        </div>
+                    </a>
+
+                    <a href="https://www.linkedin.com/in/muhammadhassan00/" target="_blank" class="contact-info-item">
+                        <div class="contact-icon">
+                            <i class="fab fa-linkedin-in"></i>
+                        </div>
+                        <div class="contact-details">
+                            <span class="contact-label">LinkedIn</span>
+                            <span class="contact-value">Muhammad Hassan</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Side: Contact Form -->
+            <form id="contact-form" class="contact-form">
+                <!-- Web3Forms Access Key -->
+                <input type="hidden" name="access_key" value="1e8ee232-587b-40f2-9e5d-cde7cf815432">
+                <input type="hidden" name="subject" value="New Submission from Portfolio">
+
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Your Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone (Optional)</label>
+                    <div class="phone-input-wrapper">
+                        <select id="country-code" class="country-selector" aria-label="Country Code">
+                            <option value="+92" selected>🇵🇰 +92</option>
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+971">🇦🇪 +971</option>
+                            <option value="+91">🇮🇳 +91</option>
+                            <option value="+61">🇦🇺 +61</option>
+                            <option value="+86">🇨🇳 +86</option>
+                            <option value="+81">🇯🇵 +81</option>
+                            <option value="+49">🇩🇪 +49</option>
+                            <option value="+33">🇫🇷 +33</option>
+                            <option value="">🌍 Other</option>
+                        </select>
+                        <input type="tel" id="phone-number" class="phone-number-input" placeholder="3XX XXXXXXX">
+                    </div>
+                    <input type="hidden" id="full-phone" name="phone">
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" rows="5" placeholder="Your Message" required></textarea>
+                </div>
+                <button type="submit" class="btn contact-submit-btn">
+                    <span>Send Message</span>
+                </button>
+                <div class="success-message">
+                    <i class="fas fa-check-circle"></i> Message Sent Successfully!
+                </div>
+                <div class="error-message" style="display:none; color: #ef4444; margin-top: 10px; font-size: 0.9rem;">
+                    <i class="fas fa-times-circle"></i> Something went wrong. Please try again.
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="social-links">
+            <a href="https://www.linkedin.com/in/muhammadhassan00/" target="_blank" aria-label="LinkedIn"><i
+                    class="fab fa-linkedin-in"></i></a>
+            <a href="https://github.com/MHassanGull" target="_blank" aria-label="GitHub"><i
+                    class="fab fa-github"></i></a>
+            <a href="https://www.instagram.com/muhammadhassan_gull" target="_blank" aria-label="Instagram"><i
+                    class="fab fa-instagram"></i></a>
+            <a href="mailto:muhammadhassan.9677@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+        </div>
+        <p>&copy; 2026 <a href="https://www.linkedin.com/in/muhammadhassan00/" target="_blank"
+                class="copyright-link">Hassan</a>. All rights reserved.</p>
+    </footer>
+
+
+    <!-- AI Chatbot Widget -->
+    <button id="chat-trigger" class="chatbot-trigger idle" aria-label="Open Chat">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+
+    <div id="chat-widget" class="chatbot-widget">
+        <div class="chat-header">
+            <h3>AI Assistant</h3>
+            <button id="chat-close" class="chat-close-btn"><i class="fas fa-times"></i></button>
+        </div>
+        <div id="chat-messages" class="chat-messages">
+            <!-- Messages appear here -->
+            <div id="typing-indicator" class="typing-indicator">
+                <div class="typing-dots">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+        <form id="chat-form" class="chat-input-area">
+            <input type="text" id="chat-input" class="chat-input" placeholder="Ask me something..." autocomplete="off">
+            <button type="submit" id="chat-send-btn" class="chat-send-btn">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- Theme Engine (BEFORE main.js) -->
+    <script src="js/theme-manager.js"></script>
+    <script src="js/theme-picker.js"></script>
+    <script src="js/hero-background.js"></script>
+    <script src="js/ai-skill-universe.js"></script>
+    <script src="js/chatbot.js"></script>
+
+    <!-- Firebase SDK (Modular) -->
+    <script type="importmap">
+        {
+          "imports": {
+            "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
+            "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
+            "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js",
+            "firebase/analytics": "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js"
+          }
+        }
+    </script>
+
+    <!-- Main JS (As Module) -->
+    <script type="module" src="js/main.js"></script>
+</body>
+
+</html>
