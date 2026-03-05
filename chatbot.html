@@ -15,6 +15,9 @@
 
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Intro Loader — must be first script -->
+    <script src="js/intro-loader.js"></script>
 </head>
 
 <body class="detail-body">
@@ -28,21 +31,8 @@
             <li><a href="index.html#contact">Contact</a></li>
         </ul>
 
-        <!-- Theme Picker -->
-        <div class="theme-picker-wrapper">
-            <button class="theme-picker-toggle" aria-label="Change Theme" title="Change Theme">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path
-                        d="M12 1v6m0 6v6m9.66-9.66l-4.24 4.24m-6.84 0l-4.24-4.24M23 12h-6m-6 0H1m20.66 9.66l-4.24-4.24m-6.84 0l-4.24 4.24">
-                    </path>
-                </svg>
-            </button>
-            <div class="theme-picker-dropdown">
-                <div class="theme-picker-grid" id="theme-picker-grid"></div>
-            </div>
-        </div>
+        <!-- Theme Toggle -->
+        <button class="theme-toggle-btn" data-theme-toggle aria-label="Switch to light mode"></button>
     </header>
 
     <!-- SECTION 1 — Hero Section -->
@@ -57,7 +47,7 @@
         <div class="section-title">
             <h2>Problem & Solution</h2>
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px;">
             <div class="tech-card">
                 <i class="fas fa-exclamation-circle" style="color: #ef4444;"></i>
                 <h3>The Problem</h3>
@@ -263,7 +253,6 @@
 
     <!-- Scripts (Maintaining Theme Consistency) -->
     <script src="js/theme-manager.js"></script>
-    <script src="js/theme-picker.js"></script>
 
     <script>
         // Simple scroll animation trigger for detail page

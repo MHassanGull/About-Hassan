@@ -128,7 +128,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 0 5%;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: none;
     transition: 0.3s;
 }
 
@@ -348,6 +348,8 @@ section {
     align-items: center;
     gap: 50px;
     margin-top: 20px;
+    overflow: hidden;
+    /* clip orbit rings from bleeding horizontally */
 }
 
 /* About Section Premium UI */
@@ -610,28 +612,91 @@ section {
 }
 
 .reviews-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
-    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 460px;
+    position: relative;
+    padding-bottom: 25px;
+    /* space for hint text */
+}
+
+.reviews-stack-container {
+    position: relative;
+    width: 350px;
+    height: 420px;
+    margin: 0 auto;
+    perspective: 1000px;
 }
 
 .review-card {
-    background: var(--card-bg);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-elevated);
     padding: 30px;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: 0.4s ease;
+    border: 1px solid var(--border-subtle);
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-floating);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    animation: slideInUp 0.6s ease forwards;
+    transition: all 0.35s ease;
+    transform-origin: center bottom;
+    user-select: none;
+    will-change: transform, opacity;
 }
 
-.review-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary-color);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+.review-card.stack-0 {
+    z-index: 3;
+    transform: rotate(-6deg) translateX(0);
+    opacity: 1;
+    cursor: grab;
+}
+
+.review-card.stack-0:active {
+    cursor: grabbing;
+}
+
+.review-card.stack-1 {
+    z-index: 2;
+    transform: rotate(0deg) translateX(33%) scale(0.95);
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+.review-card.stack-2 {
+    z-index: 1;
+    transform: rotate(6deg) translateX(66%) scale(0.9);
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.review-card.stack-hidden {
+    z-index: 0;
+    transform: rotate(10deg) translateX(80%) scale(0.8);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.review-card.dragging {
+    transition: none !important;
+}
+
+.stack-hint {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    pointer-events: none;
+    opacity: 0.7;
+    white-space: nowrap;
+    animation: pulse 2s infinite;
 }
 
 .review-stars {
@@ -648,6 +713,22 @@ section {
 }
 
 .review-footer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.review-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-subtle);
+    pointer-events: none;
+}
+
+.review-client-info {
     display: flex;
     flex-direction: column;
 }
@@ -1250,7 +1331,8 @@ footer {
         justify-content: center;
         transform: translateX(100%);
         transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-top: none;
+        z-index: 999;
     }
 
     .nav-links.active {
@@ -1273,8 +1355,7 @@ footer {
         transform: translateY(-8px) rotate(-45deg);
     }
 
-    .projects-grid,
-    .reviews-grid {
+    .projects-grid {
         grid-template-columns: 1fr;
         gap: 25px;
     }
@@ -1377,6 +1458,11 @@ footer {
         border-width: 1px;
     }
 
+    .reviews-stack-container {
+        width: 300px;
+        height: 380px;
+    }
+
     .section-title h2 {
         font-size: 1.8rem;
     }
@@ -1427,5 +1513,24 @@ footer {
         font-size: 0.8rem;
         padding: 10px 6px;
         padding-right: 22px;
+    }
+}
+
+/* Lock scroll when mobile nav is open */
+body.menu-open {
+    overflow: hidden;
+}
+
+/* Extra small screens — phone input wrap */
+@media (max-width: 360px) {
+    .phone-input-wrapper {
+        flex-wrap: wrap;
+    }
+
+    .country-selector,
+    #phone-number {
+        min-width: 0;
+        width: 100%;
+        max-width: 100%;
     }
 }

@@ -21,6 +21,12 @@ import {
     updateDoc,
     deleteDoc
 } from "firebase/firestore";
+import {
+    getStorage,
+    ref,
+    uploadBytesResumable,
+    getDownloadURL
+} from "firebase/storage";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -38,6 +44,7 @@ const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
 // Global State
 let currentUser = null;
@@ -90,8 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         resize();
 
-        // Optimized Mouse/Touch tracking
+        // Optimized Mouse/Touch tracking — throttled to 80ms
+        let lastPointerTime = 0;
         const handlePointer = (x, y, count) => {
+            const now = Date.now();
+            if (now - lastPointerTime < 80) return;
+            lastPointerTime = now;
             mouse.x = x;
             mouse.y = y;
             if (isActive) {
@@ -107,6 +118,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 handlePointer(e.touches[0].clientX, e.touches[0].clientY, 1);
             }
         }, { passive: true });
+
+        // Pause loop when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                isActive = false;
+                cancelAnimationFrame(animationFrameId);
+            } else {
+                isActive = true;
+                animate();
+            }
+        });
 
         class Particle {
             constructor(x, y) {
@@ -138,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Limit max particles for performance
-            if (particles.length > 150) particles.shift();
+            if (particles.length > 80) particles.shift();
 
             for (let i = 0; i < particles.length; i++) {
                 particles[i].update();
@@ -262,6 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hamburger.addEventListener('click', () => {
             hamburger.classList.toggle('active');
             navLinks.classList.toggle('active');
+            document.body.classList.toggle('menu-open');
         });
     }
 
@@ -270,6 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', () => {
             hamburger.classList.remove('active');
             navLinks.classList.remove('active');
+            document.body.classList.remove('menu-open');
         });
     });
 
@@ -278,21 +302,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const sections = document.querySelectorAll('section');
     const navItems = document.querySelectorAll('.nav-links li a');
 
+    let scrollRafPending = false;
     window.addEventListener('scroll', () => {
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (pageYOffset >= (sectionTop - sectionHeight / 3)) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        navItems.forEach(li => {
-            li.classList.remove('active');
-            if (li.getAttribute('href').includes(current)) {
-                li.classList.add('active');
-            }
+        if (scrollRafPending) return;
+        scrollRafPending = true;
+        requestAnimationFrame(() => {
+            scrollRafPending = false;
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navItems.forEach(li => {
+                li.classList.remove('active');
+                if (li.getAttribute('href').includes(current)) {
+                    li.classList.add('active');
+                }
+            });
         });
     });
 
@@ -567,27 +596,45 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const formData = new FormData(this);
-            const reviewData = {
-                name: formData.get('name'),
-                projectName: formData.get('project'),
-                description: formData.get('content'),
-                link: formData.get('link') || "",
-                rating: parseInt(formData.get('rating')),
-                userId: currentUser.uid,
-                createdAt: serverTimestamp()
-            };
+            let avatarUrl = "";
+            const avatarFile = formData.get('avatar');
 
             const submitBtn = this.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerText = "Processing...";
 
             try {
+                // Handle Avatar Upload or Fallback
+                if (avatarFile && avatarFile.size > 0) {
+                    submitBtn.innerText = "Uploading Image...";
+                    const timestamp = Date.now();
+                    const storageRef = ref(storage, `reviews/avatars/${timestamp}_${avatarFile.name}`);
+                    const uploadTask = await uploadBytesResumable(storageRef, avatarFile);
+                    avatarUrl = await getDownloadURL(storageRef);
+                } else if (!editingReviewId) {
+                    // Random local avatar fallback ONLY for new reviews
+                    const randomNum = Math.floor(Math.random() * 3) + 1;
+                    avatarUrl = `assets/avatars/avatar${randomNum}.svg`;
+                }
+
+                const reviewData = {
+                    name: formData.get('name'),
+                    projectName: formData.get('project'),
+                    description: formData.get('content'),
+                    link: formData.get('link') || "",
+                    rating: parseInt(formData.get('rating')),
+                    userId: currentUser.uid,
+                    createdAt: serverTimestamp() // Update timestamp on edit? User choice. Let's keep it.
+                };
+
+                // Only overwrite avatar if an image was uploaded or it's a new review with a fallback
+                if (avatarUrl) {
+                    reviewData.avatarUrl = avatarUrl;
+                }
+
                 if (editingReviewId) {
                     const reviewRef = doc(db, "reviews", editingReviewId);
-                    await updateDoc(reviewRef, {
-                        ...reviewData,
-                        createdAt: serverTimestamp() // Update timestamp on edit? User choice. Let's keep it.
-                    });
+                    await updateDoc(reviewRef, reviewData);
                 } else {
                     await addDoc(collection(db, "reviews"), reviewData);
                 }
@@ -606,43 +653,138 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
 
-    function addReviewToGrid(review) {
-        const card = document.createElement('div');
-        card.className = 'review-card';
-        card.setAttribute('data-id', review.id);
-        card.setAttribute('data-link', review.link || '');
+    // --- Stack Reviews System ---
+    let reviewsData = [];
+    let currentReviewIndex = 0;
 
-        let starsHtml = '';
-        const rating = parseInt(review.rating) || 0;
-        for (let i = 1; i <= 5; i++) {
-            starsHtml += `<i class="${i <= rating ? 'fas' : 'far'} fa-star"></i>`;
+    function renderStack() {
+        if (!reviewsGrid) return;
+        reviewsGrid.innerHTML = '';
+
+        if (reviewsData.length === 0) {
+            reviewsGrid.innerHTML = '<p style="text-align: center; opacity: 0.5; width: 100%;">No reviews yet. Be the first!</p>';
+            return;
         }
 
-        // Check if Admin
-        const canControl = isAdmin;
+        const container = document.createElement('div');
+        container.className = 'reviews-stack-container';
 
-        const controlBtns = canControl ? `
-            <div class="review-controls">
-                <button title="Edit" class="edit-btn" onclick="openEditModal('${review.id}')"><i class="fas fa-edit"></i></button>
-                <button title="Delete" class="delete-btn" onclick="deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
-            </div>
-        ` : '';
+        // Loop up to 3 cards
+        const maxCards = Math.min(3, reviewsData.length);
 
-        const projectDisplay = review.link
-            ? `<a href="${review.link}" target="_blank" class="review-project-link">${review.projectName} <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a>`
-            : review.projectName;
+        for (let i = 0; i < maxCards; i++) {
+            // Reverse order rendering so front card (index 0) is added last (highest z-index visually, though CSS z-index handles it anyway)
+            // Actually CSS z-index handles it perfectly (3, 2, 1) so order doesn't strictly matter, let's just do 0 to maxCards-1
+            // Modulo array length to circle back
+            const dataIndex = (currentReviewIndex + i) % reviewsData.length;
+            const review = reviewsData[dataIndex];
 
-        card.innerHTML = `
-            ${controlBtns}
-            <div class="review-stars">${starsHtml}</div>
-            <p class="review-text">"${review.description}"</p>
-            <div class="review-footer">
-                <span class="client-name">${review.name}</span>
-                <span class="project-tag">${projectDisplay}</span>
-            </div>
-        `;
+            const card = document.createElement('div');
+            card.className = `review-card stack-${i}`;
+            card.setAttribute('data-id', review.id);
+            card.setAttribute('data-link', review.link || '');
 
-        reviewsGrid.appendChild(card); // Snapshot is ordered, so we use append
+            let starsHtml = '';
+            const rating = parseInt(review.rating) || 0;
+            for (let s = 1; s <= 5; s++) {
+                starsHtml += `<i class="${s <= rating ? 'fas' : 'far'} fa-star"></i>`;
+            }
+
+            const canControl = isAdmin;
+            const controlBtns = canControl ? `
+                <div class="review-controls">
+                    <button title="Edit" class="edit-btn" onclick="openEditModal('${review.id}')"><i class="fas fa-edit"></i></button>
+                    <button title="Delete" class="delete-btn" onclick="deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            ` : '';
+
+            const projectDisplay = review.link
+                ? `<a href="${review.link}" target="_blank" class="review-project-link">${review.projectName} <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a>`
+                : review.projectName;
+
+            const fallbackAvatar = `assets/avatars/avatar${(dataIndex % 3) + 1}.svg`;
+            const currentAvatar = review.avatarUrl || fallbackAvatar;
+
+            card.innerHTML = `
+                ${controlBtns}
+                <div class="review-stars">${starsHtml}</div>
+                <p class="review-text">"${review.description}"</p>
+                <div class="review-footer">
+                    <img src="${currentAvatar}" alt="${review.name}" class="review-avatar">
+                    <div class="review-client-info">
+                        <span class="client-name">${review.name}</span>
+                        <span class="project-tag">${projectDisplay}</span>
+                    </div>
+                </div>
+            `;
+
+            // Add Drag Interaction to ONLY the front card if there's more than 1 total review
+            if (i === 0 && reviewsData.length > 1) {
+                setupDragInteraction(card);
+            }
+
+            // Re-bind controls since HTML interpolation prevents typical DOM events inside string
+            // actually window.deleteReview works because it's global inline onclick.
+
+            container.appendChild(card);
+        }
+
+        // Add Hint if stack has multiple
+        if (reviewsData.length > 1) {
+            const hint = document.createElement('div');
+            hint.className = 'stack-hint';
+            hint.innerText = '← drag to see more';
+            container.appendChild(hint);
+        }
+
+        reviewsGrid.appendChild(container);
+    }
+
+    function setupDragInteraction(card) {
+        let startX = 0;
+        let isDragging = false;
+
+        card.addEventListener('pointerdown', (e) => {
+            if (e.target.closest('.review-controls') || e.target.closest('a')) return; // Don't drag if clicking buttons
+            isDragging = true;
+            startX = e.clientX;
+            card.setPointerCapture(e.pointerId);
+            card.classList.add('dragging');
+        });
+
+        card.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            const deltaX = e.clientX - startX;
+            // Only allow dragging left
+            if (deltaX < 0) {
+                // Apply rotation and translation simultaneously
+                card.style.transform = `rotate(-6deg) translateX(${deltaX}px)`;
+            }
+        });
+
+        card.addEventListener('pointerup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            card.releasePointerCapture(e.pointerId);
+            card.classList.remove('dragging');
+
+            const deltaX = e.clientX - startX;
+            card.style.transform = ''; // Clear inline styles to let CSS snap back or animate out
+
+            if (deltaX < -150) {
+                // Shuffled!
+                currentReviewIndex = (currentReviewIndex + 1) % reviewsData.length;
+                renderStack();
+            }
+        });
+
+        card.addEventListener('pointercancel', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            card.releasePointerCapture(e.pointerId);
+            card.classList.remove('dragging');
+            card.style.transform = '';
+        });
     }
 
     // --- Global Methods for HTML (Required for modules) ---
@@ -693,15 +835,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
 
         onSnapshot(q, (snapshot) => {
-            reviewsGrid.innerHTML = ""; // Clear grid
-            if (snapshot.empty) {
-                reviewsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5;">No reviews yet. Be the first!</p>';
-                return;
-            }
+            reviewsData = []; // Clear current data
             snapshot.forEach((doc) => {
-                const data = doc.data();
-                addReviewToGrid({ id: doc.id, ...data });
+                reviewsData.push({ id: doc.id, ...doc.data() });
             });
+
+            // Adjust current index just in case deletions cause out-of-bounds
+            if (reviewsData.length > 0) {
+                currentReviewIndex = currentReviewIndex % reviewsData.length;
+            } else {
+                currentReviewIndex = 0;
+            }
+
+            renderStack();
         });
     }
 

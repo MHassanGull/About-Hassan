@@ -14,8 +14,15 @@
     <link rel="stylesheet" href="css/chatbot.css">
     <link rel="stylesheet" href="css/chatbot-detail.css">
 
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome for Icons — non-blocking load -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        media="print" onload="this.media='all'">
+    <noscript>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    </noscript>
+
+    <!-- Intro Loader — must be first script -->
+    <script src="js/intro-loader.js"></script>
 
     <!-- Animation Libraries for AI Skill Universe -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -40,24 +47,8 @@
             <li><button id="admin-login-btn" class="login-nav-btn"><i class="fas fa-lock"></i> Login</button></li>
         </ul>
 
-        <!-- Theme Picker -->
-        <div class="theme-picker-wrapper">
-            <button class="theme-picker-toggle" aria-label="Change Theme" title="Change Theme">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path
-                        d="M12 1v6m0 6v6m9.66-9.66l-4.24 4.24m-6.84 0l-4.24-4.24M23 12h-6m-6 0H1m20.66 9.66l-4.24-4.24m-6.84 0l-4.24 4.24">
-                    </path>
-                </svg>
-            </button>
-            <div class="theme-picker-dropdown">
-                <div class="theme-picker-header">
-                    <h4>Choose Theme</h4>
-                </div>
-                <div class="theme-picker-grid" id="theme-picker-grid"></div>
-            </div>
-        </div>
+        <!-- Theme Toggle -->
+        <button class="theme-toggle-btn" data-theme-toggle aria-label="Switch to light mode"></button>
 
         <div class="hamburger">
             <span class="bar"></span>
@@ -279,7 +270,7 @@
             <!-- Project 0: AI Portfolio Assistant -->
             <div class="project-card animate-ready">
                 <div class="project-img">
-                    <img src="assets/projects/website-project-img.png" alt="AI Portfolio Assistant">
+                    <img src="assets/projects/website-project-img.png" alt="AI Portfolio Assistant" loading="lazy">
                 </div>
                 <div class="project-content">
                     <h3>AI portfolio assistant</h3>
@@ -294,7 +285,7 @@
             <!-- Project 1: AI Voice Agent -->
             <div class="project-card animate-ready">
                 <div class="project-img">
-                    <img src="assets/projects/voice-assistant.png" alt="AI Voice Agent">
+                    <img src="assets/projects/voice-assistant.png" alt="AI Voice Assistant">
                 </div>
                 <div class="project-content">
                     <h3>AI voice agent</h3>
@@ -309,7 +300,7 @@
             <!-- Project 2: Website Development -->
             <div class="project-card animate-ready" style="transition-delay: 0.1s;">
                 <div class="project-img">
-                    <img src="assets/projects/website-dev.png" alt="Website Development">
+                    <img src="assets/projects/crm-automation.png" alt="CRM Automation System">
                 </div>
                 <div class="project-content">
                     <h3>Website development</h3>
@@ -327,7 +318,7 @@
     <!-- Reviews Section -->
     <section id="reviews" class="reviews-section">
         <div class="section-title animate-ready">
-            <h2>Reviews</h2>
+            <h2>Testimonials</h2>
             <p>What people are saying about my work.</p>
         </div>
 
@@ -365,6 +356,10 @@
                 <div class="form-group">
                     <label for="review-name">Your Name</label>
                     <input type="text" id="review-name" name="name" placeholder="Full Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="review-avatar">Profile Picture (Optional)</label>
+                    <input type="file" id="review-avatar" name="avatar" accept="image/*" style="padding: 10px;">
                 </div>
                 <div class="form-group">
                     <label for="review-project">Project Name</label>
@@ -549,7 +544,6 @@
 
     <!-- Theme Engine (BEFORE main.js) -->
     <script src="js/theme-manager.js"></script>
-    <script src="js/theme-picker.js"></script>
     <script src="js/hero-background.js"></script>
     <script src="js/ai-skill-universe.js"></script>
     <script src="js/chatbot.js"></script>
@@ -561,6 +555,7 @@
             "firebase/app": "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js",
             "firebase/auth": "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js",
             "firebase/firestore": "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js",
+            "firebase/storage": "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js",
             "firebase/analytics": "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js"
           }
         }

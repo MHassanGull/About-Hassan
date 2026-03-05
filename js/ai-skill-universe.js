@@ -172,7 +172,15 @@
         setupCursorParallax() {
             this.cards.forEach((card, index) => {
                 card.addEventListener('mouseenter', () => this.highlightLines(index));
-                card.addEventListener('mousemove', (e) => this.updateParallax(card, e));
+                card.addEventListener('mousemove', (e) => {
+                    // rAF-throttle: only apply style changes once per frame
+                    if (card._rafPending) return;
+                    card._rafPending = true;
+                    requestAnimationFrame(() => {
+                        card._rafPending = false;
+                        this.updateParallax(card, e);
+                    });
+                });
                 card.addEventListener('mouseleave', () => {
                     this.resetParallax(card);
                     this.resetLines();

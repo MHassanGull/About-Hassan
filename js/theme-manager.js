@@ -1,139 +1,111 @@
 /**
- * ═══════════════════════════════════════════════════════════════
- * ANTIGRAVITY THEME MANAGER v1.0
- * Lightweight, framework-agnostic theme switching system
- * ═══════════════════════════════════════════════════════════════
+ * ╔══════════════════════════════════════════════════════════════╗
+ * HASSAN PORTFOLIO — THEME MANAGER v3.0
+ * Dark / Light only — pure black & white
+ * ╚══════════════════════════════════════════════════════════════╝
  */
 
-const AntigravityThemes = (() => {
+const ThemeManager = (() => {
     'use strict';
 
-    // Theme Registry
-    const THEMES = [
-        { id: 'default', name: 'Dark', color: '#030712' },
-        { id: 'soft-blues', name: 'Sky', color: '#e0f2fe' },
-        { id: 'sage-greens', name: 'Sage', color: '#dcfce7' },
-        { id: 'pale-yellows', name: 'Sun', color: '#fef9c3' },
-        { id: 'warm-greys', name: 'Stone', color: '#e7e5e4' },
-        { id: 'muted-terracotta', name: 'Clay', color: '#fed7aa' },
-        { id: 'calming-blues', name: 'Ocean', color: '#dbeafe' },
-        { id: 'earthy-greens', name: 'Leaf', color: '#d1fae5' },
-        { id: 'soft-warm-tones', name: 'Rose', color: '#ffe4e6' },
-        { id: 'pure-white', name: 'White', color: '#ffffff' }
-    ];
+    const KEY = 'hassan-theme';
+    const DARK = 'dark';
+    const LIGHT = 'light';
+    let current = DARK;
 
-    const STORAGE_KEY = 'antigravity-theme';
-    let currentTheme = 'default';
+    /* ── Apply ──────────────────────────────────────────────────── */
+    function apply(theme, save = true) {
+        current = (theme === LIGHT) ? LIGHT : DARK;
 
-    /**
-     * Initialize the theme system
-     */
+        if (current === LIGHT) {
+            document.documentElement.setAttribute('data-theme', 'light');
+        } else {
+            document.documentElement.removeAttribute('data-theme');
+        }
+
+        if (save) {
+            try { localStorage.setItem(KEY, current); } catch (_) { }
+        }
+
+        _updateButtons();
+
+        window.dispatchEvent(new CustomEvent('themechange', {
+            detail: { theme: current }
+        }));
+    }
+
+    /* ── Toggle ─────────────────────────────────────────────────── */
+    function toggle() { apply(current === DARK ? LIGHT : DARK); }
+
+    /* ── Load from storage / OS preference ─────────────────────── */
+    function load() {
+        let saved = null;
+        try { saved = localStorage.getItem(KEY); } catch (_) { }
+
+        if (!saved) {
+            saved = window.matchMedia('(prefers-color-scheme: light)').matches
+                ? LIGHT : DARK;
+        }
+        apply(saved, false);
+    }
+
+    /* ── Button icons ───────────────────────────────────────────── */
+    function _updateButtons() {
+        document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+            btn.setAttribute('aria-label',
+                current === DARK ? 'Switch to light mode' : 'Switch to dark mode');
+            btn.innerHTML = current === DARK ? _sunSVG() : _moonSVG();
+        });
+    }
+
+    /* Sun — shown in dark mode (click → go light) */
+    function _sunSVG() {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1"  x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22"  y1="4.22"  x2="5.64"  y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1"  y1="12" x2="3"  y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22"  y1="19.78" x2="5.64"  y2="18.36"/>
+          <line x1="18.36" y1="5.64"  x2="19.78" y2="4.22"/>
+        </svg>`;
+    }
+
+    /* Moon — shown in light mode (click → go dark) */
+    function _moonSVG() {
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>`;
+    }
+
+    /* ── Init ───────────────────────────────────────────────────── */
     function init() {
-        // Load saved theme or default
-        loadTheme();
+        load();
 
-        // Listen for theme changes from other tabs
-        window.addEventListener('storage', (e) => {
-            if (e.key === STORAGE_KEY) {
-                applyTheme(e.newValue || 'default', false);
-            }
+        /* Delegate all toggle clicks */
+        document.addEventListener('click', e => {
+            if (e.target.closest('[data-theme-toggle]')) toggle();
         });
 
-        console.log('🎨 Antigravity Theme Engine initialized');
+        /* Cross-tab sync */
+        window.addEventListener('storage', e => {
+            if (e.key === KEY) apply(e.newValue || DARK, false);
+        });
     }
 
-    /**
-     * Load theme from localStorage
-     */
-    function loadTheme() {
-        // Disabled per user request for non-permanent default
-        console.log('ℹ️ Theme persistence is disabled. Defaulting to Dark.');
-        applyTheme('default', false);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
 
-    /**
-     * Apply a theme
-     * @param {string} themeId - The theme identifier
-     * @param {boolean} save - Whether to save to localStorage
-     */
-    function applyTheme(themeId, save = true) {
-        const theme = THEMES.find(t => t.id === themeId);
-
-        if (!theme) {
-            console.error(`Theme "${themeId}" not found`);
-            return;
-        }
-
-        // Update data attribute on root
-        if (themeId === 'default') {
-            document.documentElement.removeAttribute('data-theme');
-        } else {
-            document.documentElement.setAttribute('data-theme', themeId);
-        }
-
-        currentTheme = themeId;
-
-        // Save to localStorage (Disabled per user request)
-        /*
-        if (save) {
-            try {
-                localStorage.setItem(STORAGE_KEY, themeId);
-            } catch (error) {
-                console.warn('Failed to save theme to localStorage:', error);
-            }
-        }
-        */
-
-        // Dispatch custom event for advanced integrations
-        window.dispatchEvent(new CustomEvent('themechange', {
-            detail: { theme: themeId, themeName: theme.name }
-        }));
-
-        console.log(`✨ Theme switched to: ${theme.name}`);
-    }
-
-    /**
-     * Get current theme
-     * @returns {string} Current theme ID
-     */
-    function getCurrentTheme() {
-        return currentTheme;
-    }
-
-    /**
-     * Get all available themes
-     * @returns {Array} Array of theme objects
-     */
-    function getAllThemes() {
-        return [...THEMES];
-    }
-
-    /**
-     * Cycle to the next theme (useful for keyboard shortcuts)
-     */
-    function cycleTheme() {
-        const currentIndex = THEMES.findIndex(t => t.id === currentTheme);
-        const nextIndex = (currentIndex + 1) % THEMES.length;
-        applyTheme(THEMES[nextIndex].id);
-    }
-
-    // Public API
-    return {
-        init,
-        applyTheme,
-        getCurrentTheme,
-        getAllThemes,
-        cycleTheme,
-        THEMES
-    };
+    return { toggle, apply, getTheme: () => current };
 })();
 
-// Auto-initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', AntigravityThemes.init);
-} else {
-    AntigravityThemes.init();
-}
-
-// Expose to window for manual control
-window.AntigravityThemes = AntigravityThemes;
+window.ThemeManager = ThemeManager;
