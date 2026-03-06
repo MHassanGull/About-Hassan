@@ -8,11 +8,17 @@
  */
 
 (function () {
-    'use strict';
+  'use strict';
 
-    /* ─── CSS ──────────────────────────────────────────────────── */
-    const style = document.createElement('style');
-    style.textContent = `
+  // Force scroll to top on refresh
+  if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+  }
+  window.scrollTo(0, 0);
+
+  /* ─── CSS ──────────────────────────────────────────────────── */
+  const style = document.createElement('style');
+  style.textContent = `
     #hassan-intro-overlay {
       position: fixed; inset: 0; z-index: 99999;
       background: #000;
@@ -174,12 +180,12 @@
     }
     #intro-skip:hover { color: rgba(255,255,255,0.60); }
     `;
-    document.head.appendChild(style);
+  document.head.appendChild(style);
 
-    /* ─── HTML ─────────────────────────────────────────────────── */
-    const overlay = document.createElement('div');
-    overlay.id = 'hassan-intro-overlay';
-    overlay.innerHTML = `
+  /* ─── HTML ─────────────────────────────────────────────────── */
+  const overlay = document.createElement('div');
+  overlay.id = 'hassan-intro-overlay';
+  overlay.innerHTML = `
       <canvas id="intro-canvas"></canvas>
       <div id="intro-noise"></div>
       <div id="intro-vignette"></div>
@@ -193,21 +199,21 @@
       <button id="intro-skip">Skip &nbsp;→</button>
     `;
 
-    const insertOverlay = () => {
-        if (document.body) {
-            document.body.insertBefore(overlay, document.body.firstChild);
-            initWebGL();
-        } else {
-            document.addEventListener('DOMContentLoaded', () => {
-                document.body.insertBefore(overlay, document.body.firstChild);
-                initWebGL();
-            });
-        }
-    };
-    insertOverlay();
+  const insertOverlay = () => {
+    if (document.body) {
+      document.body.insertBefore(overlay, document.body.firstChild);
+      initWebGL();
+    } else {
+      document.addEventListener('DOMContentLoaded', () => {
+        document.body.insertBefore(overlay, document.body.firstChild);
+        initWebGL();
+      });
+    }
+  };
+  insertOverlay();
 
-    /* ─── WEBGL SHADER (Matthias Hurrle light-speed, adapted) ─── */
-    const FRAG = `#version 300 es
+  /* ─── WEBGL SHADER (Matthias Hurrle light-speed, adapted) ─── */
+  const FRAG = `#version 300 es
 precision highp float;
 out vec4 O;
 uniform float time;
@@ -244,137 +250,140 @@ void main(void){
   O=vec4(col,1.);
 }`;
 
-    const VERT = `#version 300 es
+  const VERT = `#version 300 es
 precision highp float;
 in vec2 position;
 void main(){ gl_Position=vec4(position,0.0,1.0); }`;
 
-    let gl = null, program = null, uTime = null, uRes = null, rafId = null;
-    let startTime = null;
+  let gl = null, program = null, uTime = null, uRes = null, rafId = null;
+  let startTime = null;
 
-    function initWebGL() {
-        const canvas = document.getElementById('intro-canvas');
-        if (!canvas) return;
-        gl = canvas.getContext('webgl2');
-        if (!gl) return;
+  function initWebGL() {
+    const canvas = document.getElementById('intro-canvas');
+    if (!canvas) return;
+    gl = canvas.getContext('webgl2');
+    if (!gl) return;
 
-        const compile = (type, src) => {
-            const sh = gl.createShader(type);
-            gl.shaderSource(sh, src); gl.compileShader(sh);
-            if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
-                console.warn('[IntroLoader] Shader:', gl.getShaderInfoLog(sh));
-                gl.deleteShader(sh); return null;
-            }
-            return sh;
-        };
-        const vs = compile(gl.VERTEX_SHADER, VERT);
-        const fs = compile(gl.FRAGMENT_SHADER, FRAG);
-        if (!vs || !fs) return;
+    const compile = (type, src) => {
+      const sh = gl.createShader(type);
+      gl.shaderSource(sh, src); gl.compileShader(sh);
+      if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+        console.warn('[IntroLoader] Shader:', gl.getShaderInfoLog(sh));
+        gl.deleteShader(sh); return null;
+      }
+      return sh;
+    };
+    const vs = compile(gl.VERTEX_SHADER, VERT);
+    const fs = compile(gl.FRAGMENT_SHADER, FRAG);
+    if (!vs || !fs) return;
 
-        program = gl.createProgram();
-        gl.attachShader(program, vs); gl.attachShader(program, fs);
-        gl.linkProgram(program);
-        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.warn('[IntroLoader] Link:', gl.getProgramInfoLog(program)); return;
-        }
-        gl.useProgram(program);
-
-        const buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, 1, -1, -1, 1, 1, 1, -1]), gl.STATIC_DRAW);
-        const loc = gl.getAttribLocation(program, 'position');
-        gl.enableVertexAttribArray(loc);
-        gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-
-        uTime = gl.getUniformLocation(program, 'time');
-        uRes = gl.getUniformLocation(program, 'resolution');
-
-        const resize = () => {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            canvas.width = Math.floor(canvas.clientWidth * dpr);
-            canvas.height = Math.floor(canvas.clientHeight * dpr);
-            gl.viewport(0, 0, canvas.width, canvas.height);
-            gl.uniform2f(uRes, canvas.width, canvas.height);
-        };
-        window.addEventListener('resize', resize);
-        resize();
-
-        startTime = performance.now();
-
-        /* Slow the shader: multiply by 0.00040 so swirl is languid */
-        const loop = (t) => {
-            rafId = requestAnimationFrame(loop);
-            gl.useProgram(program);
-            gl.uniform1f(uTime, (t - startTime) * 0.00040);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-        };
-        gl.clearColor(0, 0, 0, 1);
-        rafId = requestAnimationFrame(loop);
+    program = gl.createProgram();
+    gl.attachShader(program, vs); gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      console.warn('[IntroLoader] Link:', gl.getProgramInfoLog(program)); return;
     }
+    gl.useProgram(program);
 
-    /* ─── PROGRESS — organic 3-phase fill ───────────────────────
-       Phase A: 0 → 40%  fast   (every 100ms, +4%)
-       Phase B: 40 → 85% slow   (every 200ms, +1%)
-       Phase C: hold at 85% until real page load fires          */
-    let progress = 0;
-    const pb = () => document.getElementById('intro-progress-bar');
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, 1, -1, -1, 1, 1, 1, -1]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
 
-    let intervalA = setInterval(() => {
-        progress = Math.min(progress + 4, 40);
-        const el = pb(); if (el) el.style.width = progress + '%';
-        if (progress >= 40) { clearInterval(intervalA); startPhaseB(); }
-    }, 100);
+    uTime = gl.getUniformLocation(program, 'time');
+    uRes = gl.getUniformLocation(program, 'resolution');
 
-    function startPhaseB() {
-        const intervalB = setInterval(() => {
-            progress = Math.min(progress + 1, 85);
-            const el = pb(); if (el) el.style.width = progress + '%';
-            if (progress >= 85) clearInterval(intervalB);
-            // Phase C: just holds here — finish() snaps to 100%
-        }, 200);
-    }
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(canvas.clientWidth * dpr);
+      canvas.height = Math.floor(canvas.clientHeight * dpr);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.uniform2f(uRes, canvas.width, canvas.height);
+    };
+    window.addEventListener('resize', resize);
+    resize();
 
-    /* ─── DISMISS ──────────────────────────────────────────────── */
-    let dismissed = false;
-    let pageLoaded = false;
-    let introStart = performance.now();
+    startTime = performance.now();
 
-    function finish() {
-        if (dismissed) return;
-        dismissed = true;
+    /* Slow the shader: multiply by 0.00040 so swirl is languid */
+    const loop = (t) => {
+      rafId = requestAnimationFrame(loop);
+      gl.useProgram(program);
+      gl.uniform1f(uTime, (t - startTime) * 0.00040);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+    gl.clearColor(0, 0, 0, 1);
+    rafId = requestAnimationFrame(loop);
+  }
 
-        // Snap to 100%
-        const el = pb();
-        if (el) { el.style.transition = 'width 0.4s ease'; el.style.width = '100%'; }
+  /* ─── PROGRESS — organic 3-phase fill ───────────────────────
+     Phase A: 0 → 40%  fast   (every 100ms, +4%)
+     Phase B: 40 → 85% slow   (every 200ms, +1%)
+     Phase C: hold at 85% until real page load fires          */
+  let progress = 0;
+  const pb = () => document.getElementById('intro-progress-bar');
 
-        // Short breath, then phase-1: canvas fades (0.6s)
-        setTimeout(() => {
-            overlay.classList.add('canvas-fade');
+  let intervalA = setInterval(() => {
+    progress = Math.min(progress + 4, 40);
+    const el = pb(); if (el) el.style.width = progress + '%';
+    if (progress >= 40) { clearInterval(intervalA); startPhaseB(); }
+  }, 100);
 
-            // phase-2: whole overlay dissolves after canvas fade (0.6s later)
-            setTimeout(() => {
-                overlay.classList.add('fade-out');
-                if (rafId) cancelAnimationFrame(rafId);
+  function startPhaseB() {
+    const intervalB = setInterval(() => {
+      progress = Math.min(progress + 1, 85);
+      const el = pb(); if (el) el.style.width = progress + '%';
+      if (progress >= 85) clearInterval(intervalB);
+      // Phase C: just holds here — finish() snaps to 100%
+    }, 200);
+  }
 
-                overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
-                setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 2000);
-            }, 650);
-        }, 400);
-    }
+  /* ─── DISMISS ──────────────────────────────────────────────── */
+  let dismissed = false;
+  let pageLoaded = false;
+  let introStart = performance.now();
 
-    /* Minimum 4 000 ms display; waits for real load too */
-    window.addEventListener('load', () => {
-        pageLoaded = true;
-        const elapsed = performance.now() - introStart;
-        const MIN = 4000;
-        setTimeout(finish, Math.max(0, MIN - elapsed));
-    });
+  function finish() {
+    if (dismissed) return;
+    dismissed = true;
 
-    /* Skip — only clickable after CSS animation shows it at 1.5s */
-    document.addEventListener('click', e => {
-        if (e.target && e.target.id === 'intro-skip') finish();
-    });
+    // Snap to 100%
+    const el = pb();
+    if (el) { el.style.transition = 'width 0.4s ease'; el.style.width = '100%'; }
 
-    window.IntroLoader = { finish };
+    // Final secondary scroll to top to ensure we are at Hero section
+    window.scrollTo(0, 0);
+
+    // Short breath, then phase-1: canvas fades (0.6s)
+    setTimeout(() => {
+      overlay.classList.add('canvas-fade');
+
+      // phase-2: whole overlay dissolves after canvas fade (0.6s later)
+      setTimeout(() => {
+        overlay.classList.add('fade-out');
+        if (rafId) cancelAnimationFrame(rafId);
+
+        overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
+        setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 2000);
+      }, 650);
+    }, 400);
+  }
+
+  /* Minimum 4 000 ms display; waits for real load too */
+  window.addEventListener('load', () => {
+    pageLoaded = true;
+    const elapsed = performance.now() - introStart;
+    const MIN = 4000;
+    setTimeout(finish, Math.max(0, MIN - elapsed));
+  });
+
+  /* Skip — only clickable after CSS animation shows it at 1.5s */
+  document.addEventListener('click', e => {
+    if (e.target && e.target.id === 'intro-skip') finish();
+  });
+
+  window.IntroLoader = { finish };
 })();
