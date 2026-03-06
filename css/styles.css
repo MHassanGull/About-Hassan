@@ -615,18 +615,31 @@ section {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 460px;
+    min-height: 500px;
     position: relative;
-    padding-bottom: 25px;
-    /* space for hint text */
+    padding-bottom: 40px;
+    overflow: visible;
 }
 
 .reviews-stack-container {
     position: relative;
-    width: 350px;
-    height: 420px;
+    width: 380px;
+    height: 460px;
     margin: 0 auto;
-    perspective: 1000px;
+}
+
+/* Mobile: scale down the stack container */
+@media (max-width: 480px) {
+    .reviews-stack-container {
+        width: calc(100vw - 60px);
+        height: 420px;
+        max-width: 340px;
+    }
+
+    .reviews-grid {
+        min-height: 460px;
+        overflow: hidden;
+    }
 }
 
 .review-card {
@@ -636,23 +649,24 @@ section {
     width: 100%;
     height: 100%;
     background: var(--bg-elevated);
-    padding: 30px;
+    padding: 24px;
     border-radius: 20px;
     border: 1px solid var(--border-subtle);
     backdrop-filter: blur(12px);
     box-shadow: var(--shadow-floating);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     transition: all 0.35s ease;
     transform-origin: center bottom;
     user-select: none;
     will-change: transform, opacity;
+    overflow: hidden;
+    box-sizing: border-box;
 }
 
 .review-card.stack-0 {
     z-index: 3;
-    transform: rotate(-6deg) translateX(0);
+    transform: rotate(-4deg) translateX(-5px);
     opacity: 1;
     cursor: grab;
 }
@@ -663,21 +677,21 @@ section {
 
 .review-card.stack-1 {
     z-index: 2;
-    transform: rotate(0deg) translateX(33%) scale(0.95);
-    opacity: 0.8;
+    transform: rotate(0deg) translateX(12px) translateY(8px) scale(0.95);
+    opacity: 0.75;
     pointer-events: none;
 }
 
 .review-card.stack-2 {
     z-index: 1;
-    transform: rotate(6deg) translateX(66%) scale(0.9);
-    opacity: 0.5;
+    transform: rotate(4deg) translateX(26px) translateY(16px) scale(0.9);
+    opacity: 0.45;
     pointer-events: none;
 }
 
 .review-card.stack-hidden {
     z-index: 0;
-    transform: rotate(10deg) translateX(80%) scale(0.8);
+    transform: rotate(8deg) translateX(40px) translateY(24px) scale(0.85);
     opacity: 0;
     pointer-events: none;
 }
@@ -688,60 +702,184 @@ section {
 
 .stack-hint {
     position: absolute;
-    bottom: -15px;
+    bottom: -28px;
     left: 50%;
     transform: translateX(-50%);
     color: var(--text-muted);
     font-size: 0.75rem;
     pointer-events: none;
-    opacity: 0.7;
+    opacity: 0.6;
     white-space: nowrap;
     animation: pulse 2s infinite;
 }
 
-.review-stars {
+/* Review Stars Centered */
+.review-stars-centered {
     color: #FFD700;
-    margin-bottom: 15px;
-    font-size: 0.9rem;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    text-align: center;
 }
 
+/* Review Text — truncated with read-more */
 .review-text {
     font-style: italic;
     color: var(--text-color);
-    margin-bottom: 20px;
     line-height: 1.7;
+    font-size: 0.92rem;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 10px;
+    text-align: center;
 }
 
-.review-footer {
+.review-text-inner {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+    white-space: normal;
+}
+
+.review-text-inner.expanded {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+}
+
+.read-more-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 2px 0;
+    font-style: normal;
+    font-family: inherit;
+    opacity: 0.9;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+    display: block;
+    margin: 0 auto 8px;
+}
+
+.read-more-btn:hover {
+    opacity: 1;
+    text-decoration: underline;
+}
+
+/* New Layout Classes */
+.review-avatar-wrap {
     display: flex;
-    align-items: center;
-    gap: 15px;
+    justify-content: center;
+    margin-bottom: 15px;
+    flex-shrink: 0;
 }
 
-.review-avatar {
-    width: 45px;
-    height: 45px;
+.review-avatar-main {
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     object-fit: cover;
+    border: 3px solid var(--border-medium);
     background: var(--bg-secondary);
-    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-soft);
+}
+
+.client-name-centered {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-align: center;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.review-project-info-bottom {
+    display: flex;
+    justify-content: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+
+.project-tag-bottom {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+
+/* Avatar picker in form */
+.avatar-picker {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.avatar-options {
+    display: flex;
+    gap: 10px;
+}
+
+.avatar-option-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--border-medium);
+    padding: 0;
+    cursor: pointer;
+    background: none;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
+}
+
+.avatar-option-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
     pointer-events: none;
 }
 
-.review-client-info {
-    display: flex;
-    flex-direction: column;
+.avatar-option-btn.selected,
+.avatar-option-btn:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 255, 255, 255), 0.15);
 }
 
-.client-name {
-    font-weight: 600;
-    color: var(--primary-color);
-    font-size: 1rem;
-}
-
-.project-tag {
-    font-size: 0.8rem;
+.avatar-or {
     color: var(--text-muted);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+}
+
+.upload-btn-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--hover-overlay);
+    border: 1px solid var(--border-medium);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+}
+
+.upload-btn-label:hover {
+    background: var(--primary-color);
+    color: var(--text-inverse);
+    border-color: var(--primary-color);
 }
 
 .review-project-link {

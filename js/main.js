@@ -570,6 +570,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Avatar Picker Logic
+    const avatarOptions = document.querySelectorAll('.avatar-option-btn');
+    const selectedAvatarInput = document.getElementById('selected-avatar');
+    const avatarFileInput = document.getElementById('review-avatar');
+
+    if (avatarOptions.length > 0) {
+        avatarOptions.forEach(btn => {
+            btn.addEventListener('click', function () {
+                // Remove selected from others
+                avatarOptions.forEach(b => b.classList.remove('selected'));
+                // Add to this
+                this.classList.add('selected');
+                selectedAvatarInput.value = this.getAttribute('data-avatar');
+                // Clear file input if they had one
+                avatarFileInput.value = "";
+            });
+        });
+    }
+
+    if (avatarFileInput) {
+        avatarFileInput.addEventListener('change', function () {
+            if (this.files && this.files.length > 0) {
+                // Clear picker selection if file is chosen
+                avatarOptions.forEach(b => b.classList.remove('selected'));
+                selectedAvatarInput.value = "";
+            }
+        });
+    }
+
     function setRating(rating) {
         ratingInput.value = rating;
         const stars = starRating.querySelectorAll('i');
@@ -604,17 +633,18 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerText = "Processing...";
 
             try {
-                // Handle Avatar Upload or Fallback
+                // Handle Avatar Upload or Selection
                 if (avatarFile && avatarFile.size > 0) {
                     submitBtn.innerText = "Uploading Image...";
-                    const timestamp = Date.now();
-                    const storageRef = ref(storage, `reviews/avatars/${timestamp}_${avatarFile.name}`);
+                    const storageRef = ref(storage, `reviews/avatars/${Date.now()}_${avatarFile.name}`);
                     const uploadTask = await uploadBytesResumable(storageRef, avatarFile);
-                    avatarUrl = await getDownloadURL(storageRef);
+                    avatarUrl = await getDownloadURL(uploadTask.ref);
+                } else if (selectedAvatarInput && selectedAvatarInput.value) {
+                    avatarUrl = selectedAvatarInput.value;
                 } else if (!editingReviewId) {
                     // Random local avatar fallback ONLY for new reviews
                     const randomNum = Math.floor(Math.random() * 3) + 1;
-                    avatarUrl = `assets/avatars/avatar${randomNum}.svg`;
+                    avatarUrl = `assets/avatars/avatar${randomNum}.png`;
                 }
 
                 const reviewData = {
@@ -640,6 +670,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 this.reset();
+                selectedAvatarInput.value = "";
+                avatarOptions.forEach(b => b.classList.remove('selected'));
                 reviewModal.style.display = "none";
                 resetStars();
             } catch (error) {
@@ -702,21 +734,44 @@ document.addEventListener('DOMContentLoaded', () => {
                 ? `<a href="${review.link}" target="_blank" class="review-project-link">${review.projectName} <i class="fas fa-external-link-alt" style="font-size: 0.7rem;"></i></a>`
                 : review.projectName;
 
-            const fallbackAvatar = `assets/avatars/avatar${(dataIndex % 3) + 1}.svg`;
+            const fallbackAvatar = `assets/avatars/avatar${(dataIndex % 3) + 1}.png`;
             const currentAvatar = review.avatarUrl || fallbackAvatar;
 
             card.innerHTML = `
                 ${controlBtns}
-                <div class="review-stars">${starsHtml}</div>
-                <p class="review-text">"${review.description}"</p>
-                <div class="review-footer">
-                    <img src="${currentAvatar}" alt="${review.name}" class="review-avatar">
-                    <div class="review-client-info">
-                        <span class="client-name">${review.name}</span>
-                        <span class="project-tag">${projectDisplay}</span>
-                    </div>
+                <div class="review-avatar-wrap">
+                    <img src="${currentAvatar}" alt="${review.name}" class="review-avatar-main">
+                </div>
+                <div class="client-name-centered">${review.name}</div>
+                <div class="review-stars-centered">${starsHtml}</div>
+                <div class="review-text">
+                    <div class="review-text-inner" id="review-inner-${i}">&ldquo;${review.description}&rdquo;</div>
+                </div>
+                <div class="review-project-info-bottom">
+                    <span class="project-tag-bottom">${projectDisplay}</span>
                 </div>
             `;
+
+
+            // Add read-more button if text overflows (after innerHTML is set)
+            setTimeout(() => {
+                const inner = card.querySelector('.review-text-inner');
+                if (!inner) return;
+                // Check if text is actually overflowing (scrollHeight > clientHeight)
+                const isOverflowing = inner.scrollHeight > inner.clientHeight + 2;
+                if (isOverflowing) {
+                    const btn = document.createElement('button');
+                    btn.className = 'read-more-btn';
+                    btn.type = 'button';
+                    btn.textContent = '+ Read more';
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const expanded = inner.classList.toggle('expanded');
+                        btn.textContent = expanded ? '- Show less' : '+ Read more';
+                    });
+                    inner.parentElement.appendChild(btn);
+                }
+            }, 50);
 
             // Add Drag Interaction to ONLY the front card if there's more than 1 total review
             if (i === 0 && reviewsData.length > 1) {
