@@ -819,18 +819,18 @@ section {
 .avatar-picker {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
     flex-wrap: wrap;
 }
 
 .avatar-options {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 .avatar-option-btn {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     border: 2px solid var(--border-medium);
     padding: 0;
@@ -947,13 +947,13 @@ section {
 .modal-content {
     background: #111827;
     margin: 10% auto;
-    padding: 40px;
+    padding: 25px 30px;
     border: 1px solid var(--primary-color);
     width: 90%;
     max-width: 500px;
-    border-radius: 25px;
+    border-radius: 20px;
     position: relative;
-    box-shadow: 0 0 50px rgba(56, 189, 248, 0.2);
+    box-shadow: 0 0 50px rgba(56, 189, 248, 0.15);
 }
 
 .close-modal {
@@ -973,8 +973,8 @@ section {
 
 .star-rating {
     display: flex;
-    gap: 10px;
-    font-size: 1.8rem;
+    gap: 8px;
+    font-size: 1.6rem;
     color: #4b5563;
 }
 
@@ -989,7 +989,7 @@ section {
 }
 
 .modal-header {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     text-align: center;
 }
 
@@ -1181,16 +1181,29 @@ section {
     z-index: -1;
 }
 
-.form-group {
-    margin-bottom: 25px;
+#review-modal .form-group {
+    margin-bottom: 12px;
+}
+
+.form-row-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 480px) {
+    .form-row-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 4px;
     color: var(--text-muted);
     font-weight: 500;
-    font-size: 0.95rem;
+    font-size: 0.85rem;
 }
 
 .form-group input,
