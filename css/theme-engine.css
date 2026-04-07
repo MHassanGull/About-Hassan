@@ -1,0 +1,255 @@
+/* ═══════════════════════════════════════════════════════════════
+   ANTIGRAVITY THEME ENGINE v1.0 — UNCHANGED
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+    --bg-primary: #000000;
+    --bg-secondary: #0a0a0a;
+    --bg-elevated: rgba(255, 255, 255, 0.04);
+    --bg-gradient-start: #0d0d0d;
+    --bg-gradient-end: #000000;
+    --overlay-gradient-1: rgba(255, 255, 255, 0.03);
+    --overlay-gradient-2: rgba(255, 255, 255, 0.05);
+    --text-main: #ffffff;
+    --text-muted: #e5e5e5;
+    --text-inverse: #000000;
+    --accent-primary: #f5f5f5;
+    --accent-secondary: #d4d4d4;
+    --accent-tertiary: #a3a3a3;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-medium: rgba(255, 255, 255, 0.15);
+    --border-strong: rgba(255, 255, 255, 0.25);
+    --shadow-soft: 0 2px 8px rgba(255, 255, 255, 0.05);
+    --shadow-medium: 0 4px 15px rgba(255, 255, 255, 0.08);
+    --shadow-strong: 0 8px 25px rgba(255, 255, 255, 0.12);
+    --shadow-floating: 0 20px 40px rgba(255, 255, 255, 0.1);
+    --focus-ring: 0 0 0 3px rgba(255, 255, 255, 0.2);
+    --hover-overlay: rgba(255, 255, 255, 0.08);
+    --particle-color: rgba(255, 255, 255, 0.2);
+    --transition-all: all 0.4s ease-in-out;
+}
+
+[data-theme="pure-white"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #fafafa;
+    --bg-elevated: rgba(250, 250, 250, 0.95);
+    --bg-gradient-start: #f5f5f5;
+    --bg-gradient-end: #ffffff;
+    --overlay-gradient-1: rgba(0, 0, 0, 0.02);
+    --overlay-gradient-2: rgba(0, 0, 0, 0.03);
+    --text-main: #000000;
+    --text-muted: #525252;
+    --text-inverse: #ffffff;
+    --accent-primary: #171717;
+    --accent-secondary: #404040;
+    --accent-tertiary: #525252;
+    --border-subtle: rgba(0, 0, 0, 0.1);
+    --border-medium: rgba(0, 0, 0, 0.2);
+    --border-strong: rgba(0, 0, 0, 0.4);
+    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.12);
+    --shadow-strong: 0 8px 25px rgba(0, 0, 0, 0.18);
+    --shadow-floating: 0 20px 40px rgba(0, 0, 0, 0.15);
+    --focus-ring: 0 0 0 3px rgba(0, 0, 0, 0.15);
+    --hover-overlay: rgba(0, 0, 0, 0.05);
+    --particle-color: rgba(0, 0, 0, 0.15)
+}
+
+/* Legacy variable mapping */
+:root {
+    --bg-color: var(--bg-primary);
+    --card-bg: var(--bg-elevated);
+    --primary-color: var(--accent-primary);
+    --secondary-color: var(--accent-secondary);
+    --accent-color: var(--accent-tertiary);
+    --text-color: var(--text-main);
+}
+
+/* Global theme transition */
+* {
+    transition: background-color 0.4s ease-in-out, color 0.4s ease-in-out, border-color 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+}
+
+body {
+    background-color: var(--bg-primary) !important;
+    color: var(--text-main) !important;
+}
+
+body::before {
+    background: radial-gradient(circle at top right, var(--overlay-gradient-1) 0%, transparent 40%), radial-gradient(circle at bottom left, var(--overlay-gradient-2) 0%, transparent 40%) !important;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary) !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-strong) !important;
+    border-radius: 4px;
+}
+
+.btn {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary)) !important;
+    color: var(--text-inverse) !important;
+}
+
+.btn-outline {
+    background: transparent !important;
+    border: 1.5px solid var(--accent-primary) !important;
+    color: var(--accent-primary) !important;
+}
+
+.btn-outline:hover {
+    background: var(--accent-primary) !important;
+    color: var(--text-inverse) !important;
+}
+
+header {
+    background: rgba(0, 0, 0, 0.85) !important;
+    border-bottom: none !important;
+    backdrop-filter: blur(14px) !important;
+    -webkit-backdrop-filter: blur(14px) !important;
+}
+
+[data-theme="pure-white"] header {
+    background: rgba(255, 255, 255, 0.90) !important;
+    border-bottom: none !important;
+}
+
+.logo,
+.logo a {
+    color: var(--text-main) !important;
+    text-decoration: none;
+}
+
+.nav-links li a {
+    color: var(--text-muted) !important;
+}
+
+.nav-links li a:hover,
+.nav-links li a.active {
+    color: var(--text-main) !important;
+}
+
+.nav-links li a::after {
+    background: var(--text-main) !important;
+}
+
+.skill-card,
+.project-card,
+.contact-form,
+.contact-objective-card,
+.contact-info-item,
+.tech-card {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border-medium) !important;
+    color: var(--text-main) !important;
+}
+
+.skill-card h3,
+.project-card h3,
+.review-card h3,
+.about-text h3 {
+    color: var(--text-main) !important;
+}
+
+.section-title h2 {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+}
+
+.section-title p,
+.about-text p {
+    color: var(--text-muted) !important;
+}
+
+.form-group input,
+.form-group textarea,
+.country-selector {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border-medium) !important;
+    color: var(--text-main) !important;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 0.7;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: var(--accent-primary) !important;
+    box-shadow: var(--focus-ring) !important;
+    outline: none;
+}
+
+.contact-icon {
+    background: var(--accent-primary) !important;
+    color: var(--text-inverse) !important;
+}
+
+footer {
+    background: var(--bg-primary) !important;
+    border-top: 1px solid var(--border-subtle) !important;
+    color: var(--text-muted) !important;
+}
+
+footer p {
+    color: var(--text-muted) !important;
+}
+
+.copyright-link {
+    color: var(--text-main) !important;
+}
+
+.social-links a {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border-subtle) !important;
+}
+
+.social-links a:hover {
+    background: var(--accent-primary) !important;
+    color: var(--text-inverse) !important;
+    border-color: var(--accent-primary) !important;
+}
+
+.view-details-btn {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: var(--accent-primary) !important;
+    border-color: var(--border-medium) !important;
+}
+
+.view-details-btn:hover {
+    background: var(--accent-primary) !important;
+    color: var(--text-inverse) !important;
+}
+
+.hero-name.gradient-text {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+.about-text h3 {
+    color: var(--accent-primary) !important;
+}
+
+.chatbot-trigger {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+}
+
+.hero-detail h1 {
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+/* Project desc helper */
+.project-desc {
+    color: var(--text-muted) !important;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
