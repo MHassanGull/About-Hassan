@@ -478,10 +478,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function processAIResponse(text) {
         if (!text) return "I'm sorry, I couldn't process that.";
         let clean = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
-        if (clean.length > 300) {
-            const first = clean.split(/[.!?]/)[0];
-            clean = first ? first + '.' : clean.substring(0, 297) + '...';
-        }
         return clean || "I'm here to help!";
     }
 
