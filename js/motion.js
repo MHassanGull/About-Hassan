@@ -135,7 +135,48 @@
     });
   };
 
-  /* ── 8. STAT COUNT-UPS (data-count-to) ── */
+  /* ── 8. MAGNETIC BUTTONS — cursor-tracking spotlight + pull ── */
+  const wireMagneticButtons = () => {
+    if (prefersReduce) return;
+    if (window.matchMedia('(hover: none)').matches) return;
+
+    document.querySelectorAll('.btn').forEach((btn) => {
+      let rect = null;
+      let rafId = null;
+
+      const onEnter = () => { rect = btn.getBoundingClientRect(); };
+      const onMove = (e) => {
+        if (!rect) rect = btn.getBoundingClientRect();
+        if (rafId) return;
+        rafId = requestAnimationFrame(() => {
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const pctX = (x / rect.width)  * 100;
+          const pctY = (y / rect.height) * 100;
+          btn.style.setProperty('--mx', pctX + '%');
+          btn.style.setProperty('--my', pctY + '%');
+
+          // Subtle magnetic pull (max 6px in any direction)
+          const dx = ((x / rect.width)  - 0.5) * 12;
+          const dy = ((y / rect.height) - 0.5) * 12;
+          btn.style.setProperty('--pull-x', dx + 'px');
+          btn.style.setProperty('--pull-y', dy + 'px');
+          rafId = null;
+        });
+      };
+      const onLeave = () => {
+        rect = null;
+        btn.style.setProperty('--pull-x', '0px');
+        btn.style.setProperty('--pull-y', '0px');
+      };
+
+      btn.addEventListener('mouseenter', onEnter);
+      btn.addEventListener('mousemove',  onMove);
+      btn.addEventListener('mouseleave', onLeave);
+    });
+  };
+
+  /* ── 9. STAT COUNT-UPS (data-count-to) ── */
   const wireCounters = () => {
     if (prefersReduce) return;
     const obs = new IntersectionObserver((entries) => {
@@ -168,6 +209,7 @@
     wireTilt();
     wireHeaderScroll();
     wireMarquee();
+    wireMagneticButtons();
     wireCounters();
     // Hero plays on next frame so initial paint is clean
     requestAnimationFrame(playHero);
