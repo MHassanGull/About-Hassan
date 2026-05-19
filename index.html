@@ -30,13 +30,41 @@
     <!-- Intro Loader — runs first, fades out before page shows -->
     <script src="js/intro-loader.js"></script>
 
-    <!-- Intro Loader Overlay -->
+    <!-- Intro Loader Overlay — particle convergence + text reveal -->
     <div id="intro-overlay" class="intro-overlay">
-        <div class="intro-logo">MH.</div>
-        <div class="intro-bar">
-            <div class="intro-bar-fill"></div>
+        <canvas class="intro-canvas" aria-hidden="true"></canvas>
+        <div class="intro-aurora" aria-hidden="true"></div>
+        <div class="intro-stage">
+            <div class="intro-eyebrow">
+                <span class="intro-dot"></span>
+                MUHAMMAD HASSAN · PORTFOLIO
+            </div>
+            <svg class="intro-svg" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+                <defs>
+                    <linearGradient id="intro-stroke-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%"  stop-color="#A78BFA"/>
+                        <stop offset="50%" stop-color="#60A5FA"/>
+                        <stop offset="100%" stop-color="#22D3EE"/>
+                    </linearGradient>
+                </defs>
+                <text class="intro-text intro-text--stroke" x="400" y="130"
+                      text-anchor="middle" dominant-baseline="middle">HASSAN</text>
+                <text class="intro-text intro-text--fill"   x="400" y="130"
+                      text-anchor="middle" dominant-baseline="middle">HASSAN</text>
+            </svg>
+            <div class="intro-tagline">
+                <span>AI</span><span class="intro-sep">·</span>
+                <span>Automation</span><span class="intro-sep">·</span>
+                <span>Engineering</span>
+            </div>
+            <div class="intro-progress" aria-hidden="true">
+                <div class="intro-progress-fill"></div>
+            </div>
         </div>
     </div>
+
+    <!-- Legacy markers kept for backwards-compat — JS now drives this -->
+    <div class="intro-bar-fill" style="display:none"></div>
 
     <!-- Custom Cursor -->
     <div class="cursor-dot" id="cursor-dot"></div>
