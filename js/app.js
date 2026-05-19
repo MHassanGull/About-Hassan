@@ -413,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!chatTrigger) return; // Not on index page
 
-    const API_URL = 'https://n8n.srv829343.hstgr.cloud/webhook/portfolio-chatbot';
+    const API_URL = 'https://n8nserver.metaviz.pro/webhook/portfolio-chatbot';
     const SESS_KEY = 'ai_session_id';
     let isTyping = false;
 
