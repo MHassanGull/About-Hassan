@@ -293,36 +293,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Minimal fallback renderer (shown if ReviewStack unavailable)
+    // Minimal fallback renderer — only fires if ReviewStack isn't loaded.
+    // Uses the new t-card class system so styling stays consistent.
     function addReviewFallback(review) {
         if (!reviewsGrid) return;
-        const card = document.createElement('div');
-        card.className = 'review-card';
-        card.style.cssText = 'position:relative;transform:none;opacity:1;pointer-events:all;margin-bottom:20px';
+        const card = document.createElement('article');
+        card.className = 't-card t-card--small';
+        card.style.cssText = 'margin-bottom:16px';
         card.dataset.id = review.id;
         card.dataset.link = review.link || '';
+        card.dataset.avatar = review.avatar || '';
 
         const stars = Array.from({ length: 5 }, (_, i) =>
             `<i class="${i < (review.rating || 0) ? 'fas' : 'far'} fa-star"></i>`).join('');
 
-        const projectDisplay = review.link
-            ? `<a href="${review.link}" target="_blank" class="review-project-link">${review.projectName}</a>`
-            : review.projectName;
+        const project = review.link
+            ? `<a href="${review.link}" target="_blank" rel="noopener" class="t-card__project">${review.projectName} <i class="fas fa-arrow-up-right-from-square"></i></a>`
+            : `<span class="t-card__project">${review.projectName || ''}</span>`;
 
         const controls = isAdmin ? `
-            <div class="review-controls">
-                <button class="edit-btn" onclick="openEditModal('${review.id}')"><i class="fas fa-edit"></i></button>
-                <button class="delete-btn" onclick="deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
+            <div class="t-card__controls">
+                <button class="edit-btn"   type="button" onclick="openEditModal('${review.id}')"><i class="fas fa-edit"></i></button>
+                <button class="delete-btn" type="button" onclick="deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
             </div>` : '';
 
         card.innerHTML = `
             ${controls}
-            <div class="review-stars">${stars}</div>
-            <p class="review-text">"${review.description}"</p>
-            <div class="review-footer">
-                <span class="client-name">${review.name}</span>
-                <span class="project-tag">${projectDisplay}</span>
-            </div>`;
+            <div class="t-card__rating">${stars}</div>
+            <blockquote class="t-card__quote">"${review.description || ''}"</blockquote>
+            <footer class="t-card__meta">
+                <div class="t-card__avatar" data-theme="violet" aria-hidden="true">${(review.name || '?').slice(0,1).toUpperCase()}</div>
+                <div class="t-card__person">
+                    <span class="t-card__name client-name">${review.name || 'Anonymous'}</span>
+                    ${project}
+                </div>
+            </footer>`;
         reviewsGrid.appendChild(card);
     }
 
@@ -340,21 +345,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     window.openEditModal = function (id) {
-        // Find card in DOM — could be in either stack or fallback grid
-        const card = document.querySelector(`.review-card[data-id="${id}"]`);
+        // Find card in DOM — works with t-card (new) or any element carrying the data-id.
+        const card = document.querySelector(`[data-id="${id}"]`);
         if (!card || !reviewModal) return;
 
         editingReviewId = id;
         if (modalTitle) modalTitle.innerText = 'Edit Review';
 
-        // Handle both new card structure (review-card-header) and old fallback
-        const nameEl = card.querySelector('.client-name');
-        const projectEl = card.querySelector('.review-project-link') || card.querySelector('.project-tag');
-        const textEl = card.querySelector('.review-text');
-        const rating = card.querySelectorAll('.review-stars .fas').length;
-        const link = card.dataset.link || '';
-        const avImg = card.querySelector('.review-avatar img');
-        const avSrc = avImg ? avImg.getAttribute('src') : '';
+        // New card structure uses t-card__* classes; fallback still uses .client-name on the name node.
+        const nameEl    = card.querySelector('.t-card__name')  || card.querySelector('.client-name');
+        const projectEl = card.querySelector('.t-card__project') || card.querySelector('.review-project-link') || card.querySelector('.project-tag');
+        const textEl    = card.querySelector('.t-card__quote') || card.querySelector('.review-text');
+        const rating    = (card.querySelector('.t-card__rating') || card.querySelector('.review-stars'))?.querySelectorAll('.fas').length || 0;
+        const link      = card.dataset.link || '';
+        const avImg     = card.querySelector('.t-card__avatar img') || card.querySelector('.review-avatar img');
+        const avSrc     = avImg ? avImg.getAttribute('src') : (card.dataset.avatar || '');
 
         if (reviewForm) {
             reviewForm.querySelector('[name="name"]').value = nameEl?.innerText || '';

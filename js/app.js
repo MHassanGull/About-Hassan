@@ -760,164 +760,202 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { threshold: 0.3 }).observe(nonoGrid);
     }
 
-    /* ── STACKING REVIEWS ENGINE ─────────────
+    /* ── TESTIMONIALS ENGINE — Featured + Supporting Grid ─────────
        Populated by main.js after Firestore load.
        window.ReviewStack is the public API.
-    ─────────────────────────────────────────── */
+       Renders CSS-only initial avatars (no PNG/JPG shipped).
+    ─────────────────────────────────────────────────────────── */
     window.ReviewStack = (() => {
+        const stage = document.getElementById('reviews-stack');
+        const THEMES = ['violet', 'blue', 'cyan', 'gold', 'pink', 'emerald'];
         let allReviews = [];
-        let currentIdx = 0;
-        const stack = document.getElementById('reviews-stack');
-        const navEl = document.getElementById('stack-nav');
-        const EMOJI_MAP = {
-            'avatar-m1': '🧔', 'avatar-m2': '👨',
-            'avatar-f1': '👩', 'avatar-f2': '🧕', 'avatar-nb': '🧑'
-        };
+        let isExpanded = false;
 
-        function buildCard(review) {
-            const card = document.createElement('div');
-            card.className = 'review-card';
+        // Pick a theme deterministically from the reviewer's name so it stays consistent across renders.
+        function themeFor(name) {
+            const s = String(name || 'anonymous');
+            let h = 0;
+            for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+            return THEMES[Math.abs(h) % THEMES.length];
+        }
+
+        function initialsOf(name) {
+            if (!name) return '?';
+            const words = String(name).replace(/[^A-Za-z\s]/g, ' ').trim().split(/\s+/).filter(Boolean);
+            if (!words.length) return '?';
+            if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+            return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+        }
+
+        // Only show <img> for genuinely uploaded photos. Legacy preset PNG paths and old emoji keys
+        // fall through to the CSS-gradient initials avatar.
+        function isUploadedImage(src) {
+            if (!src) return false;
+            if (src.startsWith('data:')) return true;
+            if (src.startsWith('https://') || src.startsWith('http://')) return true;
+            return false;
+        }
+
+        function escapeHtml(s) {
+            return String(s ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function buildStars(rating) {
+            const r = Math.max(0, Math.min(5, parseInt(rating, 10) || 0));
+            return Array.from({ length: 5 }, (_, i) =>
+                `<i class="${i < r ? 'fas' : 'far'} fa-star" aria-hidden="true"></i>`
+            ).join('');
+        }
+
+        function buildAvatarContent(review) {
+            if (isUploadedImage(review.avatar)) {
+                return `<img src="${escapeHtml(review.avatar)}" alt="" loading="lazy">`;
+            }
+            return escapeHtml(initialsOf(review.name));
+        }
+
+        function buildProject(review) {
+            const txt = escapeHtml(review.projectName || '');
+            if (!txt) return '';
+            if (review.link) {
+                return `<a class="t-card__project" href="${escapeHtml(review.link)}" target="_blank" rel="noopener noreferrer">${txt} <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i></a>`;
+            }
+            return `<span class="t-card__project">${txt}</span>`;
+        }
+
+        function buildControls(review) {
+            if (!window._portfolioIsAdmin) return '';
+            return `
+                <div class="t-card__controls">
+                    <button class="edit-btn"   type="button" data-action="edit"   data-id="${escapeHtml(review.id)}" aria-label="Edit review"><i class="fas fa-edit" aria-hidden="true"></i></button>
+                    <button class="delete-btn" type="button" data-action="delete" data-id="${escapeHtml(review.id)}" aria-label="Delete review"><i class="fas fa-trash" aria-hidden="true"></i></button>
+                </div>`;
+        }
+
+        function buildCard(review, variant) {
+            const isFeatured = variant === 'featured';
+            const card = document.createElement('article');
+            card.className = 't-card ' + (isFeatured ? 't-card--featured' : 't-card--small');
             card.dataset.id = review.id;
             card.dataset.link = review.link || '';
+            card.dataset.avatar = review.avatar || '';
 
-            const stars = Array.from({ length: 5 }, (_, i) =>
-                `<i class="${i < (review.rating || 0) ? 'fas' : 'far'} fa-star"></i>`).join('');
+            const theme = themeFor(review.name);
+            const rating = parseInt(review.rating, 10) || 5;
+            const ratingLabel = `${rating} out of 5 stars`;
+            const name = escapeHtml(review.name || 'Anonymous');
+            const description = escapeHtml(review.description || '');
 
-            const projectDisplay = review.link
-                ? `<a href="${review.link}" target="_blank" class="review-project-link">${review.projectName} <i class="fas fa-external-link-alt"></i></a>`
-                : review.projectName;
-
-            // Avatar
-            let avatarPath = review.avatar || 'assets/avatars/avatar1.png';
-            // Backwards compatibility for old emoji keys
-            if (avatarPath === 'avatar-m1') avatarPath = 'assets/avatars/avatar1.png';
-            if (avatarPath === 'avatar-m2') avatarPath = 'assets/avatars/avatar2.png';
-            if (avatarPath === 'avatar-f1' || avatarPath === 'avatar-f2' || avatarPath === 'avatar-nb') avatarPath = 'assets/avatars/avatar3.png';
-            
-            const avatarInner = `<img src="${avatarPath}" alt="${review.name}">`;
-
-            const isAdminGlobal = typeof isAdmin !== 'undefined' && window._portfolioIsAdmin;
-            const controls = isAdminGlobal ? `
-                <div class="review-controls">
-                    <button class="edit-btn" onclick="openEditModal('${review.id}')"><i class="fas fa-edit"></i></button>
-                    <button class="delete-btn" onclick="deleteReview('${review.id}')"><i class="fas fa-trash"></i></button>
-                </div>` : '';
+            const quoteMark = isFeatured
+                ? `<span class="t-card__quote-mark" aria-hidden="true">“</span>`
+                : '';
+            const badge = isFeatured
+                ? `<span class="t-card__featured-badge">Featured Review</span>`
+                : '';
 
             card.innerHTML = `
-                ${controls}
-                <div class="review-card-header">
-                    <div class="review-avatar">${avatarInner}</div>
-                    <div class="review-avatar-info">
-                        <div class="client-name">${review.name}</div>
-                        <div class="review-stars">${stars}</div>
+                ${buildControls(review)}
+                ${quoteMark}
+                ${badge}
+                <div class="t-card__rating" role="img" aria-label="${ratingLabel}">${buildStars(rating)}</div>
+                <blockquote class="t-card__quote">“${description}”</blockquote>
+                <footer class="t-card__meta">
+                    <div class="t-card__avatar" data-theme="${theme}" aria-hidden="true">${buildAvatarContent(review)}</div>
+                    <div class="t-card__person">
+                        <span class="t-card__name client-name">${name}</span>
+                        ${buildProject(review)}
                     </div>
-                </div>
-                <div class="review-text">
-                    "${review.description}"
-                    <button class="read-more-btn">+ Read more</button>
-                </div>
-                <div class="project-tag">${projectDisplay}</div>`;
+                </footer>`;
             return card;
         }
 
-        function renderStack() {
-            if (!stack) return;
-            // Clear existing cards
-            stack.querySelectorAll('.review-card').forEach(c => c.remove());
-            if (!allReviews.length) {
-                stack.innerHTML = '<p style="text-align:center;opacity:0.5;padding:40px 20px;">No reviews yet. Be the first!</p>';
-                return;
-            }
-
-            // Render up to 3 visible cards
-            for (let offset = 2; offset >= 0; offset--) {
-                const idx = (currentIdx + offset) % allReviews.length;
-                if (idx < allReviews.length) {
-                    const card = buildCard(allReviews[idx]);
-                    if (offset === 0) {
-                        card.classList.add('stack-0');
-                        setupDrag(card);
-                    } else if (offset === 1) {
-                        card.classList.add('stack-1');
-                    } else {
-                        card.classList.add('stack-2');
-                    }
-                    stack.appendChild(card);
-                }
-            }
-            renderDots();
+        // Sort: highest rating first, longest description as tiebreaker.
+        function pickFeatured(reviews) {
+            if (!reviews.length) return null;
+            const sorted = [...reviews].sort((a, b) => {
+                const ra = parseInt(a.rating, 10) || 0;
+                const rb = parseInt(b.rating, 10) || 0;
+                if (ra !== rb) return rb - ra;
+                return (b.description?.length || 0) - (a.description?.length || 0);
+            });
+            return sorted[0];
         }
 
-        function renderDots() {
-            if (!navEl) return;
-            navEl.innerHTML = '';
-            allReviews.forEach((_, i) => {
-                const dot = document.createElement('div');
-                dot.className = 'stack-dot' + (i === currentIdx ? ' active' : '');
-                dot.addEventListener('click', () => goTo(i));
-                navEl.appendChild(dot);
+        function wireAdminButtons() {
+            if (!stage) return;
+            stage.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const id = btn.dataset.id;
+                    const action = btn.dataset.action;
+                    if (action === 'edit' && typeof window.openEditModal === 'function') window.openEditModal(id);
+                    if (action === 'delete' && typeof window.deleteReview === 'function') window.deleteReview(id);
+                });
             });
         }
 
-        function goTo(idx) {
-            currentIdx = ((idx % allReviews.length) + allReviews.length) % allReviews.length;
-            renderStack();
-        }
+        function render() {
+            if (!stage) return;
+            stage.innerHTML = '';
 
-        function advance() { goTo(currentIdx + 1); }
+            if (!allReviews.length) {
+                stage.innerHTML = `<div class="reviews-empty">No reviews yet — be the first to share your experience.</div>`;
+                return;
+            }
 
-        function setupDrag(card) {
-            let startX = 0, startY = 0, currX = 0, isDragging = false;
-            const threshold = 80;
+            const featured = pickFeatured(allReviews);
+            const rest = allReviews.filter(r => r.id !== featured.id);
 
-            const onStart = (x, y) => {
-                startX = x; startY = y; currX = 0;
-                isDragging = true;
-                card.classList.add('dragging');
-            };
-            const onMove = (x) => {
-                if (!isDragging) return;
-                currX = x - startX;
-                const rot = currX * 0.08;
-                card.style.transform = `translateX(${currX}px) rotate(${rot}deg)`;
-                const pct = Math.abs(currX) / threshold;
-                card.style.opacity = Math.max(0.4, 1 - pct * 0.5);
-            };
-            const onEnd = () => {
-                if (!isDragging) return;
-                isDragging = false;
-                card.classList.remove('dragging');
-                card.style.transform = ''; card.style.opacity = '';
-                if (Math.abs(currX) >= threshold) {
-                    card.classList.add(currX < 0 ? 'exit-left' : 'exit-right');
-                    setTimeout(() => advance(), 460);
-                } else {
-                    card.style.transform = '';
-                    card.classList.remove('tilt-left', 'tilt-right');
-                    // Snap back
-                    card.style.transition = 'transform 0.4s cubic-bezier(0.23,1,0.32,1)';
-                    requestAnimationFrame(() => {
-                        card.style.transform = 'rotate(-2deg) translateX(-4px)';
-                        setTimeout(() => card.style.transition = '', 400);
+            stage.appendChild(buildCard(featured, 'featured'));
+
+            if (rest.length) {
+                const visible = rest.slice(0, 3);
+                const hidden = rest.slice(3);
+
+                const grid = document.createElement('div');
+                grid.className = 't-grid';
+                visible.forEach(r => grid.appendChild(buildCard(r, 'small')));
+                stage.appendChild(grid);
+
+                if (hidden.length) {
+                    const hiddenGrid = document.createElement('div');
+                    hiddenGrid.className = 't-grid' + (isExpanded ? '' : ' t-grid--hidden');
+                    hidden.forEach(r => hiddenGrid.appendChild(buildCard(r, 'small')));
+                    stage.appendChild(hiddenGrid);
+
+                    const toggle = document.createElement('button');
+                    toggle.type = 'button';
+                    toggle.className = 't-more-toggle';
+                    toggle.setAttribute('aria-expanded', String(isExpanded));
+                    toggle.setAttribute('aria-controls', 'reviews-hidden-grid');
+                    hiddenGrid.id = 'reviews-hidden-grid';
+                    const setLabel = () => {
+                        toggle.innerHTML = isExpanded
+                            ? `Show less <i class="fas fa-chevron-down" aria-hidden="true"></i>`
+                            : `Show ${hidden.length} more <i class="fas fa-chevron-down" aria-hidden="true"></i>`;
+                    };
+                    setLabel();
+                    toggle.addEventListener('click', () => {
+                        isExpanded = !isExpanded;
+                        hiddenGrid.classList.toggle('t-grid--hidden', !isExpanded);
+                        toggle.setAttribute('aria-expanded', String(isExpanded));
+                        setLabel();
                     });
+                    stage.appendChild(toggle);
                 }
-                currX = 0;
-            };
+            }
 
-            // Mouse
-            card.addEventListener('mousedown', e => { if (e.button === 0) onStart(e.clientX, e.clientY); });
-            window.addEventListener('mousemove', e => { if (isDragging) onMove(e.clientX); });
-            window.addEventListener('mouseup', e => { if (isDragging) onEnd(); });
-
-            // Touch
-            card.addEventListener('touchstart', e => { onStart(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
-            card.addEventListener('touchmove', e => { onMove(e.touches[0].clientX); }, { passive: true });
-            card.addEventListener('touchend', () => onEnd());
+            wireAdminButtons();
         }
 
         return {
-            load(reviews) { allReviews = reviews; currentIdx = 0; renderStack(); },
-            refresh(reviews) { allReviews = reviews; renderStack(); }
+            load(reviews)    { allReviews = Array.isArray(reviews) ? reviews : []; isExpanded = false; render(); },
+            refresh(reviews) { allReviews = Array.isArray(reviews) ? reviews : []; render(); }
         };
     })();
 
