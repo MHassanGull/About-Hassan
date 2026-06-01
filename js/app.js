@@ -803,6 +803,17 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
             return THEMES[Math.abs(h) % THEMES.length];
         }
+
+        // If the reviewer explicitly picked a theme in the modal, honor it.
+        // Otherwise fall back to the deterministic-from-name theme.
+        function themeOf(review) {
+            const a = review.avatar;
+            if (a && typeof a === 'string' && a.startsWith('theme-')) {
+                const key = a.slice(6);
+                if (THEMES.includes(key)) return key;
+            }
+            return themeFor(review.name);
+        }
         function initialsOf(name) {
             if (!name) return '?';
             const w = String(name).replace(/[^A-Za-z\s]/g, ' ').trim().split(/\s+/).filter(Boolean);
@@ -867,13 +878,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const rating = parseInt(review.rating, 10) || 5;
             card.innerHTML = `
                 ${controlsHTML(review)}
+                <span class="t-card__watermark" aria-hidden="true">&ldquo;</span>
                 <div class="t-card__top">
                     <div class="t-card__rating" role="img" aria-label="${rating} out of 5 stars">${buildStars(rating)}</div>
                     <span class="t-card__index">${String(globalIndex + 1).padStart(2, '0')} / ${String(allReviews.length).padStart(2, '0')}</span>
                 </div>
                 <blockquote class="t-card__quote">${escapeHtml(review.description || '')}</blockquote>
                 <footer class="t-card__meta">
-                    <div class="t-card__avatar" data-theme="${themeFor(review.name)}" aria-hidden="true">${avatarHTML(review)}</div>
+                    <div class="t-card__avatar" data-theme="${themeOf(review)}" aria-hidden="true">${avatarHTML(review)}</div>
                     <div class="t-card__person">
                         <span class="t-card__name client-name">${escapeHtml(review.name || 'Anonymous')}</span>
                         ${projectHTML(review)}
@@ -886,6 +898,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!stack) return;
             stack.innerHTML = '';
             stack.classList.toggle('is-empty', !allReviews.length);
+            stack.classList.toggle('t-stack--single', allReviews.length === 1);
 
             if (!allReviews.length) {
                 stack.innerHTML = '<div class="reviews-empty">No reviews yet — be the first to share your experience.</div>';
@@ -1048,38 +1061,79 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     })();
 
-    /* ── AVATAR PICKER ──────────────────────── */
-    const avatarBtns = document.querySelectorAll('.avatar-option-btn');
-    const avatarInput = document.getElementById('selected-avatar');
-    const avatarUpload = document.getElementById('review-avatar-upload');
+    /* ── AVATAR PICKER (CSS theme circles + image upload) ──────── */
+    const avatarBtns        = document.querySelectorAll('.theme-btn');
+    const avatarInput       = document.getElementById('selected-avatar');
+    const avatarUpload      = document.getElementById('review-avatar-upload');
     const avatarPreviewWrap = document.getElementById('avatar-preview-wrap');
-    const avatarPreview = document.getElementById('avatar-preview');
-    const removeAvatarBtn = document.getElementById('remove-avatar');
+    const avatarPreview     = document.getElementById('avatar-preview');
+    const removeAvatarBtn   = document.getElementById('remove-avatar');
+    const DEFAULT_AVATAR    = 'theme-violet';
 
     avatarBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            avatarBtns.forEach(b => b.classList.remove('active'));
+            avatarBtns.forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-pressed', 'false');
+            });
             btn.classList.add('active');
-            if (avatarInput) avatarInput.value = btn.dataset.avatar;
-            // Hide upload preview if preset chosen
+            btn.setAttribute('aria-pressed', 'true');
+            if (avatarInput) avatarInput.value = btn.dataset.avatar || DEFAULT_AVATAR;
+            // Clear upload preview when picking a theme
             if (avatarPreviewWrap) avatarPreviewWrap.style.display = 'none';
             if (avatarPreview) avatarPreview.src = '';
+            if (avatarUpload) avatarUpload.value = '';
         });
     });
+
+    // Resize uploaded images to a square 256x256 JPEG before storing as base64.
+    // Keeps Firestore docs comfortably under the 1MB limit no matter how big
+    // the original file is.
+    function resizeImageToDataUrl(file, maxDim, quality, cb) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                const scale = Math.min(maxDim / img.width, maxDim / img.height, 1);
+                const w = Math.round(img.width * scale);
+                const h = Math.round(img.height * scale);
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                cb(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = () => cb(null);
+            img.src = e.target.result;
+        };
+        reader.onerror = () => cb(null);
+        reader.readAsDataURL(file);
+    }
 
     if (avatarUpload) {
         avatarUpload.addEventListener('change', () => {
             const file = avatarUpload.files[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                if (avatarPreview) avatarPreview.src = e.target.result;
+            if (!/^image\//.test(file.type)) {
+                alert('Please pick an image file.');
+                avatarUpload.value = '';
+                return;
+            }
+            resizeImageToDataUrl(file, 256, 0.82, (dataUrl) => {
+                if (!dataUrl) {
+                    alert('Could not read that image — try a different file.');
+                    avatarUpload.value = '';
+                    return;
+                }
+                if (avatarPreview) avatarPreview.src = dataUrl;
                 if (avatarPreviewWrap) avatarPreviewWrap.style.display = 'block';
-                if (avatarInput) avatarInput.value = e.target.result; // base64 data URL
-                // Deselect preset buttons
-                avatarBtns.forEach(b => b.classList.remove('active'));
-            };
-            reader.readAsDataURL(file);
+                if (avatarInput) avatarInput.value = dataUrl;
+                // Deselect theme buttons
+                avatarBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+            });
         });
     }
     if (removeAvatarBtn) {
@@ -1087,12 +1141,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (avatarPreviewWrap) avatarPreviewWrap.style.display = 'none';
             if (avatarPreview) avatarPreview.src = '';
             if (avatarUpload) avatarUpload.value = '';
-            // Re-select first preset
-            if (avatarBtns[0]) { 
-                avatarBtns.forEach(b => b.classList.remove('active'));
-                avatarBtns[0].classList.add('active'); 
+            // Re-select default theme
+            if (avatarBtns[0]) {
+                avatarBtns.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+                avatarBtns[0].classList.add('active');
+                avatarBtns[0].setAttribute('aria-pressed', 'true');
             }
-            if (avatarInput) avatarInput.value = 'assets/avatars/avatar1.png';
+            if (avatarInput) avatarInput.value = DEFAULT_AVATAR;
         });
     }
 

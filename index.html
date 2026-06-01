@@ -441,96 +441,105 @@
     </section>
 
     <!-- ═══ REVIEW MODAL ═══ -->
-    <div id="review-modal" class="modal">
+    <div id="review-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="review-modal-title">
         <div class="modal-content">
-            <span class="close-modal">&times;</span>
+            <button type="button" class="close-modal" aria-label="Close dialog">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
             <div class="modal-header">
-                <h3>Share Your Experience</h3>
+                <h3 id="review-modal-title">Share Your Experience</h3>
                 <p>Your feedback helps me improve and grow.</p>
             </div>
-            <form id="review-form">
+            <form id="review-form" novalidate>
                 <div class="form-group">
-                    <label>Rating</label>
-                    <div class="star-rating">
-                        <i class="far fa-star" data-rating="1"></i>
-                        <i class="far fa-star" data-rating="2"></i>
-                        <i class="far fa-star" data-rating="3"></i>
-                        <i class="far fa-star" data-rating="4"></i>
-                        <i class="far fa-star" data-rating="5"></i>
+                    <label class="form-label">Rating</label>
+                    <div class="star-rating" role="radiogroup" aria-label="Rating from 1 to 5 stars">
+                        <i class="far fa-star" data-rating="1" tabindex="0" role="radio" aria-checked="false" aria-label="1 star"></i>
+                        <i class="far fa-star" data-rating="2" tabindex="0" role="radio" aria-checked="false" aria-label="2 stars"></i>
+                        <i class="far fa-star" data-rating="3" tabindex="0" role="radio" aria-checked="false" aria-label="3 stars"></i>
+                        <i class="far fa-star" data-rating="4" tabindex="0" role="radio" aria-checked="false" aria-label="4 stars"></i>
+                        <i class="far fa-star" data-rating="5" tabindex="0" role="radio" aria-checked="false" aria-label="5 stars"></i>
                         <input type="hidden" id="rating-input" name="rating" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="review-name">Your Name</label>
-                    <input type="text" id="review-name" name="name" placeholder="Full Name" required>
+                    <label class="form-label" for="review-name">Your Name</label>
+                    <input type="text" id="review-name" name="name" placeholder="Full Name" autocomplete="name" required>
                 </div>
-                <!-- Avatar Picker -->
+                <!-- Avatar Picker (CSS-only gradient themes, no PNG/JPG) -->
                 <div class="form-group">
-                    <label>Profile Picture <span style="opacity:0.5;font-size:0.8rem">(Optional)</span></label>
+                    <label class="form-label">
+                        Avatar Style
+                        <span class="form-label__hint">pick a color or upload a photo</span>
+                    </label>
                     <div class="avatar-picker">
-                        <div class="avatar-options">
-                            <button type="button" class="avatar-option-btn active" data-avatar="assets/avatars/avatar1.png">
-                                <img src="assets/avatars/avatar1.png" alt="Avatar 1">
-                            </button>
-                            <button type="button" class="avatar-option-btn" data-avatar="assets/avatars/avatar2.png">
-                                <img src="assets/avatars/avatar2.png" alt="Avatar 2">
-                            </button>
-                            <button type="button" class="avatar-option-btn" data-avatar="assets/avatars/avatar3.png">
-                                <img src="assets/avatars/avatar3.png" alt="Avatar 3">
-                            </button>
+                        <div class="avatar-themes" role="radiogroup" aria-label="Avatar color theme">
+                            <button type="button" class="theme-btn active" data-avatar="theme-violet"  data-theme="violet"  aria-label="Violet"  aria-pressed="true"></button>
+                            <button type="button" class="theme-btn"        data-avatar="theme-blue"    data-theme="blue"    aria-label="Blue"    aria-pressed="false"></button>
+                            <button type="button" class="theme-btn"        data-avatar="theme-cyan"    data-theme="cyan"    aria-label="Cyan"    aria-pressed="false"></button>
+                            <button type="button" class="theme-btn"        data-avatar="theme-gold"    data-theme="gold"    aria-label="Gold"    aria-pressed="false"></button>
+                            <button type="button" class="theme-btn"        data-avatar="theme-pink"    data-theme="pink"    aria-label="Pink"    aria-pressed="false"></button>
+                            <button type="button" class="theme-btn"        data-avatar="theme-emerald" data-theme="emerald" aria-label="Emerald" aria-pressed="false"></button>
                         </div>
-                        <span class="avatar-or">or</span>
                         <label for="review-avatar-upload" class="upload-btn-label">
-                            <i class="fas fa-camera"></i> Upload Photo
+                            <i class="fas fa-camera" aria-hidden="true"></i> <span>Upload</span>
                         </label>
-                        <input type="file" id="review-avatar-upload" accept="image/*" style="display:none">
-                        <input type="hidden" id="selected-avatar" name="avatar" value="assets/avatars/avatar1.png">
+                        <input type="file" id="review-avatar-upload" accept="image/*" hidden>
+                        <input type="hidden" id="selected-avatar" name="avatar" value="theme-violet">
                         <div id="avatar-preview-wrap" class="avatar-preview-wrap" style="display:none">
-                            <img id="avatar-preview" src="" alt="Preview" class="avatar-preview-img">
-                            <button type="button" id="remove-avatar" class="remove-avatar-btn"><i
-                                    class="fas fa-times"></i></button>
+                            <img id="avatar-preview" src="" alt="Avatar preview" class="avatar-preview-img">
+                            <button type="button" id="remove-avatar" class="remove-avatar-btn" aria-label="Remove uploaded photo">
+                                <i class="fas fa-times" aria-hidden="true"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="review-project">Project Name</label>
+                    <label class="form-label" for="review-project">Project Name</label>
                     <input type="text" id="review-project" name="project" placeholder="e.g. Portfolio Website" required>
                 </div>
                 <div class="form-group">
-                    <label for="review-content">Overall Experience</label>
-                    <textarea id="review-content" name="content" rows="4" placeholder="How was the quality of work?"
-                        required></textarea>
+                    <label class="form-label" for="review-content">Overall Experience</label>
+                    <textarea id="review-content" name="content" rows="4" placeholder="What did you love about working together?" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="review-link">Project Link <span
-                            style="opacity:0.5;font-size:0.8rem">(Optional)</span></label>
+                    <label class="form-label" for="review-link">
+                        Project Link <span class="form-label__hint">optional</span>
+                    </label>
                     <input type="url" id="review-link" name="link" placeholder="https://yourproject.com">
                 </div>
-                <button type="submit" class="btn" style="width:100%">Submit Review</button>
+                <button type="submit" class="btn magnetic-btn modal-submit">
+                    <span>Submit Review</span>
+                    <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                </button>
             </form>
         </div>
     </div>
 
     <!-- ═══ ADMIN LOGIN MODAL ═══ -->
-    <div id="login-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
+    <div id="login-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="login-modal-title">
+        <div class="modal-content modal-content--narrow">
+            <button type="button" class="close-modal" aria-label="Close dialog">
+                <i class="fas fa-times" aria-hidden="true"></i>
+            </button>
             <div class="modal-header">
-                <h3>Admin Access</h3>
+                <h3 id="login-modal-title">Admin Access</h3>
                 <p>Please enter your credentials to manage reviews.</p>
             </div>
             <form id="admin-login-form">
                 <div class="form-group">
-                    <label for="admin-user">Admin Email</label>
-                    <input type="email" id="admin-user" required placeholder="Enter Admin Email">
+                    <label class="form-label" for="admin-user">Admin Email</label>
+                    <input type="email" id="admin-user" required placeholder="Enter Admin Email" autocomplete="email">
                 </div>
                 <div class="form-group">
-                    <label for="admin-pass">Password</label>
-                    <input type="password" id="admin-pass" required placeholder="Enter password">
+                    <label class="form-label" for="admin-pass">Password</label>
+                    <input type="password" id="admin-pass" required placeholder="Enter password" autocomplete="current-password">
                 </div>
-                <button type="submit" class="btn" style="width:100%">Connect</button>
-                <p id="login-error"
-                    style="color:#ef4444;font-size:0.8rem;margin-top:15px;display:none;text-align:center;">
+                <button type="submit" class="btn magnetic-btn modal-submit">
+                    <span>Connect</span>
+                    <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                </button>
+                <p id="login-error" class="form-error" style="display:none">
                     Invalid credentials.
                 </p>
             </form>

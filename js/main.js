@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isAdmin) {
                 if (confirm('Logout from Admin session?')) signOut(auth);
             } else if (loginModal) {
-                loginModal.style.display = 'block';
+                loginModal.classList.add('active');
             }
         };
     }
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const pass = document.getElementById('admin-pass').value;
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
-                if (loginModal) loginModal.style.display = 'none';
+                if (loginModal) loginModal.classList.remove('active');
             } catch (err) {
                 console.error('Login Error:', err);
                 if (loginError) { loginError.style.display = 'block'; loginError.innerText = 'Invalid credentials. Please try again.'; }
@@ -138,20 +138,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (modalTitle) modalTitle.innerText = 'Share Your Experience';
             reviewForm?.reset();
             resetStars();
-            if (reviewModal) reviewModal.style.display = 'block';
+            if (reviewModal) reviewModal.classList.add('active');
         };
     }
 
     closeModalBtns.forEach(btn => {
         btn.onclick = () => {
-            if (reviewModal) reviewModal.style.display = 'none';
-            if (loginModal) loginModal.style.display = 'none';
+            if (reviewModal) reviewModal.classList.remove('active');
+            if (loginModal) loginModal.classList.remove('active');
         };
     });
 
     window.onclick = e => {
-        if (e.target === reviewModal) reviewModal.style.display = 'none';
-        if (e.target === loginModal) loginModal.style.display = 'none';
+        if (e.target === reviewModal) reviewModal.classList.remove('active');
+        if (e.target === loginModal) loginModal.classList.remove('active');
     };
 
     // ── Stars ─────────────────────────────────────────────
@@ -163,34 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (ratingInput) ratingInput.value = '';
     }
 
-    // Avatar Picker Logic
-    const avatarOptions = document.querySelectorAll('.avatar-option-btn');
-    const selectedAvatarInput = document.getElementById('selected-avatar');
-    const avatarFileInput = document.getElementById('review-avatar');
-
-    if (avatarOptions.length > 0) {
-        avatarOptions.forEach(btn => {
-            btn.addEventListener('click', function () {
-                // Remove selected from others
-                avatarOptions.forEach(b => b.classList.remove('selected'));
-                // Add to this
-                this.classList.add('selected');
-                selectedAvatarInput.value = this.getAttribute('data-avatar');
-                // Clear file input if they had one
-                avatarFileInput.value = "";
-            });
-        });
-    }
-
-    if (avatarFileInput) {
-        avatarFileInput.addEventListener('change', function () {
-            if (this.files && this.files.length > 0) {
-                // Clear picker selection if file is chosen
-                avatarOptions.forEach(b => b.classList.remove('selected'));
-                selectedAvatarInput.value = "";
-            }
-        });
-    }
+    // Avatar picker logic lives in app.js — references to the old PNG-button
+    // markup were removed here when the picker was redesigned as CSS theme circles.
 
     function setRating(rating) {
         if (!starRating || !ratingInput) return;
@@ -219,22 +193,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const fd = new FormData(this);
             const btn = this.querySelector('button[type="submit"]');
-            const originalBtnText = btn.innerText;
+            // New button markup wraps the label in a <span> + icon; target the span so
+            // setting text doesn't blow away the icon.
+            const btnLabel = btn.querySelector('span') || btn;
+            const originalLabel = btnLabel.textContent;
 
             btn.disabled = true;
-            btn.innerText = 'Processing...';
+            btnLabel.textContent = 'Processing...';
 
             try {
-                let avatarUrl = fd.get('selected-avatar') || 'assets/avatars/avatar1.png';
-                const avatarFile = fd.get('avatar');
-
-                // Handle Avatar Upload if a file is selected
-                if (avatarFile && avatarFile.size > 0) {
-                    btn.innerText = "Uploading Image...";
-                    const storageRef = ref(storage, `reviews/avatars/${Date.now()}_${avatarFile.name}`);
-                    const uploadTask = await uploadBytesResumable(storageRef, avatarFile);
-                    avatarUrl = await getDownloadURL(uploadTask.ref);
-                }
+                // The hidden input (#selected-avatar, name="avatar") holds one of:
+                //   "theme-violet" | "theme-blue" | ...   (CSS-gradient initials avatar)
+                //   "data:image/...;base64,..."           (user-uploaded photo, inline)
+                //   "https://..." or "http://..."         (legacy Firebase Storage URL)
+                // Theme keys are the new default — no PNG/JPG shipped.
+                const avatarUrl = fd.get('avatar') || 'theme-violet';
 
                 const reviewData = {
                     name: fd.get('name'),
@@ -255,13 +228,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 this.reset();
                 resetStars();
-                if (reviewModal) reviewModal.style.display = 'none';
+                if (reviewModal) reviewModal.classList.remove('active');
             } catch (err) {
                 console.error('Review save error:', err);
                 alert('Failed to save review. ' + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = editingReviewId ? 'Update Review' : 'Submit Review';
+                btnLabel.textContent = editingReviewId ? 'Update Review' : originalLabel;
                 editingReviewId = null;
             }
         };
@@ -371,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Sync Avatar Picker
             const avInput = reviewForm.querySelector('[name="avatar"]');
-            const avBtns = reviewForm.querySelectorAll('.avatar-option-btn');
+            const avBtns = reviewForm.querySelectorAll('.theme-btn');
             if (avInput) avInput.value = avSrc;
             
             avBtns.forEach(btn => {
@@ -387,7 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 avBtns.forEach(btn => btn.classList.remove('active'));
             }
 
-            reviewModal.style.display = 'block';
+            reviewModal.classList.add('active');
         }
     };
 
@@ -428,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
             if (btn.querySelector('span')) btn.querySelector('span').textContent = 'Sending...';
             else btn.textContent = 'Sending...';
-            if (successMsg) successMsg.style.display = 'none';
+            if (successMsg) successMsg.classList.remove('active');
 
             fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
@@ -443,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (res.status === 200) {
                         contactForm.reset();
-                        if (successMsg) { successMsg.style.display = 'block'; setTimeout(() => successMsg.style.display = 'none', 5000); }
+                        if (successMsg) { successMsg.classList.add('active'); setTimeout(() => successMsg.classList.remove('active'), 5000); }
                     } else {
                         if (errorMsg) { errorMsg.style.display = 'block'; errorMsg.innerText = json.message || 'Something went wrong.'; }
                     }
