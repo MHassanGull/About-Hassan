@@ -441,12 +441,19 @@ document.addEventListener('DOMContentLoaded', () => {
         chatInput.value = '';
         setLoading(true);
 
+        // 25s ceiling — protects against an unresponsive n8n workflow leaving the user
+        // staring at a typing indicator forever.
+        const ac = new AbortController();
+        const timer = setTimeout(() => ac.abort(), 25000);
+
         try {
             const res = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: msg, sessionId: getSessionId() })
+                body: JSON.stringify({ message: msg, sessionId: getSessionId() }),
+                signal: ac.signal
             });
+            clearTimeout(timer);
 
             if (!res.ok) {
                 const errBody = await res.text();
@@ -461,9 +468,18 @@ document.addEventListener('DOMContentLoaded', () => {
             setLoading(false);
             appendMessage('ai', processAIResponse(data.reply));
         } catch (err) {
+            clearTimeout(timer);
             console.error('Chatbot Fetch Exception:', err);
             setLoading(false);
-            appendMessage('ai', err.message.includes('limit reached') ? err.message : "I'm having trouble connecting. Please try again in a moment.");
+            let reply;
+            if (err.name === 'AbortError') {
+                reply = "The assistant is taking longer than expected to respond. The backend may be down — please try again in a moment.";
+            } else if (err.message && err.message.includes('limit reached')) {
+                reply = err.message;
+            } else {
+                reply = "I'm having trouble connecting. Please try again in a moment.";
+            }
+            appendMessage('ai', reply);
         }
     }
 
@@ -760,75 +776,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { threshold: 0.3 }).observe(nonoGrid);
     }
 
-    /* ── TESTIMONIALS ENGINE — Featured + Supporting Grid ─────────
-       Populated by main.js after Firestore load.
-       window.ReviewStack is the public API.
-       Renders CSS-only initial avatars (no PNG/JPG shipped).
+    /* ── TESTIMONIALS ENGINE — Stacked Deck (vanilla port) ────────
+       Public API: window.ReviewStack.{load,refresh}(reviews)
+       - 3 cards stacked + fanned to the right (front/middle/back)
+       - Front card draggable via Pointer Events; keyboard arrows nav
+       - Solid card backgrounds → no ghost-text bleed
+       - CSS-only initials avatars; no PNG/JPG shipped
+       - Reduced-motion: no rotation, no drag-elastic feel
     ─────────────────────────────────────────────────────────── */
     window.ReviewStack = (() => {
-        const stage = document.getElementById('reviews-stack');
+        const stack  = document.getElementById('reviews-stack');
+        const navEl  = document.getElementById('reviews-nav');
+        const hintEl = document.getElementById('reviews-hint');
         const THEMES = ['violet', 'blue', 'cyan', 'gold', 'pink', 'emerald'];
-        let allReviews = [];
-        let isExpanded = false;
+        const DRAG_THRESHOLD = 110;
+        const PREFERS_REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Pick a theme deterministically from the reviewer's name so it stays consistent across renders.
+        let allReviews = [];
+        let topIndex = 0;
+        let isAnimating = false;
+        let hasInteracted = false;
+
         function themeFor(name) {
             const s = String(name || 'anonymous');
             let h = 0;
             for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
             return THEMES[Math.abs(h) % THEMES.length];
         }
-
         function initialsOf(name) {
             if (!name) return '?';
-            const words = String(name).replace(/[^A-Za-z\s]/g, ' ').trim().split(/\s+/).filter(Boolean);
-            if (!words.length) return '?';
-            if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-            return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+            const w = String(name).replace(/[^A-Za-z\s]/g, ' ').trim().split(/\s+/).filter(Boolean);
+            if (!w.length) return '?';
+            if (w.length === 1) return w[0].slice(0, 2).toUpperCase();
+            return (w[0][0] + w[w.length - 1][0]).toUpperCase();
         }
-
-        // Only show <img> for genuinely uploaded photos. Legacy preset PNG paths and old emoji keys
-        // fall through to the CSS-gradient initials avatar.
         function isUploadedImage(src) {
             if (!src) return false;
-            if (src.startsWith('data:')) return true;
-            if (src.startsWith('https://') || src.startsWith('http://')) return true;
-            return false;
+            return src.startsWith('data:') || src.startsWith('http://') || src.startsWith('https://');
         }
-
         function escapeHtml(s) {
             return String(s ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
-
         function buildStars(rating) {
             const r = Math.max(0, Math.min(5, parseInt(rating, 10) || 0));
             return Array.from({ length: 5 }, (_, i) =>
                 `<i class="${i < r ? 'fas' : 'far'} fa-star" aria-hidden="true"></i>`
             ).join('');
         }
-
-        function buildAvatarContent(review) {
+        function avatarHTML(review) {
             if (isUploadedImage(review.avatar)) {
                 return `<img src="${escapeHtml(review.avatar)}" alt="" loading="lazy">`;
             }
             return escapeHtml(initialsOf(review.name));
         }
-
-        function buildProject(review) {
+        function projectHTML(review) {
             const txt = escapeHtml(review.projectName || '');
             if (!txt) return '';
-            if (review.link) {
-                return `<a class="t-card__project" href="${escapeHtml(review.link)}" target="_blank" rel="noopener noreferrer">${txt} <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i></a>`;
-            }
-            return `<span class="t-card__project">${txt}</span>`;
+            return review.link
+                ? `<a class="t-card__project" href="${escapeHtml(review.link)}" target="_blank" rel="noopener noreferrer">${txt} <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i></a>`
+                : `<span class="t-card__project">${txt}</span>`;
         }
-
-        function buildControls(review) {
+        function controlsHTML(review) {
             if (!window._portfolioIsAdmin) return '';
             return `
                 <div class="t-card__controls">
@@ -836,126 +846,205 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="delete-btn" type="button" data-action="delete" data-id="${escapeHtml(review.id)}" aria-label="Delete review"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </div>`;
         }
+        const posLabels = ['front', 'middle', 'back'];
 
-        function buildCard(review, variant) {
-            const isFeatured = variant === 'featured';
+        function buildCard(review, slot, globalIndex) {
             const card = document.createElement('article');
-            card.className = 't-card ' + (isFeatured ? 't-card--featured' : 't-card--small');
+            card.className = 't-card';
             card.dataset.id = review.id;
             card.dataset.link = review.link || '';
             card.dataset.avatar = review.avatar || '';
+            card.dataset.pos = posLabels[slot] || 'off';
+            card.setAttribute('role', 'group');
+            card.setAttribute('aria-roledescription', 'testimonial');
+            if (slot === 0) {
+                card.tabIndex = 0;
+                card.setAttribute('aria-label', `Testimonial ${globalIndex + 1} of ${allReviews.length}. Use arrow keys to navigate.`);
+            } else {
+                card.setAttribute('aria-hidden', 'true');
+            }
 
-            const theme = themeFor(review.name);
             const rating = parseInt(review.rating, 10) || 5;
-            const ratingLabel = `${rating} out of 5 stars`;
-            const name = escapeHtml(review.name || 'Anonymous');
-            const description = escapeHtml(review.description || '');
-
-            const quoteMark = isFeatured
-                ? `<span class="t-card__quote-mark" aria-hidden="true">“</span>`
-                : '';
-            const badge = isFeatured
-                ? `<span class="t-card__featured-badge">Featured Review</span>`
-                : '';
-
             card.innerHTML = `
-                ${buildControls(review)}
-                ${quoteMark}
-                ${badge}
-                <div class="t-card__rating" role="img" aria-label="${ratingLabel}">${buildStars(rating)}</div>
-                <blockquote class="t-card__quote">“${description}”</blockquote>
+                ${controlsHTML(review)}
+                <div class="t-card__top">
+                    <div class="t-card__rating" role="img" aria-label="${rating} out of 5 stars">${buildStars(rating)}</div>
+                    <span class="t-card__index">${String(globalIndex + 1).padStart(2, '0')} / ${String(allReviews.length).padStart(2, '0')}</span>
+                </div>
+                <blockquote class="t-card__quote">${escapeHtml(review.description || '')}</blockquote>
                 <footer class="t-card__meta">
-                    <div class="t-card__avatar" data-theme="${theme}" aria-hidden="true">${buildAvatarContent(review)}</div>
+                    <div class="t-card__avatar" data-theme="${themeFor(review.name)}" aria-hidden="true">${avatarHTML(review)}</div>
                     <div class="t-card__person">
-                        <span class="t-card__name client-name">${name}</span>
-                        ${buildProject(review)}
+                        <span class="t-card__name client-name">${escapeHtml(review.name || 'Anonymous')}</span>
+                        ${projectHTML(review)}
                     </div>
                 </footer>`;
             return card;
         }
 
-        // Sort: highest rating first, longest description as tiebreaker.
-        function pickFeatured(reviews) {
-            if (!reviews.length) return null;
-            const sorted = [...reviews].sort((a, b) => {
-                const ra = parseInt(a.rating, 10) || 0;
-                const rb = parseInt(b.rating, 10) || 0;
-                if (ra !== rb) return rb - ra;
-                return (b.description?.length || 0) - (a.description?.length || 0);
+        function render() {
+            if (!stack) return;
+            stack.innerHTML = '';
+            stack.classList.toggle('is-empty', !allReviews.length);
+
+            if (!allReviews.length) {
+                stack.innerHTML = '<div class="reviews-empty">No reviews yet — be the first to share your experience.</div>';
+                if (navEl) navEl.innerHTML = '';
+                if (hintEl) hintEl.classList.add('is-hidden');
+                return;
+            }
+
+            const n = allReviews.length;
+            const visibleSlots = Math.min(3, n);
+            // Render back→front so DOM order matches z-index for assistive tech.
+            for (let slot = visibleSlots - 1; slot >= 0; slot--) {
+                const idx = (topIndex + slot) % n;
+                stack.appendChild(buildCard(allReviews[idx], slot, idx));
+            }
+
+            renderNav();
+            wireFrontCard();
+            wireAdminButtons();
+            if (hintEl) hintEl.classList.toggle('is-hidden', n <= 1 || hasInteracted);
+        }
+
+        function renderNav() {
+            if (!navEl) return;
+            navEl.innerHTML = '';
+            if (allReviews.length <= 1) return;
+            allReviews.forEach((_, i) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.setAttribute('aria-label', `Go to testimonial ${i + 1}`);
+                if (i === topIndex) b.setAttribute('aria-current', 'true');
+                b.addEventListener('click', () => goTo(i));
+                navEl.appendChild(b);
             });
-            return sorted[0];
+        }
+
+        function goTo(i) {
+            if (isAnimating) return;
+            const n = allReviews.length;
+            topIndex = ((i % n) + n) % n;
+            markInteracted();
+            render();
+        }
+
+        function shuffle(direction) {
+            if (isAnimating || allReviews.length <= 1) return;
+            const front = stack.querySelector('.t-card[data-pos="front"]');
+            if (!front) return;
+            isAnimating = true;
+            markInteracted();
+
+            const cls = direction === 'left' ? 'is-leaving-left' : 'is-leaving-right';
+            // Clear any inline drag transform so the CSS class transform wins
+            front.style.transform = '';
+            front.style.transition = '';
+            requestAnimationFrame(() => front.classList.add(cls));
+
+            const finish = () => {
+                front.removeEventListener('transitionend', onEnd);
+                clearTimeout(safety);
+                const n = allReviews.length;
+                topIndex = direction === 'left'
+                    ? (topIndex + 1) % n
+                    : (topIndex - 1 + n) % n;
+                isAnimating = false;
+                render();
+            };
+            const onEnd = (e) => { if (e.propertyName === 'transform') finish(); };
+            front.addEventListener('transitionend', onEnd);
+            const safety = setTimeout(finish, 700);
+        }
+
+        function markInteracted() {
+            if (hasInteracted) return;
+            hasInteracted = true;
+            stack.classList.add('is-interacted');
+        }
+
+        function wireFrontCard() {
+            const front = stack.querySelector('.t-card[data-pos="front"]');
+            if (!front || allReviews.length <= 1) return;
+
+            // Drag via Pointer Events (unified mouse + touch + pen)
+            let pointerId = null;
+            let startX = 0, startY = 0, dx = 0, dy = 0;
+            let dragAxis = null; // 'x' | 'y' | null
+
+            const onDown = (e) => {
+                if (isAnimating) return;
+                if (e.button !== undefined && e.button !== 0) return;
+                if (PREFERS_REDUCE) return; // no drag in reduced-motion
+                pointerId = e.pointerId;
+                startX = e.clientX; startY = e.clientY; dx = 0; dy = 0; dragAxis = null;
+                try { front.setPointerCapture(pointerId); } catch (_) {}
+                front.classList.add('is-dragging');
+            };
+            const onMove = (e) => {
+                if (e.pointerId !== pointerId) return;
+                dx = e.clientX - startX;
+                dy = e.clientY - startY;
+                if (dragAxis === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
+                    dragAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+                }
+                if (dragAxis === 'y') return; // let page scroll
+                const rot = -5 + (dx / 16);
+                front.style.transform = `translate(${dx}px, ${dy * 0.08}px) rotate(${rot}deg)`;
+            };
+            const onUp = (e) => {
+                if (e.pointerId !== pointerId) return;
+                try { front.releasePointerCapture(pointerId); } catch (_) {}
+                front.classList.remove('is-dragging');
+                pointerId = null;
+                if (dragAxis === 'x' && Math.abs(dx) >= DRAG_THRESHOLD) {
+                    shuffle(dx < 0 ? 'left' : 'right');
+                } else {
+                    // Snap back via the standard transition (let the CSS rule take over)
+                    front.style.transform = '';
+                }
+                dx = 0; dy = 0; dragAxis = null;
+            };
+            const onCancel = () => {
+                pointerId = null;
+                front.classList.remove('is-dragging');
+                front.style.transform = '';
+                dx = 0; dy = 0; dragAxis = null;
+            };
+
+            front.addEventListener('pointerdown', onDown);
+            front.addEventListener('pointermove', onMove);
+            front.addEventListener('pointerup', onUp);
+            front.addEventListener('pointercancel', onCancel);
+
+            // Keyboard navigation
+            front.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    shuffle('right'); // previous
+                } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    shuffle('left'); // next
+                }
+            });
         }
 
         function wireAdminButtons() {
-            if (!stage) return;
-            stage.querySelectorAll('[data-action]').forEach(btn => {
+            stack.querySelectorAll('[data-action]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const id = btn.dataset.id;
                     const action = btn.dataset.action;
-                    if (action === 'edit' && typeof window.openEditModal === 'function') window.openEditModal(id);
+                    if (action === 'edit'   && typeof window.openEditModal === 'function') window.openEditModal(id);
                     if (action === 'delete' && typeof window.deleteReview === 'function') window.deleteReview(id);
                 });
             });
         }
 
-        function render() {
-            if (!stage) return;
-            stage.innerHTML = '';
-
-            if (!allReviews.length) {
-                stage.innerHTML = `<div class="reviews-empty">No reviews yet — be the first to share your experience.</div>`;
-                return;
-            }
-
-            const featured = pickFeatured(allReviews);
-            const rest = allReviews.filter(r => r.id !== featured.id);
-
-            stage.appendChild(buildCard(featured, 'featured'));
-
-            if (rest.length) {
-                const visible = rest.slice(0, 3);
-                const hidden = rest.slice(3);
-
-                const grid = document.createElement('div');
-                grid.className = 't-grid';
-                visible.forEach(r => grid.appendChild(buildCard(r, 'small')));
-                stage.appendChild(grid);
-
-                if (hidden.length) {
-                    const hiddenGrid = document.createElement('div');
-                    hiddenGrid.className = 't-grid' + (isExpanded ? '' : ' t-grid--hidden');
-                    hidden.forEach(r => hiddenGrid.appendChild(buildCard(r, 'small')));
-                    stage.appendChild(hiddenGrid);
-
-                    const toggle = document.createElement('button');
-                    toggle.type = 'button';
-                    toggle.className = 't-more-toggle';
-                    toggle.setAttribute('aria-expanded', String(isExpanded));
-                    toggle.setAttribute('aria-controls', 'reviews-hidden-grid');
-                    hiddenGrid.id = 'reviews-hidden-grid';
-                    const setLabel = () => {
-                        toggle.innerHTML = isExpanded
-                            ? `Show less <i class="fas fa-chevron-down" aria-hidden="true"></i>`
-                            : `Show ${hidden.length} more <i class="fas fa-chevron-down" aria-hidden="true"></i>`;
-                    };
-                    setLabel();
-                    toggle.addEventListener('click', () => {
-                        isExpanded = !isExpanded;
-                        hiddenGrid.classList.toggle('t-grid--hidden', !isExpanded);
-                        toggle.setAttribute('aria-expanded', String(isExpanded));
-                        setLabel();
-                    });
-                    stage.appendChild(toggle);
-                }
-            }
-
-            wireAdminButtons();
-        }
-
         return {
-            load(reviews)    { allReviews = Array.isArray(reviews) ? reviews : []; isExpanded = false; render(); },
-            refresh(reviews) { allReviews = Array.isArray(reviews) ? reviews : []; render(); }
+            load(reviews)    { allReviews = Array.isArray(reviews) ? reviews : []; topIndex = 0; hasInteracted = false; render(); },
+            refresh(reviews) { allReviews = Array.isArray(reviews) ? reviews : []; if (topIndex >= allReviews.length) topIndex = 0; render(); }
         };
     })();
 

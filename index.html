@@ -418,14 +418,18 @@
         <div class="section-title animate-ready reveal-up">
             <span class="eyebrow" data-section-no>Testimonials</span>
             <h2>What people are saying about my work.</h2>
-            <p>Real feedback from clients I've shipped production AI and automation work for.</p>
+            <p>Real feedback from clients I've shipped AI &amp; automation work for.</p>
         </div>
         <div class="reviews-container animate-ready reveal-up">
-            <!-- Featured + supporting grid — populated by ReviewStack in app.js -->
+            <!-- Stacked-card deck — populated by ReviewStack in app.js -->
             <div id="reviews-grid" class="reviews-grid">
-                <div class="reviews-stage" id="reviews-stack">
+                <div class="t-stack" id="reviews-stack" role="region" aria-label="Client testimonials" aria-roledescription="card stack">
                     <!-- Cards injected here -->
                 </div>
+                <div class="t-hint" id="reviews-hint" aria-hidden="true">
+                    <i class="fas fa-arrow-left"></i> Drag or swipe to flip through
+                </div>
+                <div class="t-nav" id="reviews-nav" aria-label="Testimonial pagination"></div>
             </div>
             <div class="reviews-cta">
                 <button id="open-review-modal" class="btn magnetic-btn">
