@@ -211,6 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const reviewData = {
                     name: fd.get('name'),
+                    profession: fd.get('profession') || "",
                     projectName: fd.get('project'),
                     description: fd.get('content'),
                     link: fd.get('link') || "",
@@ -325,21 +326,28 @@ document.addEventListener('DOMContentLoaded', () => {
         editingReviewId = id;
         if (modalTitle) modalTitle.innerText = 'Edit Review';
 
-        // New card structure uses t-card__* classes; fallback still uses .client-name on the name node.
+        // New cards expose original values via data-* attributes; legacy cards still
+        // parsed via DOM lookups for backwards compat.
         const nameEl    = card.querySelector('.t-card__name')  || card.querySelector('.client-name');
-        const projectEl = card.querySelector('.t-card__project') || card.querySelector('.review-project-link') || card.querySelector('.project-tag');
         const textEl    = card.querySelector('.t-card__quote') || card.querySelector('.review-text');
         const rating    = (card.querySelector('.t-card__rating') || card.querySelector('.review-stars'))?.querySelectorAll('.fas').length || 0;
         const link      = card.dataset.link || '';
+        const profession = card.dataset.profession || '';
+        const projectName = card.dataset.project || '';
         const avImg     = card.querySelector('.t-card__avatar img') || card.querySelector('.review-avatar img');
         const avSrc     = avImg ? avImg.getAttribute('src') : (card.dataset.avatar || '');
 
         if (reviewForm) {
-            reviewForm.querySelector('[name="name"]').value = nameEl?.innerText || '';
-            reviewForm.querySelector('[name="project"]').value = projectEl?.innerText?.replace(/\s*↗\s*$/, '').trim() || '';
+            const setIfExists = (selector, value) => {
+                const el = reviewForm.querySelector(selector);
+                if (el) el.value = value;
+            };
+            setIfExists('[name="name"]', nameEl?.innerText || '');
+            setIfExists('[name="profession"]', profession);
+            setIfExists('[name="project"]', projectName);
             const cleanText = textEl?.innerText.replace(/^\s*"|"\s*$/g, '').replace(/\+ Read more$/, '').trim() || '';
-            reviewForm.querySelector('[name="content"]').value = cleanText;
-            reviewForm.querySelector('[name="link"]').value = link;
+            setIfExists('[name="content"]', cleanText);
+            setIfExists('[name="link"]', link);
             if (typeof setRating === 'function') setRating(rating);
 
             // Sync Avatar Picker

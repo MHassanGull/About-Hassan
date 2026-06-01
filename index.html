@@ -412,7 +412,7 @@
         </div>
     </section>
 
-    <!-- ═══ TESTIMONIALS ═══ -->
+    <!-- ═══ TESTIMONIALS — scroll-driven stacked deck ═══ -->
     <section id="reviews" class="reviews-section section">
 
         <div class="section-title animate-ready reveal-up">
@@ -420,22 +420,25 @@
             <h2>What people are saying about my work.</h2>
             <p>Real feedback from clients I've shipped AI &amp; automation work for.</p>
         </div>
-        <div class="reviews-container animate-ready reveal-up">
-            <!-- Stacked-card deck — populated by ReviewStack in app.js -->
-            <div id="reviews-grid" class="reviews-grid">
-                <div class="t-stack" id="reviews-stack" role="region" aria-label="Client testimonials" aria-roledescription="card stack">
-                    <!-- Cards injected here -->
+        <!-- Tall scroll-track. JS sets data-multi="true" + --review-count when there are 2+ reviews,
+             which gives the section enough height for the scroll-driven stack animation. -->
+        <div id="reviews-scroll-track" class="reviews-scroll-track">
+            <div class="reviews-sticky">
+                <div id="reviews-grid" class="reviews-grid">
+                    <div class="t-stack" id="reviews-stack" role="region" aria-label="Client testimonials" aria-roledescription="card stack">
+                        <!-- Cards injected by ReviewStack -->
+                    </div>
+                    <div class="t-hint" id="reviews-hint" aria-hidden="true">
+                        <i class="fas fa-chevron-down"></i> Scroll to flip through
+                    </div>
+                    <div class="t-nav" id="reviews-nav" aria-label="Testimonial pagination"></div>
                 </div>
-                <div class="t-hint" id="reviews-hint" aria-hidden="true">
-                    <i class="fas fa-arrow-left"></i> Drag or swipe to flip through
+                <div class="reviews-cta">
+                    <button id="open-review-modal" class="btn magnetic-btn">
+                        <span>Write a Review</span>
+                        <i class="fas fa-pen"></i>
+                    </button>
                 </div>
-                <div class="t-nav" id="reviews-nav" aria-label="Testimonial pagination"></div>
-            </div>
-            <div class="reviews-cta">
-                <button id="open-review-modal" class="btn magnetic-btn">
-                    <span>Write a Review</span>
-                    <i class="fas fa-pen"></i>
-                </button>
             </div>
         </div>
     </section>
@@ -493,6 +496,12 @@
                             </button>
                         </div>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="review-profession">
+                        Profession <span class="form-label__hint">your role / job title</span>
+                    </label>
+                    <input type="text" id="review-profession" name="profession" placeholder="e.g. Frontend Developer">
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="review-project">Project Name</label>
@@ -594,22 +603,77 @@
                     <input type="email" id="email" name="email" placeholder="Your Email" required>
                 </div>
                 <div class="form-group">
-                    <label for="phone">Phone (Optional)</label>
+                    <label for="phone-number">Phone (Optional)</label>
                     <div class="phone-input-wrapper">
-                        <select id="country-code" class="country-selector" aria-label="Country Code">
-                            <option value="+92" selected>🇵🇰 +92</option>
-                            <option value="+1">🇺🇸 +1</option>
-                            <option value="+44">🇬🇧 +44</option>
-                            <option value="+971">🇦🇪 +971</option>
-                            <option value="+91">🇮🇳 +91</option>
-                            <option value="+61">🇦🇺 +61</option>
-                            <option value="+86">🇨🇳 +86</option>
-                            <option value="+81">🇯🇵 +81</option>
-                            <option value="+49">🇩🇪 +49</option>
-                            <option value="+33">🇫🇷 +33</option>
-                            <option value="">🌍 Other</option>
-                        </select>
-                        <input type="tel" id="phone-number" class="phone-number-input" placeholder="3XX XXXXXXX">
+                        <!-- Custom country picker (replaces native <select> for full styling control) -->
+                        <div class="country-picker" id="country-picker">
+                            <button type="button" class="country-picker__trigger" id="country-picker-trigger"
+                                    aria-haspopup="listbox" aria-expanded="false" aria-label="Select country code">
+                                <span class="country-picker__flag" aria-hidden="true">🇵🇰</span>
+                                <span class="country-picker__code">+92</span>
+                                <i class="fas fa-chevron-down country-picker__chevron" aria-hidden="true"></i>
+                            </button>
+                            <div class="country-picker__panel" id="country-picker-panel" role="listbox" aria-label="Country code">
+                                <button type="button" class="country-picker__item" role="option" data-code="+92"  data-flag="🇵🇰" data-name="Pakistan" aria-selected="true">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇵🇰</span>
+                                    <span class="country-picker__item-name">Pakistan</span>
+                                    <span class="country-picker__item-code">+92</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code="+1"   data-flag="🇺🇸" data-name="United States" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇺🇸</span>
+                                    <span class="country-picker__item-name">United States</span>
+                                    <span class="country-picker__item-code">+1</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code="+44"  data-flag="🇬🇧" data-name="United Kingdom" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇬🇧</span>
+                                    <span class="country-picker__item-name">United Kingdom</span>
+                                    <span class="country-picker__item-code">+44</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code="+971" data-flag="🇦🇪" data-name="United Arab Emirates" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇦🇪</span>
+                                    <span class="country-picker__item-name">United Arab Emirates</span>
+                                    <span class="country-picker__item-code">+971</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code="+91"  data-flag="🇮🇳" data-name="India" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇮🇳</span>
+                                    <span class="country-picker__item-name">India</span>
+                                    <span class="country-picker__item-code">+91</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code="+61"  data-flag="🇦🇺" data-name="Australia" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇦🇺</span>
+                                    <span class="country-picker__item-name">Australia</span>
+                                    <span class="country-picker__item-code">+61</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code="+86"  data-flag="🇨🇳" data-name="China" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇨🇳</span>
+                                    <span class="country-picker__item-name">China</span>
+                                    <span class="country-picker__item-code">+86</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code="+81"  data-flag="🇯🇵" data-name="Japan" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇯🇵</span>
+                                    <span class="country-picker__item-name">Japan</span>
+                                    <span class="country-picker__item-code">+81</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code="+49"  data-flag="🇩🇪" data-name="Germany" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇩🇪</span>
+                                    <span class="country-picker__item-name">Germany</span>
+                                    <span class="country-picker__item-code">+49</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code="+33"  data-flag="🇫🇷" data-name="France" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🇫🇷</span>
+                                    <span class="country-picker__item-name">France</span>
+                                    <span class="country-picker__item-code">+33</span>
+                                </button>
+                                <button type="button" class="country-picker__item" role="option" data-code=""     data-flag="🌍" data-name="Other" aria-selected="false">
+                                    <span class="country-picker__item-flag" aria-hidden="true">🌍</span>
+                                    <span class="country-picker__item-name">Other</span>
+                                    <span class="country-picker__item-code">—</span>
+                                </button>
+                            </div>
+                            <!-- Hidden input keeps the same id main.js already reads (#country-code) -->
+                            <input type="hidden" id="country-code" value="+92">
+                        </div>
+                        <input type="tel" id="phone-number" class="phone-number-input" placeholder="3XX XXXXXXX" autocomplete="tel-national">
                     </div>
                     <input type="hidden" id="full-phone" name="phone">
                 </div>

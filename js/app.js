@@ -776,26 +776,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }, { threshold: 0.3 }).observe(nonoGrid);
     }
 
-    /* ── TESTIMONIALS ENGINE — Stacked Deck (vanilla port) ────────
+    /* ── TESTIMONIALS ENGINE — Scroll-Driven Stack (vanilla port) ─
        Public API: window.ReviewStack.{load,refresh}(reviews)
-       - 3 cards stacked + fanned to the right (front/middle/back)
-       - Front card draggable via Pointer Events; keyboard arrows nav
-       - Solid card backgrounds → no ghost-text bleed
-       - CSS-only initials avatars; no PNG/JPG shipped
-       - Reduced-motion: no rotation, no drag-elastic feel
+       - Up to 5 cards stacked with small Y offsets at rest
+       - Scroll-driven animation: each card translates up + fades as
+         user scrolls through its sub-range of the section
+       - Section height set via --review-count + data-multi on the
+         outer .reviews-scroll-track; inner .reviews-sticky stays in
+         view while cards animate
+       - Single-review case: no scroll trigger, single centered card
+       - Pagination dots: click to scroll-jump to that review's range
     ─────────────────────────────────────────────────────────── */
     window.ReviewStack = (() => {
-        const stack  = document.getElementById('reviews-stack');
-        const navEl  = document.getElementById('reviews-nav');
-        const hintEl = document.getElementById('reviews-hint');
-        const THEMES = ['violet', 'blue', 'cyan', 'gold', 'pink', 'emerald'];
-        const DRAG_THRESHOLD = 110;
+        const stack       = document.getElementById('reviews-stack');
+        const navEl       = document.getElementById('reviews-nav');
+        const hintEl      = document.getElementById('reviews-hint');
+        const scrollTrack = document.getElementById('reviews-scroll-track');
+        const THEMES      = ['violet', 'blue', 'cyan', 'gold', 'pink', 'emerald'];
+        const MAX_VISIBLE = 5;
         const PREFERS_REDUCE = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         let allReviews = [];
         let topIndex = 0;
-        let isAnimating = false;
-        let hasInteracted = false;
+        let scrollHandler = null;
+        let resizeHandler = null;
 
         function themeFor(name) {
             const s = String(name || 'anonymous');
@@ -803,9 +807,6 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
             return THEMES[Math.abs(h) % THEMES.length];
         }
-
-        // If the reviewer explicitly picked a theme in the modal, honor it.
-        // Otherwise fall back to the deterministic-from-name theme.
         function themeOf(review) {
             const a = review.avatar;
             if (a && typeof a === 'string' && a.startsWith('theme-')) {
@@ -842,12 +843,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return escapeHtml(initialsOf(review.name));
         }
-        function projectHTML(review) {
-            const txt = escapeHtml(review.projectName || '');
+        function roleHTML(review) {
+            // Prefer the explicit profession field; fall back to projectName
+            // for legacy reviews written before the profession field existed.
+            const txt = escapeHtml(review.profession || review.projectName || '');
             if (!txt) return '';
             return review.link
-                ? `<a class="t-card__project" href="${escapeHtml(review.link)}" target="_blank" rel="noopener noreferrer">${txt} <i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i></a>`
-                : `<span class="t-card__project">${txt}</span>`;
+                ? `<a class="t-card__role" href="${escapeHtml(review.link)}" target="_blank" rel="noopener noreferrer">${txt}<i class="fas fa-arrow-up-right-from-square" aria-hidden="true"></i></a>`
+                : `<span class="t-card__role">${txt}</span>`;
         }
         function controlsHTML(review) {
             if (!window._portfolioIsAdmin) return '';
@@ -857,7 +860,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="delete-btn" type="button" data-action="delete" data-id="${escapeHtml(review.id)}" aria-label="Delete review"><i class="fas fa-trash" aria-hidden="true"></i></button>
                 </div>`;
         }
-        const posLabels = ['front', 'middle', 'back'];
 
         function buildCard(review, slot, globalIndex) {
             const card = document.createElement('article');
@@ -865,12 +867,14 @@ document.addEventListener('DOMContentLoaded', () => {
             card.dataset.id = review.id;
             card.dataset.link = review.link || '';
             card.dataset.avatar = review.avatar || '';
-            card.dataset.pos = posLabels[slot] || 'off';
+            card.dataset.profession = review.profession || '';
+            card.dataset.project = review.projectName || '';
+            card.dataset.pos = String(slot);
             card.setAttribute('role', 'group');
             card.setAttribute('aria-roledescription', 'testimonial');
             if (slot === 0) {
                 card.tabIndex = 0;
-                card.setAttribute('aria-label', `Testimonial ${globalIndex + 1} of ${allReviews.length}. Use arrow keys to navigate.`);
+                card.setAttribute('aria-label', `Testimonial ${globalIndex + 1} of ${allReviews.length}`);
             } else {
                 card.setAttribute('aria-hidden', 'true');
             }
@@ -878,47 +882,107 @@ document.addEventListener('DOMContentLoaded', () => {
             const rating = parseInt(review.rating, 10) || 5;
             card.innerHTML = `
                 ${controlsHTML(review)}
-                <span class="t-card__watermark" aria-hidden="true">&ldquo;</span>
-                <div class="t-card__top">
-                    <div class="t-card__rating" role="img" aria-label="${rating} out of 5 stars">${buildStars(rating)}</div>
-                    <span class="t-card__index">${String(globalIndex + 1).padStart(2, '0')} / ${String(allReviews.length).padStart(2, '0')}</span>
-                </div>
+                <div class="t-card__rating" role="img" aria-label="${rating} out of 5 stars">${buildStars(rating)}</div>
                 <blockquote class="t-card__quote">${escapeHtml(review.description || '')}</blockquote>
                 <footer class="t-card__meta">
                     <div class="t-card__avatar" data-theme="${themeOf(review)}" aria-hidden="true">${avatarHTML(review)}</div>
                     <div class="t-card__person">
                         <span class="t-card__name client-name">${escapeHtml(review.name || 'Anonymous')}</span>
-                        ${projectHTML(review)}
+                        ${roleHTML(review)}
                     </div>
                 </footer>`;
             return card;
         }
 
-        function render() {
-            if (!stack) return;
-            stack.innerHTML = '';
-            stack.classList.toggle('is-empty', !allReviews.length);
-            stack.classList.toggle('t-stack--single', allReviews.length === 1);
-
-            if (!allReviews.length) {
-                stack.innerHTML = '<div class="reviews-empty">No reviews yet — be the first to share your experience.</div>';
-                if (navEl) navEl.innerHTML = '';
-                if (hintEl) hintEl.classList.add('is-hidden');
-                return;
+        function tearDownScrollDriver() {
+            if (scrollHandler) {
+                window.removeEventListener('scroll', scrollHandler);
+                scrollHandler = null;
             }
-
-            const n = allReviews.length;
-            const visibleSlots = Math.min(3, n);
-            // Render back→front so DOM order matches z-index for assistive tech.
-            for (let slot = visibleSlots - 1; slot >= 0; slot--) {
-                const idx = (topIndex + slot) % n;
-                stack.appendChild(buildCard(allReviews[idx], slot, idx));
+            if (resizeHandler) {
+                window.removeEventListener('resize', resizeHandler);
+                resizeHandler = null;
             }
+            if (scrollTrack) {
+                scrollTrack.removeAttribute('data-multi');
+                scrollTrack.style.removeProperty('--review-count');
+            }
+            // Reset card inline styles
+            stack?.querySelectorAll('.t-card').forEach(card => {
+                card.style.transform = '';
+                card.style.opacity = '';
+                card.style.zIndex = '';
+                card.style.filter = '';
+            });
+        }
 
-            renderNav();
-            wireFrontCard();
-            wireAdminButtons();
-            if (hintEl) hintEl.classList.toggle('is-hidden', n <= 1 || hasInteracted);
+        function setupScrollDriver() {
+            if (!scrollTrack || allReviews.length <= 1 || PREFERS_REDUCE) return;
+
+            scrollTrack.setAttribute('data-multi', 'true');
+            scrollTrack.style.setProperty('--review-count', String(allReviews.length));
+
+            const cards = Array.from(stack.querySelectorAll('.t-card'));
+            const N = cards.length;
+            if (!N) return;
+
+            const update = () => {
+                const rect = scrollTrack.getBoundingClientRect();
+                const sectionHeight = scrollTrack.offsetHeight;
+                const viewportHeight = window.innerHeight;
+                const totalScroll = Math.max(1, sectionHeight - viewportHeight);
+                const scrolledIn = Math.max(0, -rect.top);
+                const progress = Math.min(1, scrolledIn / totalScroll);
+
+                // Hide the hint once user has started scrolling through the section
+                if (hintEl && progress > 0.02) hintEl.classList.add('is-hidden');
+                if (hintEl && progress < 0.005) hintEl.classList.remove('is-hidden');
+
+                // Front-card index based on scroll progress for nav highlighting
+                const frontSlot = Math.min(N - 1, Math.floor(progress * N));
+
+                cards.forEach((card, slot) => {
+                    // Each card animates over its sub-range [slot/N, (slot+1)/N]
+                    const start = slot / N;
+                    const end = (slot + 1) / N;
+                    const localProgress = Math.max(0, Math.min(1, (progress - start) / (end - start)));
+
+                    // Rest: stacked with small Y offset based on slot depth
+                    const baseY = slot * 8;
+                    // Animation target: fly up off-screen
+                    const flyY = -viewportHeight * 0.9;
+                    const y = baseY + (flyY - baseY) * localProgress;
+
+                    // Opacity: each layer slightly dimmer at rest, fade to 0 on animation
+                    const baseOpacity = Math.max(0.55, 1 - slot * 0.10);
+                    const opacity = baseOpacity * (1 - localProgress);
+
+                    // Subtle scale-up while flying for added depth
+                    const baseScale = Math.max(0.92, 1 - slot * 0.02);
+                    const scale = baseScale * (1 + localProgress * 0.04);
+
+                    card.style.transform = `translate3d(0, ${y}px, 0) scale(${scale})`;
+                    card.style.opacity = String(opacity);
+                    card.style.zIndex = String(50 - slot * 10);
+                    card.style.filter = `brightness(${Math.max(0.75, 1 - slot * 0.06)})`;
+                });
+
+                // Update nav highlight
+                if (navEl) {
+                    const buttons = navEl.querySelectorAll('button');
+                    const globalIdx = (topIndex + frontSlot) % allReviews.length;
+                    buttons.forEach((b, i) => {
+                        if (i === globalIdx) b.setAttribute('aria-current', 'true');
+                        else b.removeAttribute('aria-current');
+                    });
+                }
+            };
+
+            scrollHandler = () => requestAnimationFrame(update);
+            resizeHandler = scrollHandler;
+            window.addEventListener('scroll', scrollHandler, { passive: true });
+            window.addEventListener('resize', resizeHandler, { passive: true });
+            update();
         }
 
         function renderNav() {
@@ -930,117 +994,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 b.type = 'button';
                 b.setAttribute('aria-label', `Go to testimonial ${i + 1}`);
                 if (i === topIndex) b.setAttribute('aria-current', 'true');
-                b.addEventListener('click', () => goTo(i));
+                b.addEventListener('click', () => scrollToReview(i));
                 navEl.appendChild(b);
             });
         }
 
-        function goTo(i) {
-            if (isAnimating) return;
-            const n = allReviews.length;
-            topIndex = ((i % n) + n) % n;
-            markInteracted();
-            render();
-        }
-
-        function shuffle(direction) {
-            if (isAnimating || allReviews.length <= 1) return;
-            const front = stack.querySelector('.t-card[data-pos="front"]');
-            if (!front) return;
-            isAnimating = true;
-            markInteracted();
-
-            const cls = direction === 'left' ? 'is-leaving-left' : 'is-leaving-right';
-            // Clear any inline drag transform so the CSS class transform wins
-            front.style.transform = '';
-            front.style.transition = '';
-            requestAnimationFrame(() => front.classList.add(cls));
-
-            const finish = () => {
-                front.removeEventListener('transitionend', onEnd);
-                clearTimeout(safety);
-                const n = allReviews.length;
-                topIndex = direction === 'left'
-                    ? (topIndex + 1) % n
-                    : (topIndex - 1 + n) % n;
-                isAnimating = false;
-                render();
-            };
-            const onEnd = (e) => { if (e.propertyName === 'transform') finish(); };
-            front.addEventListener('transitionend', onEnd);
-            const safety = setTimeout(finish, 700);
-        }
-
-        function markInteracted() {
-            if (hasInteracted) return;
-            hasInteracted = true;
-            stack.classList.add('is-interacted');
-        }
-
-        function wireFrontCard() {
-            const front = stack.querySelector('.t-card[data-pos="front"]');
-            if (!front || allReviews.length <= 1) return;
-
-            // Drag via Pointer Events (unified mouse + touch + pen)
-            let pointerId = null;
-            let startX = 0, startY = 0, dx = 0, dy = 0;
-            let dragAxis = null; // 'x' | 'y' | null
-
-            const onDown = (e) => {
-                if (isAnimating) return;
-                if (e.button !== undefined && e.button !== 0) return;
-                if (PREFERS_REDUCE) return; // no drag in reduced-motion
-                pointerId = e.pointerId;
-                startX = e.clientX; startY = e.clientY; dx = 0; dy = 0; dragAxis = null;
-                try { front.setPointerCapture(pointerId); } catch (_) {}
-                front.classList.add('is-dragging');
-            };
-            const onMove = (e) => {
-                if (e.pointerId !== pointerId) return;
-                dx = e.clientX - startX;
-                dy = e.clientY - startY;
-                if (dragAxis === null && (Math.abs(dx) > 6 || Math.abs(dy) > 6)) {
-                    dragAxis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-                }
-                if (dragAxis === 'y') return; // let page scroll
-                const rot = -5 + (dx / 16);
-                front.style.transform = `translate(${dx}px, ${dy * 0.08}px) rotate(${rot}deg)`;
-            };
-            const onUp = (e) => {
-                if (e.pointerId !== pointerId) return;
-                try { front.releasePointerCapture(pointerId); } catch (_) {}
-                front.classList.remove('is-dragging');
-                pointerId = null;
-                if (dragAxis === 'x' && Math.abs(dx) >= DRAG_THRESHOLD) {
-                    shuffle(dx < 0 ? 'left' : 'right');
-                } else {
-                    // Snap back via the standard transition (let the CSS rule take over)
-                    front.style.transform = '';
-                }
-                dx = 0; dy = 0; dragAxis = null;
-            };
-            const onCancel = () => {
-                pointerId = null;
-                front.classList.remove('is-dragging');
-                front.style.transform = '';
-                dx = 0; dy = 0; dragAxis = null;
-            };
-
-            front.addEventListener('pointerdown', onDown);
-            front.addEventListener('pointermove', onMove);
-            front.addEventListener('pointerup', onUp);
-            front.addEventListener('pointercancel', onCancel);
-
-            // Keyboard navigation
-            front.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    shuffle('right'); // previous
-                } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    shuffle('left'); // next
-                }
-            });
+        function scrollToReview(targetIndex) {
+            if (!scrollTrack) return;
+            const N = Math.min(MAX_VISIBLE, allReviews.length);
+            const rect = scrollTrack.getBoundingClientRect();
+            const sectionTop = rect.top + window.scrollY;
+            const sectionHeight = scrollTrack.offsetHeight;
+            const viewportHeight = window.innerHeight;
+            const totalScroll = Math.max(1, sectionHeight - viewportHeight);
+            // Map target review index to scroll progress (mid-range so card is centered)
+            const targetProgress = Math.min(0.95, (targetIndex + 0.4) / N);
+            const targetY = sectionTop + targetProgress * totalScroll;
+            window.scrollTo({ top: targetY, behavior: 'smooth' });
         }
 
         function wireAdminButtons() {
@@ -1055,8 +1025,36 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        function render() {
+            if (!stack) return;
+            tearDownScrollDriver();
+            stack.innerHTML = '';
+            stack.classList.toggle('is-empty', !allReviews.length);
+
+            if (!allReviews.length) {
+                stack.innerHTML = '<div class="reviews-empty">No reviews yet — be the first to share your experience.</div>';
+                if (navEl) navEl.innerHTML = '';
+                if (hintEl) hintEl.classList.add('is-hidden');
+                return;
+            }
+
+            const n = allReviews.length;
+            const visibleSlots = Math.min(MAX_VISIBLE, n);
+            // Render back→front so DOM order matches default z-index
+            for (let slot = visibleSlots - 1; slot >= 0; slot--) {
+                const idx = (topIndex + slot) % n;
+                stack.appendChild(buildCard(allReviews[idx], slot, idx));
+            }
+
+            renderNav();
+            wireAdminButtons();
+            if (hintEl) hintEl.classList.toggle('is-hidden', n <= 1);
+
+            if (n > 1) setupScrollDriver();
+        }
+
         return {
-            load(reviews)    { allReviews = Array.isArray(reviews) ? reviews : []; topIndex = 0; hasInteracted = false; render(); },
+            load(reviews)    { allReviews = Array.isArray(reviews) ? reviews : []; topIndex = 0; render(); },
             refresh(reviews) { allReviews = Array.isArray(reviews) ? reviews : []; if (topIndex >= allReviews.length) topIndex = 0; render(); }
         };
     })();
@@ -1153,6 +1151,96 @@ document.addEventListener('DOMContentLoaded', () => {
             if (avatarInput) avatarInput.value = DEFAULT_AVATAR;
         });
     }
+
+    /* ── CUSTOM COUNTRY PICKER (replaces native <select>) ──────── */
+    (function initCountryPicker() {
+        const picker  = document.getElementById('country-picker');
+        const trigger = document.getElementById('country-picker-trigger');
+        const panel   = document.getElementById('country-picker-panel');
+        const hidden  = document.getElementById('country-code');
+        if (!picker || !trigger || !panel) return;
+
+        const items = Array.from(panel.querySelectorAll('.country-picker__item'));
+        const flagEl = trigger.querySelector('.country-picker__flag');
+        const codeEl = trigger.querySelector('.country-picker__code');
+
+        function isOpen() { return picker.classList.contains('is-open'); }
+        function openPicker() {
+            picker.classList.add('is-open');
+            trigger.setAttribute('aria-expanded', 'true');
+            const selected = panel.querySelector('.country-picker__item[aria-selected="true"]');
+            if (selected) {
+                // Scroll the selected item into view inside the panel
+                requestAnimationFrame(() => {
+                    selected.scrollIntoView({ block: 'nearest' });
+                    selected.focus();
+                });
+            } else if (items[0]) {
+                items[0].focus();
+            }
+        }
+        function closePicker() {
+            picker.classList.remove('is-open');
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+        function selectItem(item) {
+            const code = item.dataset.code || '';
+            const flag = item.dataset.flag || '🌍';
+            if (hidden) hidden.value = code;
+            if (flagEl) flagEl.textContent = flag;
+            if (codeEl) codeEl.textContent = code || '—';
+            items.forEach(b => b.setAttribute('aria-selected', b === item ? 'true' : 'false'));
+            closePicker();
+            trigger.focus();
+        }
+
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            isOpen() ? closePicker() : openPicker();
+        });
+        trigger.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                if (!isOpen()) openPicker();
+            }
+        });
+
+        items.forEach((item, idx) => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectItem(item);
+            });
+            item.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    (items[idx + 1] || items[0]).focus();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    (items[idx - 1] || items[items.length - 1]).focus();
+                } else if (e.key === 'Home') {
+                    e.preventDefault();
+                    items[0].focus();
+                } else if (e.key === 'End') {
+                    e.preventDefault();
+                    items[items.length - 1].focus();
+                } else if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    selectItem(item);
+                }
+            });
+        });
+
+        // Outside click + Escape closes
+        document.addEventListener('click', (e) => {
+            if (isOpen() && !picker.contains(e.target)) closePicker();
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && isOpen()) {
+                closePicker();
+                trigger.focus();
+            }
+        });
+    })();
 
     console.log('🚀 Portfolio fully initialized');
 });
