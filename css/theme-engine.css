@@ -1,57 +1,59 @@
 /* ═══════════════════════════════════════════════════════════════
-   ANTIGRAVITY THEME ENGINE v1.0 — UNCHANGED
+   ANTIGRAVITY THEME ENGINE v2.0 — EMERALD + GOLD
+   Overrides the base tokens with the emerald/gold luxury palette.
+   Loads AFTER design-tokens.css, so these token values win site-wide.
    ═══════════════════════════════════════════════════════════════ */
 :root {
-    --bg-primary: #000000;
-    --bg-secondary: #0a0a0a;
-    --bg-elevated: rgba(255, 255, 255, 0.04);
-    --bg-gradient-start: #0d0d0d;
-    --bg-gradient-end: #000000;
-    --overlay-gradient-1: rgba(255, 255, 255, 0.03);
-    --overlay-gradient-2: rgba(255, 255, 255, 0.05);
-    --text-main: #ffffff;
-    --text-muted: #e5e5e5;
-    --text-inverse: #000000;
-    --accent-primary: #f5f5f5;
-    --accent-secondary: #d4d4d4;
-    --accent-tertiary: #a3a3a3;
-    --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-medium: rgba(255, 255, 255, 0.15);
-    --border-strong: rgba(255, 255, 255, 0.25);
-    --shadow-soft: 0 2px 8px rgba(255, 255, 255, 0.05);
-    --shadow-medium: 0 4px 15px rgba(255, 255, 255, 0.08);
-    --shadow-strong: 0 8px 25px rgba(255, 255, 255, 0.12);
-    --shadow-floating: 0 20px 40px rgba(255, 255, 255, 0.1);
-    --focus-ring: 0 0 0 3px rgba(255, 255, 255, 0.2);
-    --hover-overlay: rgba(255, 255, 255, 0.08);
-    --particle-color: rgba(255, 255, 255, 0.2);
+    --bg-primary: #04100B;
+    --bg-secondary: #061A11;
+    --bg-elevated: rgba(180, 255, 220, 0.045);
+    --bg-gradient-start: #061A11;
+    --bg-gradient-end: #04100B;
+    --overlay-gradient-1: rgba(16, 185, 129, 0.10);
+    --overlay-gradient-2: rgba(235, 194, 74, 0.07);
+    --text-main: #F1F7F2;
+    --text-muted: #B6C8BC;
+    --text-inverse: #04100B;
+    --accent-primary: #10B981;
+    --accent-secondary: #EBC24A;
+    --accent-tertiary: #5EEAD4;
+    --border-subtle: rgba(180, 255, 220, 0.08);
+    --border-medium: rgba(180, 255, 220, 0.15);
+    --border-strong: rgba(180, 255, 220, 0.26);
+    --shadow-soft: 0 2px 8px rgba(16, 185, 129, 0.06);
+    --shadow-medium: 0 4px 15px rgba(16, 185, 129, 0.10);
+    --shadow-strong: 0 8px 25px rgba(16, 185, 129, 0.16);
+    --shadow-floating: 0 20px 40px rgba(16, 185, 129, 0.14);
+    --focus-ring: 0 0 0 3px rgba(16, 185, 129, 0.28);
+    --hover-overlay: rgba(180, 255, 220, 0.08);
+    --particle-color: rgba(52, 211, 153, 0.38);
     --transition-all: all 0.4s ease-in-out;
 }
 
 [data-theme="pure-white"] {
-    --bg-primary: #ffffff;
-    --bg-secondary: #fafafa;
-    --bg-elevated: rgba(250, 250, 250, 0.95);
-    --bg-gradient-start: #f5f5f5;
-    --bg-gradient-end: #ffffff;
-    --overlay-gradient-1: rgba(0, 0, 0, 0.02);
-    --overlay-gradient-2: rgba(0, 0, 0, 0.03);
-    --text-main: #000000;
-    --text-muted: #525252;
-    --text-inverse: #ffffff;
-    --accent-primary: #171717;
-    --accent-secondary: #404040;
-    --accent-tertiary: #525252;
-    --border-subtle: rgba(0, 0, 0, 0.1);
-    --border-medium: rgba(0, 0, 0, 0.2);
-    --border-strong: rgba(0, 0, 0, 0.4);
-    --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-medium: 0 4px 15px rgba(0, 0, 0, 0.12);
-    --shadow-strong: 0 8px 25px rgba(0, 0, 0, 0.18);
-    --shadow-floating: 0 20px 40px rgba(0, 0, 0, 0.15);
-    --focus-ring: 0 0 0 3px rgba(0, 0, 0, 0.15);
-    --hover-overlay: rgba(0, 0, 0, 0.05);
-    --particle-color: rgba(0, 0, 0, 0.15)
+    --bg-primary: #FAFBF8;
+    --bg-secondary: #F1F5EF;
+    --bg-elevated: rgba(255, 255, 255, 0.95);
+    --bg-gradient-start: #F1F5EF;
+    --bg-gradient-end: #FAFBF8;
+    --overlay-gradient-1: rgba(5, 150, 105, 0.05);
+    --overlay-gradient-2: rgba(184, 134, 11, 0.04);
+    --text-main: #06170F;
+    --text-muted: #4E6558;
+    --text-inverse: #FAFBF8;
+    --accent-primary: #059669;
+    --accent-secondary: #B8860B;
+    --accent-tertiary: #0E9E74;
+    --border-subtle: rgba(4, 40, 24, 0.10);
+    --border-medium: rgba(4, 40, 24, 0.18);
+    --border-strong: rgba(4, 40, 24, 0.34);
+    --shadow-soft: 0 2px 8px rgba(4, 24, 16, 0.08);
+    --shadow-medium: 0 4px 15px rgba(4, 24, 16, 0.12);
+    --shadow-strong: 0 8px 25px rgba(4, 24, 16, 0.18);
+    --shadow-floating: 0 20px 40px rgba(4, 24, 16, 0.15);
+    --focus-ring: 0 0 0 3px rgba(5, 150, 105, 0.20);
+    --hover-overlay: rgba(4, 40, 24, 0.05);
+    --particle-color: rgba(5, 150, 105, 0.18)
 }
 
 /* Legacy variable mapping */
@@ -74,8 +76,12 @@ body {
     color: var(--text-main) !important;
 }
 
+/* Rich emerald + gold aurora — never lets the background feel empty */
 body::before {
-    background: radial-gradient(circle at top right, var(--overlay-gradient-1) 0%, transparent 40%), radial-gradient(circle at bottom left, var(--overlay-gradient-2) 0%, transparent 40%) !important;
+    background:
+        radial-gradient(ellipse 70% 55% at 18% 12%, var(--overlay-gradient-1) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 84% 8%, var(--overlay-gradient-2) 0%, transparent 55%),
+        radial-gradient(ellipse 55% 45% at 60% 95%, rgba(94, 234, 212, 0.06) 0%, transparent 60%) !important;
 }
 
 ::-webkit-scrollbar-track {
@@ -88,8 +94,8 @@ body::before {
 }
 
 .btn {
-    background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary)) !important;
-    color: var(--text-inverse) !important;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    color: #04140C !important;
 }
 
 .btn-outline {
@@ -100,11 +106,11 @@ body::before {
 
 .btn-outline:hover {
     background: var(--accent-primary) !important;
-    color: var(--text-inverse) !important;
+    color: #04140C !important;
 }
 
 header {
-    background: rgba(0, 0, 0, 0.85) !important;
+    background: rgba(4, 16, 11, 0.72) !important;
     border-bottom: none !important;
     backdrop-filter: blur(14px) !important;
     -webkit-backdrop-filter: blur(14px) !important;
@@ -131,7 +137,7 @@ header {
 }
 
 .nav-links li a::after {
-    background: var(--text-main) !important;
+    background: var(--accent-primary) !important;
 }
 
 .skill-card,
@@ -153,14 +159,9 @@ header {
 }
 
 .section-title h2 {
-    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary)) !important;
+    background: linear-gradient(120deg, var(--accent-primary) 0%, var(--accent-secondary) 100%) !important;
     -webkit-background-clip: text !important;
     background-clip: text !important;
-}
-
-.section-title p,
-.about-text p {
-    color: var(--text-muted) !important;
 }
 
 .form-group input,
@@ -186,7 +187,7 @@ header {
 
 .contact-icon {
     background: var(--accent-primary) !important;
-    color: var(--text-inverse) !important;
+    color: #04140C !important;
 }
 
 footer {
@@ -200,7 +201,7 @@ footer p {
 }
 
 .copyright-link {
-    color: var(--text-main) !important;
+    color: var(--accent-primary) !important;
 }
 
 .social-links a {
@@ -209,20 +210,20 @@ footer p {
 }
 
 .social-links a:hover {
-    background: var(--accent-primary) !important;
-    color: var(--text-inverse) !important;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)) !important;
+    color: #04140C !important;
     border-color: var(--accent-primary) !important;
 }
 
 .view-details-btn {
-    background: rgba(0, 0, 0, 0.05) !important;
+    background: rgba(180, 255, 220, 0.05) !important;
     color: var(--accent-primary) !important;
     border-color: var(--border-medium) !important;
 }
 
 .view-details-btn:hover {
     background: var(--accent-primary) !important;
-    color: var(--text-inverse) !important;
+    color: #04140C !important;
 }
 
 .hero-name.gradient-text {

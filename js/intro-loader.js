@@ -50,7 +50,7 @@
     canvas.style.width  = window.innerWidth  + 'px';
     canvas.style.height = window.innerHeight + 'px';
 
-    const COLORS = ['#A78BFA', '#60A5FA', '#22D3EE', '#C4B5FD'];
+    const COLORS = ['#34D399', '#10B981', '#EBC24A', '#6EE7B7'];
     const PARTICLE_COUNT = Math.min(160, Math.floor((window.innerWidth * window.innerHeight) / 9000));
 
     /* Each particle is born at the edge of the screen and homes to a
@@ -86,7 +86,7 @@
     function frame(now) {
       const elapsed = now - start;
       // Fade trail effect — partial clear so particles leave streaks
-      ctx.fillStyle = 'rgba(7, 7, 12, 0.20)';
+      ctx.fillStyle = 'rgba(4, 16, 11, 0.22)';
       ctx.fillRect(0, 0, W, H);
 
       for (const p of particles) {

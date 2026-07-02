@@ -35,10 +35,24 @@
   };
 
   /* ── 2. HERO TIMELINE (GSAP if available, CSS fallback otherwise) ── */
+  // Selectors GSAP animates FROM opacity:0 — must never be left hidden.
+  const HERO_SEL = '[data-hero-eyebrow], [data-hero-title] > span, [data-hero-tagline], [data-hero-desc], [data-hero-cta] > *, [data-hero-badges] > *';
+
+  const forceShowHero = () => {
+    document.querySelectorAll(HERO_SEL).forEach((el) => {
+      el.style.opacity = '';
+      el.style.transform = '';
+    });
+  };
+
   const playHero = () => {
     if (prefersReduce) return;
-    if (!hasGSAP) return;
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+    if (!hasGSAP) return;              // CSS leaves the copy visible by default
+    const tl = gsap.timeline({
+      defaults: { ease: 'power3.out' },
+      // Clean up inline props when done so nothing can stay stuck hidden
+      onComplete: () => gsap.set(document.querySelectorAll(HERO_SEL), { clearProps: 'opacity,transform' }),
+    });
     tl.from('[data-hero-eyebrow]', { y: 24, opacity: 0, duration: 0.6 })
       .from('[data-hero-title] > span', {
         yPercent: 110,
@@ -54,6 +68,9 @@
       .from('[data-hero-badges] > *', {
         y: 14, opacity: 0, duration: 0.45, stagger: 0.08,
       }, '-=0.4');
+
+    // Safety net: if the ticker ever stalls, guarantee the copy is shown.
+    setTimeout(forceShowHero, 4200);
   };
 
   /* ── 3. PARALLAX HERO ORBS (subtle) ── */

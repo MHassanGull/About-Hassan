@@ -99,15 +99,15 @@ class AntigravityHeroBackground {
         this.ctx = this.canvas.getContext('2d');
         this.particles = [];
         this.mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
-        this.colors = { primary: '#6366f1', secondary: '#10b981', tertiary: '#8b5cf6' };
+        this.colors = { primary: '#10b981', secondary: '#ebc24a', tertiary: '#5eead4' };
         this.init();
     }
 
     getThemeColors() {
         const cs = getComputedStyle(document.documentElement);
-        this.colors.primary = cs.getPropertyValue('--accent-primary').trim() || '#6366f1';
-        this.colors.secondary = cs.getPropertyValue('--accent-secondary').trim() || '#10b981';
-        this.colors.tertiary = cs.getPropertyValue('--accent-tertiary').trim() || '#8b5cf6';
+        this.colors.primary = cs.getPropertyValue('--accent-primary').trim() || '#10b981';
+        this.colors.secondary = cs.getPropertyValue('--accent-secondary').trim() || '#ebc24a';
+        this.colors.tertiary = cs.getPropertyValue('--accent-tertiary').trim() || '#5eead4';
     }
 
     init() {
@@ -829,8 +829,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Render up to 3 visible cards
-            for (let offset = 2; offset >= 0; offset--) {
+            // Render up to 3 visible cards — but never more than we have
+            // distinct reviews, otherwise a single review is drawn 3× and
+            // the background copies "ghost" through as doubled text.
+            const maxOffset = Math.min(2, allReviews.length - 1);
+            for (let offset = maxOffset; offset >= 0; offset--) {
                 const idx = (currentIdx + offset) % allReviews.length;
                 if (idx < allReviews.length) {
                     const card = buildCard(allReviews[idx]);

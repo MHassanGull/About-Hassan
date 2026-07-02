@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════
    HASSAN PORTFOLIO — DESIGN TOKENS
-   Aceternity / Vercel hybrid · Obsidian dark + minimal light
+   Palette: EMERALD + GOLD · deep green-black · editorial luxury
    Source of truth for spacing, color, type, motion, elevation.
    ═══════════════════════════════════════════════════════════════ */
 
@@ -93,146 +93,148 @@
   --z-toast:     1500;
   --z-cursor:    9999;
 
-  /* ── Shared accent (theme-independent brand) ── */
-  --brand-violet-300: #C4B5FD;
-  --brand-violet-400: #A78BFA;
-  --brand-violet-500: #8B5CF6;
-  --brand-violet-600: #7C3AED;
+  /* ── Shared accent (theme-independent brand) — EMERALD + GOLD ── */
+  --brand-emerald-300: #6EE7B7;
+  --brand-emerald-400: #34D399;
+  --brand-emerald-500: #10B981;
+  --brand-emerald-600: #059669;
 
-  --brand-blue-400:   #60A5FA;
-  --brand-blue-500:   #3B82F6;
-  --brand-blue-600:   #2563EB;
+  --brand-gold-300:   #F6E27A;
+  --brand-gold-400:   #EBC24A;
+  --brand-gold-500:   #D4A017;
 
-  --brand-cyan-400:   #22D3EE;
+  --brand-mint-400:   #5EEAD4;
 
   --grad-aurora:
-    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(139, 92, 246, 0.18), transparent 60%),
-    radial-gradient(ellipse 70% 50% at 80% 10%, rgba(59, 130, 246, 0.16), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 60% 90%, rgba(34, 211, 238, 0.10), transparent 60%);
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(16, 185, 129, 0.20), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 12%, rgba(235, 194, 74, 0.14), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 60% 90%, rgba(94, 234, 212, 0.10), transparent 60%);
 
-  --grad-accent:        linear-gradient(135deg, #8B5CF6 0%, #3B82F6 100%);
-  --grad-accent-soft:   linear-gradient(135deg, rgba(139,92,246,0.18) 0%, rgba(59,130,246,0.18) 100%);
-  --grad-text:          linear-gradient(135deg, #C4B5FD 0%, #60A5FA 50%, #22D3EE 100%);
+  --grad-accent:        linear-gradient(135deg, #10B981 0%, #EBC24A 100%);
+  --grad-accent-soft:   linear-gradient(135deg, rgba(16,185,129,0.18) 0%, rgba(235,194,74,0.18) 100%);
+  --grad-text:          linear-gradient(135deg, #6EE7B7 0%, #34D399 45%, #EBC24A 100%);
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   DARK MODE (default — obsidian)
+   DARK MODE (default — emerald obsidian)
    ═══════════════════════════════════════════════════════════════ */
 :root {
   /* Surfaces */
-  --bg-primary:   #07070C;   /* obsidian */
-  --bg-secondary: #0C0C14;
-  --bg-tertiary:  #12121C;
-  --bg-elevated:  #1A1A26;
-  --bg-inverse:   #FAFAFB;
+  --bg-primary:   #04100B;   /* deep green-black */
+  --bg-secondary: #061A11;
+  --bg-tertiary:  #0A2417;
+  --bg-elevated:  #0E2E1E;
+  --bg-inverse:   #FAFBF8;
 
   /* Glass */
-  --glass-bg:     rgba(20, 20, 30, 0.55);
-  --glass-bg-hi:  rgba(28, 28, 42, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-border-hi: rgba(255, 255, 255, 0.14);
+  --glass-bg:     rgba(10, 30, 20, 0.55);
+  --glass-bg-hi:  rgba(14, 40, 27, 0.7);
+  --glass-border: rgba(180, 255, 220, 0.10);
+  --glass-border-hi: rgba(180, 255, 220, 0.18);
   --glass-blur:   18px;
 
   /* Text */
-  --text-primary:   #F4F4F8;
-  --text-secondary: #C9C9D6;
-  --text-muted:     #8A8A9B;
-  --text-faint:     #5C5C70;
-  --text-inverse:   #0A0A12;
+  --text-primary:   #F1F7F2;
+  --text-secondary: #C4D6C9;
+  --text-muted:     #8AA394;
+  --text-faint:     #566A5D;
+  --text-inverse:   #04100B;
 
-  /* Accents (resolve brand tokens per theme) */
-  --accent-primary:   #A78BFA;
-  --accent-secondary: #60A5FA;
-  --accent-tertiary:  #22D3EE;
-  --accent-glow:      rgba(167, 139, 250, 0.5);
+  /* Accents (emerald primary, gold secondary, mint tertiary) */
+  --accent-primary:   #10B981;
+  --accent-secondary: #EBC24A;
+  --accent-tertiary:  #5EEAD4;
+  --accent-glow:      rgba(16, 185, 129, 0.5);
+  --accent-gold-glow: rgba(235, 194, 74, 0.42);
 
   /* Borders */
-  --border-subtle:  rgba(255, 255, 255, 0.06);
-  --border-default: rgba(255, 255, 255, 0.10);
-  --border-strong:  rgba(255, 255, 255, 0.18);
+  --border-subtle:  rgba(180, 255, 220, 0.07);
+  --border-default: rgba(180, 255, 220, 0.12);
+  --border-strong:  rgba(180, 255, 220, 0.20);
 
   /* Status */
   --status-success: #34D399;
-  --status-warn:    #FBBF24;
+  --status-warn:    #EBC24A;
   --status-danger:  #F87171;
 
   /* Shadows */
   --shadow-sm:  0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md:  0 6px 24px -4px rgba(0, 0, 0, 0.5);
-  --shadow-lg:  0 24px 60px -12px rgba(0, 0, 0, 0.6);
-  --shadow-glow:0 0 40px rgba(139, 92, 246, 0.25);
+  --shadow-lg:  0 24px 60px -12px rgba(0, 0, 0, 0.62);
+  --shadow-glow:0 0 40px rgba(16, 185, 129, 0.28);
 
   /* Grid/dot overlay color */
-  --grid-line:   rgba(255, 255, 255, 0.04);
-  --grid-dot:    rgba(255, 255, 255, 0.06);
+  --grid-line:   rgba(180, 255, 220, 0.04);
+  --grid-dot:    rgba(180, 255, 220, 0.06);
 
   /* Particle (consumed by app.js) */
-  --particle-color: rgba(167, 139, 250, 0.45);
+  --particle-color: rgba(52, 211, 153, 0.45);
 
   /* Scrollbar */
   --sb-track: transparent;
-  --sb-thumb: rgba(255, 255, 255, 0.10);
+  --sb-thumb: rgba(180, 255, 220, 0.12);
 
   /* Compatibility aliases (preserved Technical Skills section uses these) */
-  --accent-rgb:  167, 139, 250;
-  --text-main:   #F4F4F8;
+  --accent-rgb:  16, 185, 129;
+  --text-main:   #F1F7F2;
 
   color-scheme: dark;
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   LIGHT MODE (data-theme="pure-white")
+   LIGHT MODE (data-theme="pure-white") — emerald/gold on warm white
    Note: app.js sets data-theme on <html>. Default = dark.
    ═══════════════════════════════════════════════════════════════ */
 :root[data-theme="pure-white"] {
-  --bg-primary:   #FAFAFB;
-  --bg-secondary: #F2F2F6;
-  --bg-tertiary:  #ECECF1;
+  --bg-primary:   #FAFBF8;
+  --bg-secondary: #F1F5EF;
+  --bg-tertiary:  #E9EFE6;
   --bg-elevated:  #FFFFFF;
-  --bg-inverse:   #07070C;
+  --bg-inverse:   #04100B;
 
-  --glass-bg:     rgba(255, 255, 255, 0.7);
-  --glass-bg-hi:  rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(7, 7, 12, 0.08);
-  --glass-border-hi: rgba(7, 7, 12, 0.14);
+  --glass-bg:     rgba(255, 255, 255, 0.72);
+  --glass-bg-hi:  rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(4, 40, 24, 0.09);
+  --glass-border-hi: rgba(4, 40, 24, 0.15);
   --glass-blur:   18px;
 
-  --text-primary:   #0A0A12;
-  --text-secondary: #2E2E3D;
-  --text-muted:     #5C5C70;
-  --text-faint:     #9696A6;
-  --text-inverse:   #F4F4F8;
+  --text-primary:   #06170F;
+  --text-secondary: #23392E;
+  --text-muted:     #4E6558;
+  --text-faint:     #8AA394;
+  --text-inverse:   #F1F7F2;
 
-  --accent-primary:   #7C3AED;
-  --accent-secondary: #2563EB;
-  --accent-tertiary:  #0891B2;
-  --accent-glow:      rgba(124, 58, 237, 0.35);
+  --accent-primary:   #059669;
+  --accent-secondary: #B8860B;
+  --accent-tertiary:  #0E9E74;
+  --accent-glow:      rgba(5, 150, 105, 0.30);
+  --accent-gold-glow: rgba(184, 134, 11, 0.28);
 
-  --border-subtle:  rgba(7, 7, 12, 0.06);
-  --border-default: rgba(7, 7, 12, 0.10);
-  --border-strong:  rgba(7, 7, 12, 0.18);
+  --border-subtle:  rgba(4, 40, 24, 0.07);
+  --border-default: rgba(4, 40, 24, 0.12);
+  --border-strong:  rgba(4, 40, 24, 0.20);
 
-  --shadow-sm:  0 1px 2px rgba(7, 7, 12, 0.06);
-  --shadow-md:  0 6px 24px -4px rgba(7, 7, 12, 0.10);
-  --shadow-lg:  0 24px 60px -12px rgba(7, 7, 12, 0.18);
-  --shadow-glow:0 0 40px rgba(124, 58, 237, 0.18);
+  --shadow-sm:  0 1px 2px rgba(4, 24, 16, 0.06);
+  --shadow-md:  0 6px 24px -4px rgba(4, 24, 16, 0.10);
+  --shadow-lg:  0 24px 60px -12px rgba(4, 24, 16, 0.18);
+  --shadow-glow:0 0 40px rgba(5, 150, 105, 0.18);
 
-  --grid-line:   rgba(7, 7, 12, 0.04);
-  --grid-dot:    rgba(7, 7, 12, 0.08);
+  --grid-line:   rgba(4, 40, 24, 0.05);
+  --grid-dot:    rgba(4, 40, 24, 0.08);
 
-  --particle-color: rgba(124, 58, 237, 0.35);
+  --particle-color: rgba(5, 150, 105, 0.32);
 
   --sb-track: transparent;
-  --sb-thumb: rgba(7, 7, 12, 0.18);
+  --sb-thumb: rgba(4, 40, 24, 0.18);
 
   --grad-aurora:
-    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(124, 58, 237, 0.10), transparent 60%),
-    radial-gradient(ellipse 70% 50% at 80% 10%, rgba(37, 99, 235, 0.08), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 60% 90%, rgba(8, 145, 178, 0.06), transparent 60%);
+    radial-gradient(ellipse 80% 60% at 20% 30%, rgba(5, 150, 105, 0.12), transparent 60%),
+    radial-gradient(ellipse 70% 50% at 80% 10%, rgba(184, 134, 11, 0.10), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 60% 90%, rgba(14, 158, 116, 0.07), transparent 60%);
 
   /* Compatibility aliases */
-  --accent-rgb:  124, 58, 237;
-  --text-main:   #0A0A12;
+  --accent-rgb:  5, 150, 105;
+  --text-main:   #06170F;
 
   color-scheme: light;
 }
