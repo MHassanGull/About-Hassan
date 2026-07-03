@@ -455,11 +455,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`API error: ${res.status}`);
             }
 
-            const data = await res.json();
+            // Parse defensively — the webhook can return an empty body if the
+            // backend agent errors, and res.json() would throw on that.
+            const raw = await res.text();
+            let data = {};
+            try { data = raw ? JSON.parse(raw) : {}; } catch (_) { data = { reply: raw }; }
             if (data.sessionId && data.sessionId !== getSessionId()) localStorage.setItem(SESS_KEY, data.sessionId);
 
             setLoading(false);
-            appendMessage('ai', processAIResponse(data.reply));
+            const reply = (data.reply || data.output || data.text || '').trim();
+            if (!reply) {
+                appendMessage('ai', "Hmm, I blanked for a sec. Mind asking me again?");
+                return;
+            }
+            appendMessage('ai', processAIResponse(reply));
         } catch (err) {
             console.error('Chatbot Fetch Exception:', err);
             setLoading(false);
@@ -476,9 +485,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processAIResponse(text) {
-        if (!text) return "I'm sorry, I couldn't process that.";
+        if (!text) return "I'm here to help!";
         let clean = text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
-        return clean || "I'm here to help!";
+        // Safety net for the "no dashes" preference: turn dash punctuation into
+        // commas. Hyphens inside words (real-time) and URLs are left untouched.
+        clean = clean
+            .replace(/\s*[—–]\s*/g, ', ')   // em / en dash → comma
+            .replace(/ +- +/g, ', ')         // spaced hyphen used as a dash
+            .replace(/, ,/g, ',');
+        return clean.trim() || "I'm here to help!";
     }
 
     function setLoading(loading) {
