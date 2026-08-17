@@ -1,342 +1,351 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="AI Portfolio Assistant — n8n + Claude + Pinecone RAG architecture by Hassan">
-    <meta name="theme-color" content="#04100B">
-    <title>AI Portfolio Assistant | Built on n8n · Hassan</title>
+    <meta name="description"
+        content="AI Portfolio Assistant — a RAG chatbot built on self-hosted n8n with Claude Haiku 4.5 and Pinecone. Case study by Muhammad Hassan.">
+    <meta name="theme-color" content="#0E0D0D">
+    <title>AI Portfolio Assistant — Case Study · Hassan</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="css/design-tokens.css">
-    <link rel="stylesheet" href="css/theme-engine.css">
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/case.css">
 </head>
 
-<body class="detail-body">
+<body>
+    <a class="skip-link" href="#top">Skip to content</a>
 
-    <!-- Scroll Progress -->
-    <div class="scroll-progress" id="scroll-progress"></div>
+    <header class="site-header">
+        <a href="index.html" class="wordmark">Hassan</a>
 
-    <!-- Navigation -->
-    <header id="main-header">
-        <a href="index.html" class="logo">MH.</a>
-        <ul class="nav-links">
-            <li><a href="index.html#home">Home</a></li>
-            <li><a href="index.html#projects">Projects</a></li>
-            <li><a href="index.html#contact">Contact</a></li>
-        </ul>
-        <div class="nav-right">
-            <a href="index.html" class="login-nav-btn">
-                <i class="fas fa-arrow-left"></i> Back
-            </a>
-        </div>
+        <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="site-nav" id="site-nav">
+            <a href="index.html#about">About</a>
+            <a href="index.html#work">Work</a>
+            <a href="index.html#voices">Reviews</a>
+            <a href="index.html#contact" class="nav-cta">Get in touch</a>
+        </nav>
     </header>
 
-    <!-- ════════════════════════════════════════════════
-         SECTION 1 — Cinematic Hero
-         ════════════════════════════════════════════════ -->
-    <section class="cb-hero">
-        <div class="cb-hero__bg" aria-hidden="true">
-            <div class="cb-orb cb-orb--a"></div>
-            <div class="cb-orb cb-orb--b"></div>
-            <div class="cb-orb cb-orb--c"></div>
-        </div>
-        <div class="cb-hero__inner">
-            <span class="cb-eyebrow animate-ready">
-                <span class="cb-eyebrow__dot"></span>
-                CASE STUDY · CONVERSATIONAL AI
-            </span>
-            <h1 class="cb-hero__title animate-ready">
-                AI Portfolio Assistant
-                <span class="cb-hero__title-grad">Built on n8n</span>
-            </h1>
-            <p class="cb-hero__desc animate-ready">
-                A production-grade RAG chatbot that knows everything about my work, projects, and skills.
-                Visitors talk to it — it answers in real time, pulling context from a vector database of
-                my portfolio content. Orchestrated entirely with n8n, powered by Claude Haiku 4.5, and
-                grounded with Pinecone semantic search.
+    <main>
+        <!-- ═══ HERO ═════════════════════════════════════════ -->
+        <section class="case-hero" id="top">
+            <p class="label" data-reveal><b>Case study</b> / Conversational AI</p>
+
+            <h1 data-reveal>AI Portfolio <em>Assistant</em></h1>
+
+            <p class="lead" data-reveal>
+                A production RAG chatbot that knows my work. Visitors ask it anything and it answers in real
+                time, pulling context from a vector database of my portfolio content. Orchestrated entirely
+                with self-hosted n8n, reasoning with Claude Haiku 4.5, grounded by Pinecone semantic search.
             </p>
-            <div class="cb-hero__badges animate-ready">
-                <span class="cb-badge"><i class="fas fa-bolt"></i> Claude Haiku 4.5</span>
-                <span class="cb-badge"><i class="fas fa-network-wired"></i> n8n Workflow</span>
-                <span class="cb-badge"><i class="fas fa-vector-square"></i> Pinecone RAG</span>
-                <span class="cb-badge"><i class="fas fa-database"></i> Firebase RTDB</span>
-                <span class="cb-badge"><i class="fas fa-comments"></i> Window Memory</span>
-            </div>
-            <div class="cb-hero__metrics animate-ready">
-                <div class="cb-metric">
-                    <div class="cb-metric__num">11</div>
-                    <div class="cb-metric__label">n8n nodes orchestrated</div>
-                </div>
-                <div class="cb-metric">
-                    <div class="cb-metric__num">19</div>
-                    <div class="cb-metric__label">embedded knowledge chunks</div>
-                </div>
-                <div class="cb-metric">
-                    <div class="cb-metric__num">&lt;7s</div>
-                    <div class="cb-metric__label">end-to-end response</div>
-                </div>
-                <div class="cb-metric">
-                    <div class="cb-metric__num">100%</div>
-                    <div class="cb-metric__label">hosted on n8n self-host</div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- ════════════════════════════════════════════════
-         SECTION 2 — Problem & Solution
-         ════════════════════════════════════════════════ -->
-    <section class="cb-section">
-        <div class="cb-section__head">
-            <span class="cb-section__num">01</span>
-            <h2 class="cb-section__title">Problem &amp; Solution</h2>
-        </div>
-        <div class="cb-split">
-            <div class="cb-card cb-card--problem animate-ready">
-                <div class="cb-card__icon cb-card__icon--red"><i class="fas fa-exclamation-circle"></i></div>
-                <h3>The Problem</h3>
-                <p>Static portfolios fail to engage visitors. People have specific questions about a developer's
-                experience that aren't obvious from bullet points and project tiles. Visitors leave without
-                answers — and without context, they leave without contacting.</p>
-            </div>
-            <div class="cb-card cb-card--solution animate-ready">
-                <div class="cb-card__icon cb-card__icon--green"><i class="fas fa-check-circle"></i></div>
-                <h3>The Solution</h3>
-                <p>An n8n-orchestrated AI assistant using Retrieval-Augmented Generation. It searches a vector
-                store of my portfolio knowledge, feeds that context to Claude, and replies in my voice — 24/7,
-                with conversation memory, session tracking, and lead capture.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ════════════════════════════════════════════════
-         SECTION 3 — Live n8n Workflow Diagram
-         ════════════════════════════════════════════════ -->
-    <section class="cb-section">
-        <div class="cb-section__head">
-            <span class="cb-section__num">02</span>
-            <h2 class="cb-section__title">The n8n Workflow</h2>
-            <p class="cb-section__lead">Exactly 11 nodes wired together. Visitor message lands on a webhook,
-            travels through validation, AI reasoning with tool-calling, and parallel persistence — all
-            inside a single n8n workflow.</p>
-        </div>
-
-        <div class="n8n-diagram animate-ready">
-            <!-- Trigger lane -->
-            <div class="n8n-lane n8n-lane--trigger">
-                <div class="n8n-node n8n-node--webhook">
-                    <div class="n8n-node__icon"><i class="fas fa-bolt"></i></div>
-                    <div class="n8n-node__name">Webhook</div>
-                    <div class="n8n-node__hint">POST /portfolio-chatbot</div>
-                </div>
-                <div class="n8n-edge n8n-edge--down"></div>
-                <div class="n8n-node n8n-node--code">
-                    <div class="n8n-node__icon"><i class="fas fa-code"></i></div>
-                    <div class="n8n-node__name">Extract Input</div>
-                    <div class="n8n-node__hint">parse message + session</div>
-                </div>
-                <div class="n8n-edge n8n-edge--down"></div>
+            <div class="tags" data-reveal>
+                <span class="tag">n8n</span>
+                <span class="tag">Claude Haiku 4.5</span>
+                <span class="tag">Pinecone RAG</span>
+                <span class="tag">Firebase RTDB</span>
+                <span class="tag">Window memory</span>
             </div>
 
-            <!-- Agent + AI subnodes -->
-            <div class="n8n-lane n8n-lane--agent">
-                <div class="n8n-node n8n-node--agent">
-                    <div class="n8n-node__icon"><i class="fas fa-robot"></i></div>
-                    <div class="n8n-node__name">AI Agent</div>
-                    <div class="n8n-node__hint">tool-calling, RAG</div>
+            <div class="case-actions" data-reveal>
+                <a href="index.html#top" class="btn">Try it live <span aria-hidden="true">→</span></a>
+                <a href="index.html#work" class="btn-ghost">All work</a>
+            </div>
+
+            <div class="metrics">
+                <div class="metric" data-reveal>
+                    <b>11</b><span class="label">n8n nodes orchestrated</span>
                 </div>
-                <div class="n8n-sub">
-                    <div class="n8n-sub__node">
-                        <i class="fas fa-brain"></i>
-                        <span>Claude Haiku 4.5</span>
-                    </div>
-                    <div class="n8n-sub__node">
-                        <i class="fas fa-history"></i>
-                        <span>Window Buffer Memory<br><em>(15 messages)</em></span>
-                    </div>
-                    <div class="n8n-sub__node">
-                        <i class="fas fa-vector-square"></i>
-                        <span>portfolio_knowledge Tool</span>
-                    </div>
+                <div class="metric" data-reveal>
+                    <b>19</b><span class="label">Embedded knowledge chunks</span>
                 </div>
-                <div class="n8n-sub n8n-sub--rag">
-                    <div class="n8n-sub__node n8n-sub__node--small">
-                        <i class="fas fa-cube"></i>
-                        <span>Pinecone Vector Store</span>
+                <div class="metric" data-reveal>
+                    <b>&lt;7<span>s</span></b><span class="label">End-to-end response</span>
+                </div>
+                <div class="metric" data-reveal>
+                    <b>100<span>%</span></b><span class="label">Self-hosted n8n</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 01 PROBLEM & SOLUTION ════════════════════════ -->
+        <section class="case-section">
+            <p class="label" data-reveal><b>01</b> / Problem &amp; solution</p>
+            <h2 data-reveal>A static page cannot <em>answer a question.</em></h2>
+
+            <div class="split">
+                <div data-reveal>
+                    <span class="label">The problem</span>
+                    <h3>Visitors leave without answers</h3>
+                    <p class="copy">
+                        People have specific questions about a developer's experience that bullet points and
+                        project tiles never cover. Without an answer they leave, and without context they
+                        leave without making contact.
+                    </p>
+                </div>
+                <div data-reveal>
+                    <span class="label">The solution</span>
+                    <h3>An assistant that reads the source</h3>
+                    <p class="copy">
+                        An n8n-orchestrated assistant using retrieval-augmented generation. It searches a
+                        vector store of my portfolio knowledge, feeds that context to Claude, and replies in
+                        my voice — around the clock, with conversation memory and session tracking.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 02 THE WORKFLOW ══════════════════════════════ -->
+        <section class="case-section">
+            <p class="label" data-reveal><b>02</b> / The n8n workflow</p>
+            <h2 data-reveal>Eleven nodes,<br><em>one webhook.</em></h2>
+            <p class="copy" data-reveal>
+                A visitor message lands on a webhook, travels through validation and AI reasoning with
+                tool-calling, then fans out to parallel persistence — all inside a single workflow.
+            </p>
+
+            <div class="diagram" data-reveal>
+                <div class="node">
+                    <b>Webhook</b>
+                    <span>POST /portfolio-chatbot</span>
+                </div>
+                <div class="wire" aria-hidden="true"></div>
+                <div class="node">
+                    <b>Extract Input</b>
+                    <span>Parse message + session</span>
+                </div>
+                <div class="wire" aria-hidden="true"></div>
+                <div class="node node--accent">
+                    <b>AI Agent</b>
+                    <span>Tool-calling · RAG</span>
+                </div>
+                <div class="wire wire--accent" aria-hidden="true"></div>
+                <div class="subnodes">
+                    <div class="subnode">Claude Haiku 4.5</div>
+                    <div class="subnode">Window buffer memory<em>15 messages</em></div>
+                    <div class="subnode">portfolio_knowledge tool</div>
+                </div>
+                <div class="wire" aria-hidden="true"></div>
+                <div class="subnodes">
+                    <div class="subnode">Pinecone vector store<em>19 chunks · 768 dims</em></div>
+                    <div class="subnode">HuggingFace embeddings<em>all-mpnet-base-v2</em></div>
+                </div>
+                <div class="wire" aria-hidden="true"></div>
+                <div class="fanout">
+                    <div class="node">
+                        <b>Respond to Webhook</b>
+                        <span>JSON · CORS · &lt;7s</span>
                     </div>
-                    <div class="n8n-sub__node n8n-sub__node--small">
-                        <i class="fas fa-language"></i>
-                        <span>HuggingFace Embeddings</span>
+                    <div class="node">
+                        <b>Save to Firebase</b>
+                        <span>Non-blocking · neverError</span>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Fan-out: Respond + Save Firebase in parallel -->
-            <div class="n8n-fanout">
-                <div class="n8n-branch">
-                    <div class="n8n-edge n8n-edge--curve-left"></div>
-                    <div class="n8n-node n8n-node--respond">
-                        <div class="n8n-node__icon"><i class="fas fa-reply"></i></div>
-                        <div class="n8n-node__name">Respond to Webhook</div>
-                        <div class="n8n-node__hint">JSON · CORS · &lt;7s</div>
-                    </div>
-                </div>
-                <div class="n8n-branch">
-                    <div class="n8n-edge n8n-edge--curve-right"></div>
-                    <div class="n8n-node n8n-node--firebase">
-                        <div class="n8n-node__icon"><i class="fas fa-fire"></i></div>
-                        <div class="n8n-node__name">Save to Firebase</div>
-                        <div class="n8n-node__hint">non-blocking · neverError</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- ═══ 03 STEP BY STEP ══════════════════════════════ -->
+        <section class="case-section">
+            <p class="label" data-reveal><b>03</b> / Step by step</p>
+            <h2 data-reveal>What actually happens<br><em>between question and answer.</em></h2>
 
-        <div class="n8n-flow-narrative animate-ready">
-            <h3>What actually happens, step by step</h3>
-            <ol class="cb-steps">
-                <li><strong>Visitor sends a message</strong> → the widget on the portfolio site POSTs <code>{message, sessionId}</code> to the n8n webhook.</li>
-                <li><strong>Extract Input</strong> normalises the body, generates a session ID if missing, and forwards <code>{chatInput, sessionId}</code>.</li>
-                <li><strong>AI Agent</strong> assembles the prompt: hardcoded facts about Hassan, last 15 messages from Window Buffer Memory, plus access to the <code>portfolio_knowledge</code> tool.</li>
-                <li><strong>If the question needs depth</strong>, the Agent fires the tool — which embeds the query with HuggingFace <code>all-mpnet-base-v2</code>, queries Pinecone (<code>hassan-website</code> namespace), and feeds the top matches back to the Agent.</li>
-                <li><strong>Claude Haiku 4.5</strong> synthesises the answer in Hassan's voice. The output fans out twice in parallel:</li>
-                <li><strong>Respond to Webhook</strong> ships <code>{reply, success: true}</code> back to the widget with proper CORS — visitor sees the reply.</li>
-                <li><strong>Save to Firebase</strong> simultaneously logs the conversation to <code>chatbot/conversations</code> RTDB for analytics — failures don't block the response.</li>
+            <ol class="flow">
+                <li data-reveal>
+                    <span class="flow-no">01</span>
+                    <div>
+                        <h3>The visitor sends a message</h3>
+                        <p>The widget on the portfolio POSTs <code>{message, sessionId}</code> to the n8n
+                            webhook. The session ID persists in localStorage so a reload does not lose the thread.</p>
+                    </div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">02</span>
+                    <div>
+                        <h3>Extract Input normalises the body</h3>
+                        <p>It generates a session ID when one is missing and forwards a clean
+                            <code>{chatInput, sessionId}</code> downstream.</p>
+                    </div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">03</span>
+                    <div>
+                        <h3>The agent assembles its prompt</h3>
+                        <p>Hardcoded facts about me, the last fifteen messages from window buffer memory, and
+                            access to the <code>portfolio_knowledge</code> tool.</p>
+                    </div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">04</span>
+                    <div>
+                        <h3>Retrieval fires only when needed</h3>
+                        <p>If the question needs depth, the agent calls the tool, which embeds the query with
+                            HuggingFace <code>all-mpnet-base-v2</code>, queries the Pinecone
+                            <code>hassan-website</code> namespace, and feeds the top matches back.</p>
+                        <span class="tag">Fast answers stay fast</span>
+                    </div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">05</span>
+                    <div>
+                        <h3>Claude Haiku 4.5 writes the answer</h3>
+                        <p>It synthesises the reply in my voice. From here the output fans out twice, in parallel.</p>
+                    </div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">06</span>
+                    <div>
+                        <h3>Respond to Webhook ships the reply</h3>
+                        <p>It returns <code>{reply, success: true}</code> with proper CORS headers, and the
+                            visitor sees the answer.</p>
+                    </div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">07</span>
+                    <div>
+                        <h3>Save to Firebase logs the turn</h3>
+                        <p>The conversation is written to <code>chatbot/conversations</code> in Realtime
+                            Database for analytics. This branch never blocks the response, and a failure here
+                            cannot break the reply.</p>
+                    </div>
+                </li>
             </ol>
-        </div>
-    </section>
+        </section>
 
-    <!-- ════════════════════════════════════════════════
-         SECTION 4 — Tech Stack
-         ════════════════════════════════════════════════ -->
-    <section class="cb-section">
-        <div class="cb-section__head">
-            <span class="cb-section__num">03</span>
-            <h2 class="cb-section__title">Technologies</h2>
-        </div>
-        <div class="cb-tech-grid animate-ready">
-            <div class="cb-tech">
-                <div class="cb-tech__ico" style="--ico:#F87171"><i class="fas fa-network-wired"></i></div>
-                <h4>n8n</h4>
-                <p>Self-hosted workflow orchestrator. Defines triggers, runs the agent, routes responses.</p>
-            </div>
-            <div class="cb-tech">
-                <div class="cb-tech__ico" style="--ico:#34D399"><i class="fas fa-brain"></i></div>
-                <h4>Claude Haiku 4.5</h4>
-                <p>Anthropic's fast, capable model. Handles reasoning, tool-calling, and personality.</p>
-            </div>
-            <div class="cb-tech">
-                <div class="cb-tech__ico" style="--ico:#5EEAD4"><i class="fas fa-vector-square"></i></div>
-                <h4>Pinecone</h4>
-                <p>Vector database storing 19 hand-curated chunks of portfolio knowledge in 768 dims.</p>
-            </div>
-            <div class="cb-tech">
-                <div class="cb-tech__ico" style="--ico:#FBBF24"><i class="fas fa-language"></i></div>
-                <h4>HuggingFace</h4>
-                <p>sentence-transformers/all-mpnet-base-v2 for query embeddings — free, accurate.</p>
-            </div>
-            <div class="cb-tech">
-                <div class="cb-tech__ico" style="--ico:#FB923C"><i class="fas fa-fire"></i></div>
-                <h4>Firebase RTDB</h4>
-                <p>Realtime database persists every conversation for analytics and lead tracking.</p>
-            </div>
-            <div class="cb-tech">
-                <div class="cb-tech__ico" style="--ico:#EBC24A"><i class="fab fa-js"></i></div>
-                <h4>Vanilla JS Widget</h4>
-                <p>Lightweight floating bubble — fetch + sessionId persistence, no framework overhead.</p>
-            </div>
-        </div>
-    </section>
+        <!-- ═══ 04 TECHNOLOGIES ══════════════════════════════ -->
+        <section class="case-section">
+            <p class="label" data-reveal><b>04</b> / Technologies</p>
+            <h2 data-reveal>Six pieces,<br><em>each doing one job.</em></h2>
 
-    <!-- ════════════════════════════════════════════════
-         SECTION 5 — Key Features
-         ════════════════════════════════════════════════ -->
-    <section class="cb-section">
-        <div class="cb-section__head">
-            <span class="cb-section__num">04</span>
-            <h2 class="cb-section__title">Key Capabilities</h2>
-        </div>
-        <ul class="cb-features animate-ready">
-            <li><i class="fas fa-check"></i><div><strong>Retrieval-Augmented Generation</strong><span>Vector search runs only when needed — fast answers stay fast.</span></div></li>
-            <li><i class="fas fa-check"></i><div><strong>Conversation memory</strong><span>Last 15 turns stay in context per session — no repeating yourself.</span></div></li>
-            <li><i class="fas fa-check"></i><div><strong>Session persistence</strong><span>Browser-side <code>sessionId</code> survives reloads via localStorage.</span></div></li>
-            <li><i class="fas fa-check"></i><div><strong>Parallel side-effects</strong><span>Firebase logging never delays the user-facing reply.</span></div></li>
-            <li><i class="fas fa-check"></i><div><strong>Lead intent detection</strong><span>System prompt routes hiring questions to name/email capture.</span></div></li>
-            <li><i class="fas fa-check"></i><div><strong>Production CORS</strong><span>Origin-restricted headers — only the portfolio domain can call it.</span></div></li>
-            <li><i class="fas fa-check"></i><div><strong>Graceful degradation</strong><span>Network errors render an inline retry message, never a broken bubble.</span></div></li>
-            <li><i class="fas fa-check"></i><div><strong>Zero framework</strong><span>Vanilla JS widget — &lt;3KB minified — works on any static site.</span></div></li>
-        </ul>
-    </section>
+            <div class="cards">
+                <div class="card" data-reveal>
+                    <span class="label">Orchestration</span>
+                    <h3>n8n</h3>
+                    <p>Self-hosted workflow orchestrator. Defines the trigger, runs the agent, routes responses.</p>
+                    <span class="note">Runs on my own server</span>
+                </div>
+                <div class="card" data-reveal>
+                    <span class="label">Reasoning</span>
+                    <h3>Claude Haiku 4.5</h3>
+                    <p>Fast and capable. Handles reasoning, tool-calling, and holding a consistent voice.</p>
+                    <span class="note">Chosen for latency under load</span>
+                </div>
+                <div class="card" data-reveal>
+                    <span class="label">Retrieval</span>
+                    <h3>Pinecone</h3>
+                    <p>Vector database holding 19 hand-curated chunks of portfolio knowledge at 768 dimensions.</p>
+                    <span class="note">Namespace: hassan-website</span>
+                </div>
+                <div class="card" data-reveal>
+                    <span class="label">Embeddings</span>
+                    <h3>HuggingFace</h3>
+                    <p>sentence-transformers/all-mpnet-base-v2 for query embeddings. Free and accurate.</p>
+                    <span class="note">768-dimension output</span>
+                </div>
+                <div class="card" data-reveal>
+                    <span class="label">Persistence</span>
+                    <h3>Firebase RTDB</h3>
+                    <p>Realtime Database keeps every conversation for analytics and lead tracking.</p>
+                    <span class="note">Written on a non-blocking branch</span>
+                </div>
+                <div class="card" data-reveal>
+                    <span class="label">Client</span>
+                    <h3>Vanilla JS widget</h3>
+                    <p>A small floating panel. Fetch plus session persistence, with no framework overhead.</p>
+                    <span class="note">No build step, works on any static host</span>
+                </div>
+            </div>
+        </section>
 
-    <!-- ════════════════════════════════════════════════
-         SECTION 6 — Live Links
-         ════════════════════════════════════════════════ -->
-    <section class="cb-section cb-section--cta">
-        <div class="cb-section__head">
-            <span class="cb-section__num">05</span>
-            <h2 class="cb-section__title">See it live</h2>
-            <p class="cb-section__lead">The chatbot is running right now on the home page — click the floating bubble in the corner.</p>
-        </div>
-        <div class="cb-cta-row animate-ready">
-            <a href="index.html#home" class="cb-cta cb-cta--primary">
-                <i class="fas fa-comment-dots"></i>
-                <span>Try the live chatbot</span>
-            </a>
-            <a href="https://www.linkedin.com/in/muhammadhassan00/" target="_blank" class="cb-cta cb-cta--linkedin">
-                <i class="fab fa-linkedin"></i>
-                <span>LinkedIn</span>
-            </a>
-            <a href="https://github.com/MHassanGull" target="_blank" class="cb-cta cb-cta--github">
-                <i class="fab fa-github"></i>
-                <span>GitHub</span>
-            </a>
-        </div>
-    </section>
+        <!-- ═══ 05 CAPABILITIES ══════════════════════════════ -->
+        <section class="case-section">
+            <p class="label" data-reveal><b>05</b> / Capabilities</p>
+            <h2 data-reveal>The details that make it<br><em>hold up in production.</em></h2>
 
-    <!-- ════════════════════════════════════════════════
-         SECTION 7 — Closing Quote
-         ════════════════════════════════════════════════ -->
-    <section class="cb-section cb-section--quote">
-        <blockquote class="cb-quote animate-ready">
-            "AI-focused Full-Stack Engineer building scalable intelligent systems."
-        </blockquote>
-    </section>
+            <ul class="checks">
+                <li data-reveal>
+                    <strong>Retrieval-augmented generation</strong>
+                    <span>Vector search runs only when the question needs it, so simple answers stay fast.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Conversation memory</strong>
+                    <span>The last fifteen turns stay in context per session. Nobody has to repeat themselves.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Session persistence</strong>
+                    <span>A browser-side session ID survives reloads through localStorage.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Parallel side effects</strong>
+                    <span>Firebase logging runs beside the reply and never delays it.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Lead intent detection</strong>
+                    <span>The system prompt routes hiring questions toward name and email capture.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Production CORS</strong>
+                    <span>Origin-restricted headers, so only the portfolio domain can call the webhook.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Graceful degradation</strong>
+                    <span>Network errors render an inline retry message rather than a broken bubble.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Zero framework</strong>
+                    <span>The widget is plain JavaScript and drops into any static site.</span>
+                </li>
+            </ul>
+        </section>
 
-    <footer>
-        <div class="footer-inner">
-            <div class="footer-logo">MH.</div>
-            <p>&copy; 2026 <a href="https://www.linkedin.com/in/muhammadhassan00/" target="_blank"
-                    class="copyright-link">Hassan</a>. All rights reserved.</p>
+        <!-- ═══ PULL QUOTE ═══════════════════════════════════ -->
+        <section class="pull">
+            <blockquote data-reveal>
+                <span class="mark" aria-hidden="true">“</span>The hard part was never the model.
+                It was making the plumbing around it boring and
+                reliable.<span class="mark" aria-hidden="true">”</span>
+            </blockquote>
+        </section>
+
+        <!-- ═══ CTA ══════════════════════════════════════════ -->
+        <section class="case-cta">
+            <h2 data-reveal>Want one that knows<br><em>your business?</em></h2>
+            <div class="case-actions" data-reveal>
+                <a href="index.html#contact" class="btn">Start a project <span aria-hidden="true">→</span></a>
+                <a href="voice-agent.html" class="btn-ghost">Next case study</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div>
+            <div class="footer-top">
+                <p class="footer-mark">Hassan<span>.</span></p>
+                <nav class="footer-links" aria-label="Elsewhere">
+                    <a href="index.html">Portfolio</a>
+                    <a href="https://www.linkedin.com/in/muhammadhassan00/" target="_blank" rel="noopener">LinkedIn</a>
+                    <a href="https://github.com/MHassanGull" target="_blank" rel="noopener">GitHub</a>
+                    <a href="mailto:muhammadhassan.9677@gmail.com">Email</a>
+                </nav>
+            </div>
+            <div class="footer-bottom">
+                <span>© 2026 Muhammad Hassan. All rights reserved</span>
+                <span>Python · Django · AI Automation</span>
+            </div>
         </div>
     </footer>
 
-    <script src="js/app.js"></script>
-    <script src="js/motion.js" defer></script>
-    <script>
-        // Detail page scroll reveal — uses the same .animate-ready hook
-        const obs = new IntersectionObserver((entries) => {
-            entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.animate-ready').forEach(el => obs.observe(el));
-
-        // Scroll progress
-        const prog = document.getElementById('scroll-progress');
-        if (prog) window.addEventListener('scroll', () => {
-            prog.style.width = (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100) + '%';
-        }, { passive: true });
-
-        // Header scroll
-        const hdr = document.getElementById('main-header');
-        if (hdr) window.addEventListener('scroll', () => hdr.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
-    </script>
+    <script src="js/site.js" defer></script>
 </body>
 
 </html>

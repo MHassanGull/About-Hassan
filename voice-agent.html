@@ -1,1460 +1,375 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="no-js">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hassan — AI Voice Ordering Agent · Portfolio</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap"
-        rel="stylesheet">
-    <style>
-        :root {
-            --bg: #04100B;
-            --bg2: #061A11;
-            --bg3: #0A2417;
-            --border: #123524;
-            --border2: #1A4030;
-            --blue: #10B981;
-            --blue-dim: #059669;
-            --cyan: #5EEAD4;
-            --green: #34D399;
-            --amber: #EBC24A;
-            --purple: #EBC24A;
-            --text: #F1F7F2;
-            --text2: #8AA394;
-            --text3: #4E6558;
-        }
-
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Syne', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* ── NOISE OVERLAY ── */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.4;
-        }
-
-        /* ── GLOW BG ── */
-        .glow-bg {
-            position: fixed;
-            top: -300px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 900px;
-            height: 600px;
-            background: radial-gradient(ellipse, rgba(16, 185, 129, 0.07) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* ── NAV ── */
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 48px;
-            background: rgba(4, 8, 15, 0.85);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .nav-logo {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: var(--blue);
-            letter-spacing: 0.05em;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 32px;
-        }
-
-        .nav-links a {
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--text2);
-            text-decoration: none;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover {
-            color: var(--text);
-        }
-
-        .nav-cta {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.74rem;
-            font-weight: 700;
-            color: var(--blue);
-            border: 1px solid var(--blue-dim);
-            background: rgba(16, 185, 129, 0.08);
-            padding: 8px 18px;
-            border-radius: 6px;
-            text-decoration: none;
-            letter-spacing: 0.04em;
-            transition: all 0.2s;
-        }
-
-        .nav-cta:hover {
-            background: rgba(16, 185, 129, 0.18);
-        }
-
-        /* ── HERO ── */
-        .hero {
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            padding: 120px 48px 80px;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .hero-eyebrow {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.72rem;
-            font-weight: 500;
-            color: var(--blue);
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            margin-bottom: 28px;
-            opacity: 0;
-            animation: fadeUp 0.6s 0.1s forwards;
-        }
-
-        .hero-eyebrow::before {
-            content: '';
-            width: 32px;
-            height: 1px;
-            background: var(--blue);
-        }
-
-        .hero-title {
-            font-family: 'Syne', sans-serif;
-            font-size: clamp(2.8rem, 6vw, 5rem);
-            font-weight: 800;
-            line-height: 1.05;
-            letter-spacing: -0.03em;
-            color: var(--text);
-            opacity: 0;
-            animation: fadeUp 0.6s 0.2s forwards;
-        }
-
-        .hero-title .accent {
-            font-family: 'Instrument Serif', serif;
-            font-style: italic;
-            color: var(--cyan);
-            font-weight: 400;
-        }
-
-        .hero-desc {
-            font-size: 1.05rem;
-            color: var(--text2);
-            font-weight: 400;
-            max-width: 580px;
-            margin-top: 24px;
-            line-height: 1.75;
-            opacity: 0;
-            animation: fadeUp 0.6s 0.3s forwards;
-        }
-
-        .hero-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 32px;
-            opacity: 0;
-            animation: fadeUp 0.6s 0.4s forwards;
-        }
-
-        .hbadge {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            font-weight: 500;
-            padding: 5px 12px;
-            border-radius: 4px;
-            border: 1px solid;
-            letter-spacing: 0.03em;
-        }
-
-        .hb-blue {
-            color: #7dd3fc;
-            border-color: #1e3a5f;
-            background: rgba(30, 58, 95, 0.3);
-        }
-
-        .hb-green {
-            color: #86efac;
-            border-color: #14532d;
-            background: rgba(20, 83, 45, 0.3);
-        }
-
-        .hb-amber {
-            color: #fde68a;
-            border-color: #78350f;
-            background: rgba(120, 53, 15, 0.3);
-        }
-
-        .hb-purple {
-            color: #ddd6fe;
-            border-color: #4c1d95;
-            background: rgba(76, 29, 149, 0.3);
-        }
-
-        .hb-cyan {
-            color: #a5f3fc;
-            border-color: #164e63;
-            background: rgba(22, 78, 99, 0.3);
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 14px;
-            margin-top: 40px;
-            opacity: 0;
-            animation: fadeUp 0.6s 0.5s forwards;
-        }
-
-        .btn-primary {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            padding: 13px 28px;
-            border-radius: 8px;
-            background: var(--blue);
-            color: #fff;
-            border: none;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-primary:hover {
-            background: #059669;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            padding: 13px 28px;
-            border-radius: 8px;
-            background: transparent;
-            color: var(--text2);
-            border: 1px solid var(--border2);
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-secondary:hover {
-            color: var(--text);
-            border-color: var(--text3);
-        }
-
-        /* ── SCROLL INDICATOR ── */
-        .scroll-hint {
-            position: absolute;
-            bottom: 40px;
-            left: 48px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.66rem;
-            color: var(--text3);
-            letter-spacing: 0.1em;
-            animation: pulse 2s infinite;
-        }
-
-        .scroll-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--blue);
-        }
-
-        /* ── STATS BAR ── */
-        .stats-bar {
-            position: relative;
-            z-index: 1;
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            background: var(--bg2);
-        }
-
-        .stats-inner {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 48px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-        }
-
-        .stat {
-            padding: 32px 0;
-            border-right: 1px solid var(--border);
-            padding-left: 32px;
-        }
-
-        .stat:first-child {
-            padding-left: 0;
-        }
-
-        .stat:last-child {
-            border-right: none;
-        }
-
-        .stat-num {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--text);
-            line-height: 1;
-            letter-spacing: -0.03em;
-        }
-
-        .stat-num span {
-            color: var(--blue);
-        }
-
-        .stat-label {
-            font-size: 0.75rem;
-            color: var(--text2);
-            margin-top: 6px;
-            font-weight: 500;
-        }
-
-        /* ── PAGE SECTIONS ── */
-        .page {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 48px 100px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .section {
-            padding: 80px 0 0;
-        }
-
-        .sec-label {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.66rem;
-            font-weight: 700;
-            letter-spacing: 0.18em;
-            color: var(--blue);
-            text-transform: uppercase;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .sec-label::after {
-            content: '';
-            flex: 0 0 24px;
-            height: 1px;
-            background: var(--blue);
-        }
-
-        .sec-title {
-            font-size: 1.7rem;
-            font-weight: 800;
-            color: var(--text);
-            letter-spacing: -0.02em;
-            margin-bottom: 10px;
-        }
-
-        .sec-desc {
-            color: var(--text2);
-            font-size: 0.9rem;
-            max-width: 600px;
-            line-height: 1.75;
-            margin-bottom: 40px;
-        }
-
-        .divider {
-            height: 1px;
-            background: linear-gradient(90deg, var(--border2) 0%, transparent 60%);
-            margin: 80px 0 0;
-        }
-
-        /* ── HOW IT WORKS — FLOW ── */
-        .flow-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 0;
-        }
-
-        .flow-step {
-            display: grid;
-            grid-template-columns: 64px 1fr;
-            gap: 0;
-            position: relative;
-        }
-
-        .flow-step:not(:last-child) .fs-line {
-            position: absolute;
-            left: 32px;
-            top: 56px;
-            bottom: 0;
-            width: 1px;
-            background: linear-gradient(180deg, var(--border2), transparent);
-        }
-
-        .fs-left {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 4px;
-        }
-
-        .fs-num {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border: 1px solid;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        .fn1 {
-            border-color: #10B981;
-            color: #7dd3fc;
-            background: rgba(16, 185, 129, 0.08);
-        }
-
-        .fn2 {
-            border-color: #EBC24A;
-            color: #ddd6fe;
-            background: rgba(16, 185, 129, 0.08);
-        }
-
-        .fn3 {
-            border-color: #fbbf24;
-            color: #fde68a;
-            background: rgba(251, 191, 36, 0.08);
-        }
-
-        .fn4 {
-            border-color: #4ade80;
-            color: #bbf7d0;
-            background: rgba(74, 222, 128, 0.08);
-        }
-
-        .fn5 {
-            border-color: #4ade80;
-            color: #bbf7d0;
-            background: rgba(74, 222, 128, 0.08);
-        }
-
-        .fn6 {
-            border-color: #10B981;
-            color: #7dd3fc;
-            background: rgba(16, 185, 129, 0.08);
-        }
-
-        .fs-right {
-            padding: 0 0 44px 24px;
-        }
-
-        .fs-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 4px;
-        }
-
-        .fs-body {
-            font-size: 0.82rem;
-            color: var(--text2);
-            line-height: 1.65;
-        }
-
-        .fs-tag {
-            display: inline-block;
-            margin-top: 8px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.65rem;
-            padding: 3px 8px;
-            border-radius: 3px;
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--blue);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        /* ── TECH CARDS ── */
-        .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1px;
-            background: var(--border);
-            border-radius: 14px;
-            overflow: hidden;
-        }
-
-        .tech-card {
-            background: var(--bg2);
-            padding: 32px;
-            transition: background 0.2s;
-        }
-
-        .tech-card:hover {
-            background: var(--bg3);
-        }
-
-        .tc-icon {
-            font-size: 1.8rem;
-            margin-bottom: 16px;
-        }
-
-        .tc-name {
-            font-size: 1.05rem;
-            font-weight: 800;
-            color: var(--text);
-            margin-bottom: 6px;
-            letter-spacing: -0.01em;
-        }
-
-        .tc-role {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.68rem;
-            font-weight: 600;
-            color: var(--blue);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 12px;
-        }
-
-        .tc-desc {
-            font-size: 0.82rem;
-            color: var(--text2);
-            line-height: 1.7;
-        }
-
-        .tc-why {
-            margin-top: 14px;
-            padding: 10px 14px;
-            background: rgba(16, 185, 129, 0.06);
-            border-left: 2px solid var(--blue);
-            border-radius: 0 6px 6px 0;
-            font-size: 0.78rem;
-            color: #7dd3fc;
-            line-height: 1.6;
-        }
-
-        /* ── ENDPOINTS TABLE ── */
-        .ep-table {
-            border: 1px solid var(--border2);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .ep-head {
-            display: grid;
-            grid-template-columns: 80px 180px 1fr 160px;
-            gap: 16px;
-            padding: 14px 24px;
-            background: var(--bg3);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.63rem;
-            font-weight: 700;
-            color: var(--text3);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .ep-r {
-            display: grid;
-            grid-template-columns: 80px 180px 1fr 160px;
-            gap: 16px;
-            padding: 12px 24px;
-            align-items: center;
-            border-top: 1px solid var(--border);
-            transition: background 0.15s;
-        }
-
-        .ep-r:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .method {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 3px 10px;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 700;
-            font-size: 0.65rem;
-            border: 1px solid;
-        }
-
-        .m-post {
-            color: #86efac;
-            border-color: #14532d;
-            background: rgba(20, 83, 45, 0.25);
-        }
-
-        .m-get {
-            color: #7dd3fc;
-            border-color: #1e3a5f;
-            background: rgba(30, 58, 95, 0.25);
-        }
-
-        .m-ws {
-            color: #ddd6fe;
-            border-color: #4c1d95;
-            background: rgba(76, 29, 149, 0.25);
-        }
-
-        .ep-url {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            color: var(--text);
-        }
-
-        .ep-desc {
-            font-size: 0.78rem;
-            color: var(--text2);
-        }
-
-        .ep-who {
-            font-size: 0.72rem;
-        }
-
-        .ew-retell {
-            color: var(--amber);
-        }
-
-        .ew-kitchen {
-            color: var(--green);
-        }
-
-        .ew-system {
-            color: var(--text3);
-        }
-
-        /* ── FEATURE HIGHLIGHTS ── */
-        .features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-        }
-
-        .feat {
-            background: var(--bg2);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 24px;
-            transition: border-color 0.2s, transform 0.2s;
-        }
-
-        .feat:hover {
-            border-color: var(--border2);
-            transform: translateY(-2px);
-        }
-
-        .feat-icon {
-            font-size: 1.4rem;
-            margin-bottom: 14px;
-        }
-
-        .feat-title {
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text);
-            margin-bottom: 8px;
-        }
-
-        .feat-desc {
-            font-size: 0.78rem;
-            color: var(--text2);
-            line-height: 1.65;
-        }
-
-        /* ── FILE TREE ── */
-        .file-tree {
-            background: var(--bg2);
-            border: 1px solid var(--border2);
-            border-radius: 12px;
-            padding: 28px 32px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.78rem;
-            line-height: 2;
-            color: #7dd3fc;
-        }
-
-        .ft-folder {
-            color: var(--amber);
-        }
-
-        .ft-key {
-            color: var(--green);
-        }
-
-        .ft-note {
-            color: var(--text3);
-        }
-
-        .ft-file {
-            color: #93c5fd;
-        }
-
-        /* ── FOOTER ── */
-        footer {
-            position: relative;
-            z-index: 1;
-            border-top: 1px solid var(--border);
-            padding: 40px 48px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        .footer-left {
-            font-size: 0.78rem;
-            color: var(--text3);
-        }
-
-        .footer-left strong {
-            color: var(--text2);
-            font-weight: 600;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 24px;
-        }
-
-        .footer-links a {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--text3);
-            text-decoration: none;
-            letter-spacing: 0.06em;
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover {
-            color: var(--blue);
-        }
-
-        /* ── ANIMATIONS ── */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 0.4;
-            }
-
-            50% {
-                opacity: 1;
-            }
-        }
-
-        @keyframes blink {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0;
-            }
-        }
-
-        /* ── WAVEFORM DECORATION ── */
-        .wave-decoration {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            margin-bottom: 28px;
-            opacity: 0;
-            animation: fadeUp 0.6s 0.15s forwards;
-        }
-
-        .wave-bar {
-            width: 3px;
-            border-radius: 2px;
-            background: var(--blue);
-            animation: waveAnim 1.2s ease-in-out infinite;
-        }
-
-        .wave-bar:nth-child(1) {
-            height: 8px;
-            animation-delay: 0s;
-        }
-
-        .wave-bar:nth-child(2) {
-            height: 18px;
-            animation-delay: 0.1s;
-        }
-
-        .wave-bar:nth-child(3) {
-            height: 26px;
-            animation-delay: 0.2s;
-        }
-
-        .wave-bar:nth-child(4) {
-            height: 14px;
-            animation-delay: 0.3s;
-        }
-
-        .wave-bar:nth-child(5) {
-            height: 32px;
-            animation-delay: 0.4s;
-        }
-
-        .wave-bar:nth-child(6) {
-            height: 20px;
-            animation-delay: 0.5s;
-        }
-
-        .wave-bar:nth-child(7) {
-            height: 28px;
-            animation-delay: 0.3s;
-        }
-
-        .wave-bar:nth-child(8) {
-            height: 12px;
-            animation-delay: 0.2s;
-        }
-
-        .wave-bar:nth-child(9) {
-            height: 22px;
-            animation-delay: 0.1s;
-        }
-
-        .wave-bar:nth-child(10) {
-            height: 8px;
-            animation-delay: 0s;
-        }
-
-        @keyframes waveAnim {
-
-            0%,
-            100% {
-                transform: scaleY(0.4);
-                opacity: 0.5;
-            }
-
-            50% {
-                transform: scaleY(1);
-                opacity: 1;
-            }
-        }
-
-        /* ── LIVE BADGE ── */
-        .live-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.68rem;
-            font-weight: 700;
-            color: var(--green);
-            background: rgba(74, 222, 128, 0.08);
-            border: 1px solid rgba(74, 222, 128, 0.2);
-            padding: 5px 12px;
-            border-radius: 20px;
-            margin-bottom: 24px;
-            opacity: 0;
-            animation: fadeUp 0.6s 0.05s forwards;
-        }
-
-        .live-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--green);
-            animation: pulse 1.5s infinite;
-        }
-
-        @media (max-width: 768px) {
-            nav {
-                padding: 16px 24px;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .hero {
-                padding: 100px 24px 60px;
-            }
-
-            .page {
-                padding: 0 24px 80px;
-            }
-
-            .stats-inner {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .tech-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .features {
-                grid-template-columns: 1fr;
-            }
-
-            .ep-head,
-            .ep-r {
-                grid-template-columns: 70px 1fr;
-            }
-
-            .ep-desc,
-            .ep-who {
-                display: none;
-            }
-
-            footer {
-                flex-direction: column;
-                gap: 16px;
-                text-align: center;
-                padding: 32px 24px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .stats-inner {
-                grid-template-columns: 1fr;
-                padding: 0 24px;
-            }
-
-            .stat {
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-                padding-left: 0;
-            }
-
-            .stat:last-child {
-                border-bottom: none;
-            }
-        }
-    </style>
+    <meta name="description"
+        content="AI phone agent for restaurant orders — Retell AI, FastAPI, Firestore and WebSocket, deployed on Hugging Face Spaces. Case study by Muhammad Hassan.">
+    <meta name="theme-color" content="#0E0D0D">
+    <title>AI Phone Agent for Restaurant Orders — Case Study · Hassan</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/case.css">
 </head>
 
 <body>
+    <a class="skip-link" href="#top">Skip to content</a>
 
-    <div class="glow-bg"></div>
+    <header class="site-header">
+        <a href="index.html" class="wordmark">Hassan</a>
 
-    <!-- NAV -->
-    <nav>
-        <div class="nav-logo">hassan.voice</div>
-        <div class="nav-links">
-            <a href="#how">How It Works</a>
-            <a href="#tech">Tech Stack</a>
+        <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
+            <span></span><span></span><span></span>
+        </button>
+
+        <nav class="site-nav" id="site-nav">
+            <a href="#how">How it works</a>
+            <a href="#stack">Stack</a>
             <a href="#api">API</a>
-            <a href="#features">Features</a>
-        </div>
-        <a href="https://hassangull-apis.hf.space/getdata/" target="_blank" class="nav-cta">Live Dashboard →</a>
-    </nav>
+            <a href="index.html#contact" class="nav-cta">Get in touch</a>
+        </nav>
+    </header>
 
-    <!-- HERO -->
-    <div class="hero">
-        <div class="live-pill"><span class="live-dot"></span>Live on Hugging Face Spaces</div>
+    <main>
+        <!-- ═══ HERO ═════════════════════════════════════════ -->
+        <section class="case-hero" id="top">
+            <p class="label" data-reveal><b>Case study</b> / Voice AI · Live in production</p>
 
-        <div class="wave-decoration">
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-            <div class="wave-bar"></div>
-        </div>
+            <h1 data-reveal>AI Phone Agent for <em>Restaurant Orders</em></h1>
 
-        <div class="hero-eyebrow">Voice AI · Restaurant Automation</div>
+            <p class="lead" data-reveal>
+                A fully autonomous voice ordering system. A customer calls, an AI agent answers, takes the
+                order in ordinary conversation, and it appears on the kitchen screen in under a second.
+                No human operator anywhere in the loop.
+            </p>
 
-        <h1 class="hero-title">
-            AI Phone Agent<br>
-            for <span class="accent">Restaurant Orders</span>
-        </h1>
-
-        <p class="hero-desc">
-            A fully autonomous voice ordering system. Customers call, an AI agent named Hassan answers, takes their
-            order naturally, and it appears live on the kitchen screen — all without a human operator.
-        </p>
-
-        <div class="hero-badges">
-            <span class="hbadge hb-amber">Retell AI</span>
-            <span class="hbadge hb-blue">FastAPI</span>
-            <span class="hbadge hb-green">Firebase Firestore</span>
-            <span class="hbadge hb-purple">WebSocket</span>
-            <span class="hbadge hb-cyan">Docker · Uvicorn</span>
-            <span class="hbadge hb-blue">Hugging Face Spaces</span>
-        </div>
-
-        <div class="hero-actions">
-            <a href="https://kommodo.ai/recordings/ruidAln9CtyxIpxAk2Vy?onlyRecording=1" target="_blank"
-                class="btn-primary">▶ Watch Live Demo</a>
-            <a href="https://hassangull-apis.hf.space/getdata/" target="_blank" class="btn-secondary">Kitchen Dashboard
-                →</a>
-        </div>
-
-        <div class="scroll-hint">
-            <div class="scroll-dot"></div>
-            SCROLL TO EXPLORE
-        </div>
-    </div>
-
-    <!-- STATS BAR -->
-    <div class="stats-bar">
-        <div class="stats-inner">
-            <div class="stat">
-                <div class="stat-num">5<span>+</span></div>
-                <div class="stat-label">API Endpoints</div>
+            <div class="tags" data-reveal>
+                <span class="tag">Retell AI</span>
+                <span class="tag">FastAPI</span>
+                <span class="tag">Firebase Firestore</span>
+                <span class="tag">WebSocket</span>
+                <span class="tag">Docker · Uvicorn</span>
+                <span class="tag">Hugging Face Spaces</span>
             </div>
-            <div class="stat">
-                <div class="stat-num">24<span>/7</span></div>
-                <div class="stat-label">Automated Phone Orders</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">&lt;1<span>s</span></div>
-                <div class="stat-label">API Response Time</div>
-            </div>
-            <div class="stat">
-                <div class="stat-num">0<span>ops</span></div>
-                <div class="stat-label">Human Operators Needed</div>
-            </div>
-        </div>
-    </div>
 
-    <div class="page">
-
-        <!-- DEMO SECTION -->
-        <div class="section" id="demo">
-            <div class="sec-label">Live Recording</div>
-            <div class="sec-title">Watch a Real Call</div>
-            <div class="sec-desc">A real customer call handled entirely by Hassan — from greeting to order confirmation.
-                No human operator involved.</div>
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:0;">
+            <div class="case-actions" data-reveal>
                 <a href="https://kommodo.ai/recordings/ruidAln9CtyxIpxAk2Vy?onlyRecording=1" target="_blank"
-                    style="display:flex;align-items:center;justify-content:center;gap:14px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:32px 24px;text-decoration:none;transition:all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--blue)';this.style.background='var(--bg3)'"
-                    onmouseout="this.style.borderColor='var(--border2)';this.style.background='var(--bg2)'">
-                    <div
-                        style="width:52px;height:52px;border-radius:50%;background:rgba(16,185,129,0.12);border:2px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">
-                        ▶</div>
+                    rel="noopener" class="btn">Hear a real call <span aria-hidden="true">↗</span></a>
+                <a href="https://hassangull-apis.hf.space/getdata/" target="_blank" rel="noopener"
+                    class="btn-ghost">Kitchen dashboard ↗</a>
+            </div>
+
+            <div class="metrics">
+                <div class="metric" data-reveal>
+                    <b>9</b><span class="label">API endpoints</span>
+                </div>
+                <div class="metric" data-reveal>
+                    <b>24<span>/7</span></b><span class="label">Automated phone orders</span>
+                </div>
+                <div class="metric" data-reveal>
+                    <b>&lt;1<span>s</span></b><span class="label">API response time</span>
+                </div>
+                <div class="metric" data-reveal>
+                    <b>0<span>ops</span></b><span class="label">Human operators needed</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ 01 HOW IT WORKS ══════════════════════════════ -->
+        <section class="case-section" id="how">
+            <p class="label" data-reveal><b>01</b> / How it works</p>
+            <h2 data-reveal>From the caller's voice<br><em>to the kitchen screen.</em></h2>
+            <p class="copy" data-reveal>
+                A phone call travels through four systems in under two seconds. Here is every hop.
+            </p>
+
+            <ol class="flow">
+                <li data-reveal>
+                    <span class="flow-no">01</span>
                     <div>
-                        <div style="font-size:0.95rem;font-weight:800;color:var(--text);margin-bottom:4px;">Voice Call
-                            Recording</div>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--blue);">
-                            kommodo.ai · Click to play →</div>
+                        <h3>The customer calls the restaurant</h3>
+                        <p>The call routes over PSTN to Retell AI's platform, which answers instantly. No
+                            ringing, no waiting, no hold music.</p>
                     </div>
-                </a>
-                <a href="https://hassangull-apis.hf.space/getdata/" target="_blank"
-                    style="display:flex;align-items:center;justify-content:center;gap:14px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:32px 24px;text-decoration:none;transition:all 0.2s;"
-                    onmouseover="this.style.borderColor='var(--green)';this.style.background='var(--bg3)'"
-                    onmouseout="this.style.borderColor='var(--border2)';this.style.background='var(--bg2)'">
-                    <div
-                        style="width:52px;height:52px;border-radius:50%;background:rgba(74,222,128,0.1);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;">
-                        🖥️</div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">02</span>
                     <div>
-                        <div style="font-size:0.95rem;font-weight:800;color:var(--text);margin-bottom:4px;">Kitchen
-                            Dashboard</div>
-                        <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--green);">
-                            hassangull-apis.hf.space · Live →</div>
+                        <h3>The agent listens and understands</h3>
+                        <p>Retell's speech-to-text converts the caller's voice in real time. The LLM works out
+                            what they want — order, track, update or cancel — and runs the whole back and forth
+                            naturally.</p>
+                        <span class="tag">STT → LLM → TTS</span>
                     </div>
-                </a>
-            </div>
-        </div>
-        <div class="divider"></div>
-        <div class="section" id="how">
-            <div class="sec-label">Section 01</div>
-            <div class="sec-title">How It Works</div>
-            <div class="sec-desc">A customer phone call travels through four systems in under two seconds — from the
-                caller's voice to the kitchen screen.</div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">03</span>
+                    <div>
+                        <h3>Retell fires an API tool call</h3>
+                        <p>When the agent needs to place or change an order it sends an HTTP POST to the
+                            FastAPI backend with the extracted data: name, phone number, items, and any
+                            special requests.</p>
+                        <span class="tag">POST /createorder/ → FastAPI</span>
+                    </div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">04</span>
+                    <div>
+                        <h3>FastAPI writes to Firestore</h3>
+                        <p>The async route handler validates the payload, checks for a duplicate order on that
+                            phone number, and writes the document with a server timestamp and pending status.</p>
+                        <span class="tag">FirestoreDB.create_order()</span>
+                    </div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">05</span>
+                    <div>
+                        <h3>The kitchen dashboard updates live</h3>
+                        <p>Straight after the write, FastAPI broadcasts a WebSocket message through the
+                            ConnectionManager to every connected kitchen browser. A new row appears in real
+                            time with no refresh.</p>
+                        <span class="tag">manager.broadcast() → wss://</span>
+                    </div>
+                </li>
+                <li data-reveal>
+                    <span class="flow-no">06</span>
+                    <div>
+                        <h3>The agent confirms to the customer</h3>
+                        <p>FastAPI returns <code>{"success": true}</code>. The LLM reads it, speaks the
+                            confirmation, and wraps up the call.</p>
+                        <span class="tag">{"success": true} → TTS → customer</span>
+                    </div>
+                </li>
+            </ol>
+        </section>
 
-            <div class="flow-steps">
+        <!-- ═══ 02 STACK ═════════════════════════════════════ -->
+        <section class="case-section" id="stack">
+            <p class="label" data-reveal><b>02</b> / Technology stack</p>
+            <h2 data-reveal>Four technologies,<br><em>each doing what it does best.</em></h2>
 
-                <div class="flow-step">
-                    <div class="fs-line"></div>
-                    <div class="fs-left">
-                        <div class="fs-num fn1">01</div>
-                    </div>
-                    <div class="fs-right">
-                        <div class="fs-title">Customer Calls the Restaurant</div>
-                        <div class="fs-body">The customer dials the restaurant phone number. The call routes via PSTN to
-                            Retell AI's platform, which answers instantly — no ringing, no waiting, no hold music.</div>
-                    </div>
+            <div class="cards">
+                <div class="card" data-reveal>
+                    <span class="label">Voice layer</span>
+                    <h3>Retell AI</h3>
+                    <p>Handles everything about the phone call: speech to text, the conversational LLM, text
+                        back to natural speech, and HTTP tool calls into the backend when action is needed.</p>
+                    <span class="note">Why: it abstracts all telephony. Zero speech processing code, only
+                        business logic.</span>
                 </div>
-
-                <div class="flow-step">
-                    <div class="fs-line"></div>
-                    <div class="fs-left">
-                        <div class="fs-num fn2">02</div>
-                    </div>
-                    <div class="fs-right">
-                        <div class="fs-title">Hassan Listens and Understands</div>
-                        <div class="fs-body">Retell's Speech-to-Text converts the caller's voice to text in real time.
-                            The LLM processes the text, understands what the customer wants — order, track, update, or
-                            cancel — and manages the full back-and-forth conversation naturally.</div>
-                        <span class="fs-tag">STT → LLM → TTS</span>
-                    </div>
+                <div class="card" data-reveal>
+                    <span class="label">API layer</span>
+                    <h3>FastAPI</h3>
+                    <p>Natively asynchronous, so it serves many requests without blocking. Retell calls the
+                        backend on every turn of a live call — a slow API becomes an awkward silence the
+                        customer hears.</p>
+                    <span class="note">Why: async throughput, native WebSocket, Pydantic validation built in.</span>
                 </div>
-
-                <div class="flow-step">
-                    <div class="fs-line"></div>
-                    <div class="fs-left">
-                        <div class="fs-num fn3">03</div>
-                    </div>
-                    <div class="fs-right">
-                        <div class="fs-title">Retell Fires an API Tool Call</div>
-                        <div class="fs-body">When Hassan needs to place or modify an order, Retell fires an HTTP POST
-                            request to our FastAPI backend with the extracted customer data — name, phone number, items
-                            ordered, and any special requests.</div>
-                        <span class="fs-tag">POST /createorder/ → FastAPI</span>
-                    </div>
+                <div class="card" data-reveal>
+                    <span class="label">Data layer</span>
+                    <h3>Firebase Firestore</h3>
+                    <p>Every order is a document in the <span class="code">orders</span> collection with name,
+                        phone, items, special requests, status and timestamps. Phone number is the lookup key
+                        for every query.</p>
+                    <span class="note">Why: no migrations, no server management, scales on its own.</span>
                 </div>
-
-                <div class="flow-step">
-                    <div class="fs-line"></div>
-                    <div class="fs-left">
-                        <div class="fs-num fn4">04</div>
-                    </div>
-                    <div class="fs-right">
-                        <div class="fs-title">FastAPI Writes to Firebase</div>
-                        <div class="fs-body">The async route handler validates the data, checks for duplicate orders by
-                            phone number, and writes the new order document to Firebase Firestore with a server
-                            timestamp and pending status.</div>
-                        <span class="fs-tag">FirestoreDB.create_order()</span>
-                    </div>
-                </div>
-
-                <div class="flow-step">
-                    <div class="fs-line"></div>
-                    <div class="fs-left">
-                        <div class="fs-num fn5">05</div>
-                    </div>
-                    <div class="fs-right">
-                        <div class="fs-title">Kitchen Dashboard Updates Live</div>
-                        <div class="fs-body">Immediately after writing to Firestore, FastAPI broadcasts a WebSocket
-                            message via the ConnectionManager to all connected kitchen browsers. A new row appears on
-                            the kitchen screen in real time — no refresh needed.</div>
-                        <span class="fs-tag">manager.broadcast() → wss://</span>
-                    </div>
-                </div>
-
-                <div class="flow-step">
-                    <div class="fs-left">
-                        <div class="fs-num fn6">06</div>
-                    </div>
-                    <div class="fs-right">
-                        <div class="fs-title">Hassan Confirms to the Customer</div>
-                        <div class="fs-body">FastAPI returns {"success": true} to Retell. The LLM reads the response and
-                            Hassan speaks the confirmation — "Your order is in, ready in about 15 minutes!" — and wraps
-                            up the call naturally.</div>
-                        <span class="fs-tag">{"success": true} → TTS → Customer</span>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        <div class="divider"></div>
-
-        <!-- TECH STACK -->
-        <div class="section" id="tech">
-            <div class="sec-label">Section 02</div>
-            <div class="sec-title">Technology Stack</div>
-            <div class="sec-desc">Four carefully chosen technologies, each handling exactly what it does best.</div>
-
-            <div class="tech-grid">
-                <div class="tech-card">
-                    <div class="tc-icon">📞</div>
-                    <div class="tc-name">Retell AI</div>
-                    <div class="tc-role">Voice Layer</div>
-                    <div class="tc-desc">Retell is a voice AI platform that handles everything about the phone call. It
-                        manages speech-to-text conversion, runs an LLM to power the conversation, converts text back to
-                        natural speech, and triggers HTTP tool calls to our backend when action is needed.</div>
-                    <div class="tc-why">Why Retell? It abstracts all telephony complexity. We write zero speech
-                        processing code — only the business logic.</div>
-                </div>
-
-                <div class="tech-card">
-                    <div class="tc-icon">⚡</div>
-                    <div class="tc-name">FastAPI</div>
-                    <div class="tc-role">API Layer</div>
-                    <div class="tc-desc">FastAPI is a modern Python web framework built for speed. It is natively
-                        asynchronous, which means it handles multiple requests simultaneously without blocking. Retell
-                        calls our backend on every turn of a live phone call — if our API is slow, the customer hears an
-                        awkward silence.</div>
-                    <div class="tc-why">Why FastAPI? 3-5x faster than traditional frameworks. Native WebSocket. Pydantic
-                        validation built-in. One main.py replaces dozens of files.</div>
-                </div>
-
-                <div class="tech-card">
-                    <div class="tc-icon">🔥</div>
-                    <div class="tc-name">Firebase Firestore</div>
-                    <div class="tc-role">Data Layer</div>
-                    <div class="tc-desc">Firestore is a NoSQL cloud database by Google. Every order is stored as a
-                        document in the "orders" collection with fields for name, phone, items, special requests,
-                        status, and timestamps. Phone number is the lookup key for all order queries.</div>
-                    <div class="tc-why">Why Firestore? Zero migrations, zero server management, scales automatically.
-                        The firebase-admin SDK connects in 3 lines of Python.</div>
-                </div>
-
-                <div class="tech-card">
-                    <div class="tc-icon">🖥️</div>
-                    <div class="tc-name">Kitchen Dashboard</div>
-                    <div class="tc-role">Real-Time UI Layer</div>
-                    <div class="tc-desc">The kitchen dashboard is an HTML page served by FastAPI using Jinja2. On page
-                        load, all current orders are rendered server-side. After that, a native FastAPI WebSocket
-                        connection keeps it updated live — new orders appear instantly, status changes reflect
-                        immediately across all screens.</div>
-                    <div class="tc-why">Why native WebSocket? No Redis, no external broker. A simple in-memory
-                        ConnectionManager handles all real-time broadcasts.</div>
+                <div class="card" data-reveal>
+                    <span class="label">Real-time UI</span>
+                    <h3>Kitchen dashboard</h3>
+                    <p>An HTML page served by FastAPI through Jinja2. Current orders render server-side on
+                        load, then a native WebSocket keeps it live — new orders and status changes reflect
+                        instantly across every screen.</p>
+                    <span class="note">Why native WebSocket: no Redis, no broker. An in-memory
+                        ConnectionManager is enough.</span>
                 </div>
             </div>
-        </div>
-        <div class="divider"></div>
+        </section>
 
-        <!-- API ENDPOINTS -->
-        <div class="section" id="api">
-            <div class="sec-label">Section 03</div>
-            <div class="sec-title">API Endpoints</div>
-            <div class="sec-desc">Nine endpoints. Five called by Retell AI during live calls. The rest power the kitchen
-                dashboard and monitoring.</div>
+        <!-- ═══ 03 API ═══════════════════════════════════════ -->
+        <section class="case-section" id="api">
+            <p class="label" data-reveal><b>03</b> / API surface</p>
+            <h2 data-reveal>Nine endpoints.<br><em>Five run mid-call.</em></h2>
+            <p class="copy" data-reveal>
+                Five are invoked by Retell while the customer is still on the line. The rest power the kitchen
+                dashboard and monitoring.
+            </p>
 
-            <div class="ep-table">
-                <div class="ep-head">
-                    <div>Method</div>
-                    <div>Endpoint</div>
-                    <div>Purpose</div>
-                    <div>Called By</div>
-                </div>
-                <div class="ep-r">
-                    <div><span class="method m-post">POST</span></div>
-                    <div class="ep-url">/createorder/</div>
-                    <div class="ep-desc">Place a new order — writes to Firestore, broadcasts to kitchen</div>
-                    <div class="ep-who ew-retell">Retell · createorder</div>
-                </div>
-                <div class="ep-r">
-                    <div><span class="method m-post">POST</span></div>
-                    <div class="ep-url">/trackorder/</div>
-                    <div class="ep-desc">Get latest order status by phone number</div>
-                    <div class="ep-who ew-retell">Retell · trackorder</div>
-                </div>
-                <div class="ep-r">
-                    <div><span class="method m-post">POST</span></div>
-                    <div class="ep-url">/checkorder/</div>
-                    <div class="ep-desc">Check full order details by phone number</div>
-                    <div class="ep-who ew-retell">Retell · checkorder</div>
-                </div>
-                <div class="ep-r">
-                    <div><span class="method m-post">POST</span></div>
-                    <div class="ep-url">/updateorder/</div>
-                    <div class="ep-desc">Update or remove items from an existing order</div>
-                    <div class="ep-who ew-retell">Retell · updateorder</div>
-                </div>
-                <div class="ep-r">
-                    <div><span class="method m-post">POST</span></div>
-                    <div class="ep-url">/cancelorder/</div>
-                    <div class="ep-desc">Cancel order — sets Firestore status to cancelled</div>
-                    <div class="ep-who ew-retell">Retell · cancelorder</div>
-                </div>
-                <div class="ep-r">
-                    <div><span class="method m-post">POST</span></div>
-                    <div class="ep-url">/update-status/</div>
-                    <div class="ep-desc">Kitchen staff manually changes order status</div>
-                    <div class="ep-who ew-kitchen">Kitchen Dashboard</div>
-                </div>
-                <div class="ep-r">
-                    <div><span class="method m-get">GET</span></div>
-                    <div class="ep-url">/</div>
-                    <div class="ep-desc">Serves the kitchen dashboard HTML page</div>
-                    <div class="ep-who ew-kitchen">Kitchen Browser</div>
-                </div>
-                <div class="ep-r">
-                    <div><span class="method m-get">GET</span></div>
-                    <div class="ep-url">/health/</div>
-                    <div class="ep-desc">Health check — {"status":"ok"}</div>
-                    <div class="ep-who ew-system">HF Monitor</div>
-                </div>
-                <div class="ep-r">
-                    <div><span class="method m-ws">WS</span></div>
-                    <div class="ep-url">/ws/kitchen/</div>
-                    <div class="ep-desc">Live WebSocket — pushes all order events to kitchen</div>
-                    <div class="ep-who ew-kitchen">Kitchen Browser</div>
-                </div>
+            <div class="spec-scroll" data-reveal>
+                <table class="spec">
+                    <thead>
+                        <tr>
+                            <th scope="col">Method</th>
+                            <th scope="col">Endpoint</th>
+                            <th scope="col">Purpose</th>
+                            <th scope="col">Called by</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="verb">POST</span></td>
+                            <td class="path">/createorder/</td>
+                            <td>Place a new order. Writes to Firestore and broadcasts to the kitchen.</td>
+                            <td class="who who--live">Retell · createorder</td>
+                        </tr>
+                        <tr>
+                            <td><span class="verb">POST</span></td>
+                            <td class="path">/trackorder/</td>
+                            <td>Return the latest order status for a phone number.</td>
+                            <td class="who who--live">Retell · trackorder</td>
+                        </tr>
+                        <tr>
+                            <td><span class="verb">POST</span></td>
+                            <td class="path">/checkorder/</td>
+                            <td>Return full order details for a phone number.</td>
+                            <td class="who who--live">Retell · checkorder</td>
+                        </tr>
+                        <tr>
+                            <td><span class="verb">POST</span></td>
+                            <td class="path">/updateorder/</td>
+                            <td>Update or remove items on an existing order.</td>
+                            <td class="who who--live">Retell · updateorder</td>
+                        </tr>
+                        <tr>
+                            <td><span class="verb">POST</span></td>
+                            <td class="path">/cancelorder/</td>
+                            <td>Cancel an order by setting its Firestore status to cancelled.</td>
+                            <td class="who who--live">Retell · cancelorder</td>
+                        </tr>
+                        <tr>
+                            <td><span class="verb">POST</span></td>
+                            <td class="path">/update-status/</td>
+                            <td>Kitchen staff change an order's status by hand.</td>
+                            <td class="who">Kitchen dashboard</td>
+                        </tr>
+                        <tr>
+                            <td><span class="verb">GET</span></td>
+                            <td class="path">/</td>
+                            <td>Serve the kitchen dashboard page.</td>
+                            <td class="who">Kitchen browser</td>
+                        </tr>
+                        <tr>
+                            <td><span class="verb">GET</span></td>
+                            <td class="path">/health/</td>
+                            <td>Health check returning <span class="code">{"status":"ok"}</span>.</td>
+                            <td class="who">HF monitor</td>
+                        </tr>
+                        <tr>
+                            <td><span class="verb verb--ws">WS</span></td>
+                            <td class="path">/ws/kitchen/</td>
+                            <td>Live socket pushing every order event to the kitchen.</td>
+                            <td class="who">Kitchen browser</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
-        </div>
-        <div class="divider"></div>
+        </section>
 
-        <!-- FEATURES -->
-        <div class="section" id="features">
-            <div class="sec-label">Section 04</div>
-            <div class="sec-title">Key Features</div>
-            <div class="sec-desc">What makes this system production-ready.</div>
+        <!-- ═══ 04 FEATURES ══════════════════════════════════ -->
+        <section class="case-section">
+            <p class="label" data-reveal><b>04</b> / Key features</p>
+            <h2 data-reveal>What makes it<br><em>production ready.</em></h2>
 
-            <div class="features">
-                <div class="feat">
-                    <div class="feat-icon">🎙️</div>
-                    <div class="feat-title">Natural Voice Conversation</div>
-                    <div class="feat-desc">Hassan speaks like a real person. Warm, casual, asks one question at a time,
-                        confirms before placing, and handles edge cases gracefully — all powered by Retell's LLM.</div>
-                </div>
-                <div class="feat">
-                    <div class="feat-icon">⚡</div>
-                    <div class="feat-title">Sub-Second API Response</div>
-                    <div class="feat-desc">FastAPI's async architecture ensures Retell gets a response fast enough that
-                        the customer never hears a pause. Slow APIs break the voice experience.</div>
-                </div>
-                <div class="feat">
-                    <div class="feat-icon">🔄</div>
-                    <div class="feat-title">Real-Time Kitchen Updates</div>
-                    <div class="feat-desc">Native WebSocket broadcasting with ConnectionManager. New orders appear on
-                        every kitchen screen the moment they are placed, with zero page refresh.</div>
-                </div>
-                <div class="feat">
-                    <div class="feat-icon">🛡️</div>
-                    <div class="feat-title">Payload Envelope Handling</div>
-                    <div class="feat-desc">Retell wraps request data differently across call types. A custom
-                        extract_payload() helper automatically unwraps arguments, data, or payload envelopes every time.
-                    </div>
-                </div>
-                <div class="feat">
-                    <div class="feat-icon">☁️</div>
-                    <div class="feat-title">Zero-Server Deployment</div>
-                    <div class="feat-desc">Fully containerised with Docker and deployed on Hugging Face Spaces. Git-push
-                        deploys. HTTPS automatic. Secrets managed via HF encrypted environment variables.</div>
-                </div>
-                <div class="feat">
-                    <div class="feat-icon">📦</div>
-                    <div class="feat-title">Minimal Project Structure</div>
-                    <div class="feat-desc">The entire backend is one main.py file plus firebase_utils.py and schemas.py.
-                        No app folders, no migrations, no boilerplate. Easy to read, easy to maintain.</div>
-                </div>
+            <ul class="checks">
+                <li data-reveal>
+                    <strong>Natural voice conversation</strong>
+                    <span>The agent asks one question at a time, confirms before placing, and handles edge
+                        cases without falling apart.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Sub-second API response</strong>
+                    <span>Async FastAPI answers fast enough that the customer never hears a pause. Slow APIs
+                        ruin a voice experience.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Real-time kitchen updates</strong>
+                    <span>Native WebSocket broadcasting. Orders land on every kitchen screen the moment they
+                        are placed.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Payload envelope handling</strong>
+                    <span>Retell wraps request data differently per call type. A custom
+                        <span class="code">extract_payload()</span> helper unwraps arguments, data or payload
+                        envelopes every time.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Zero-server deployment</strong>
+                    <span>Containerised with Docker on Hugging Face Spaces. Git push deploys, HTTPS is
+                        automatic, secrets live in encrypted environment variables.</span>
+                </li>
+                <li data-reveal>
+                    <strong>Minimal project structure</strong>
+                    <span>One <span class="code">main.py</span> plus two modules. No app folders, no
+                        migrations, no boilerplate.</span>
+                </li>
+            </ul>
+        </section>
+
+        <!-- ═══ 05 STRUCTURE ═════════════════════════════════ -->
+        <section class="case-section">
+            <p class="label" data-reveal><b>05</b> / Project structure</p>
+            <h2 data-reveal>Clean and flat.<br><em>Seven files.</em></h2>
+
+            <div class="tree" data-reveal><i>retell_fastapi/</i>
+│
+├── <b>main.py</b>            <u>All routes · WebSocket · ConnectionManager · app factory</u>
+├── <b>firebase_utils.py</b>  <u>Firebase init · FirestoreDB class · Firestore operations</u>
+├── <b>schemas.py</b>         <u>Pydantic request models for each Retell tool call</u>
+│
+├── <i>templates/</i>
+│   └── index.html      <u>Kitchen dashboard · Jinja2 rendered · WebSocket JS</u>
+│
+├── requirements.txt    <u>fastapi · uvicorn · firebase-admin · jinja2 · python-dotenv</u>
+├── Dockerfile          <u>python:3.11-slim · EXPOSE 7860</u>
+├── start.sh            <u>uvicorn main:app --host 0.0.0.0 --port 7860</u>
+└── .env                <u>FIREBASE_CREDENTIALS · RETELL_API_KEY (never committed)</u></div>
+        </section>
+
+        <!-- ═══ PULL QUOTE ═══════════════════════════════════ -->
+        <section class="pull">
+            <blockquote data-reveal>
+                <span class="mark" aria-hidden="true">“</span>On a live call, latency is not a metric.
+                It is the whole product.<span class="mark" aria-hidden="true">”</span>
+            </blockquote>
+        </section>
+
+        <!-- ═══ CTA ══════════════════════════════════════════ -->
+        <section class="case-cta">
+            <h2 data-reveal>Want your phone line<br><em>to answer itself?</em></h2>
+            <div class="case-actions" data-reveal>
+                <a href="index.html#contact" class="btn">Start a project <span aria-hidden="true">→</span></a>
+                <a href="nonogram-showcase.html" class="btn-ghost">Next case study</a>
             </div>
-        </div>
-        <div class="divider"></div>
+        </section>
+    </main>
 
-        <!-- FILE STRUCTURE -->
-        <div class="section">
-            <div class="sec-label">Section 05</div>
-            <div class="sec-title">Project Structure</div>
-            <div class="sec-desc">Clean and flat. Everything the system needs in seven files.</div>
-
-            <div class="file-tree">
-                <span class="ft-folder">retell_fastapi/</span>
-                │
-                ├── <span class="ft-key">main.py</span> <span class="ft-note">← All routes · WebSocket ·
-                    ConnectionManager · app factory</span>
-                ├── <span class="ft-key">firebase_utils.py</span> <span class="ft-note">← Firebase init · FirestoreDB
-                    class · all Firestore operations</span>
-                ├── <span class="ft-key">schemas.py</span> <span class="ft-note">← Pydantic request models for each
-                    Retell tool call</span>
-                │
-                ├── <span class="ft-folder">templates/</span>
-                │ └── <span class="ft-file">index.html</span> <span class="ft-note">← Kitchen dashboard · Jinja2
-                    rendered · WebSocket JS</span>
-                │
-                ├── <span class="ft-file">requirements.txt</span> <span class="ft-note">← fastapi · uvicorn ·
-                    firebase-admin · jinja2 · python-dotenv</span>
-                ├── <span class="ft-file">Dockerfile</span> <span class="ft-note">← python:3.11-slim · EXPOSE
-                    7860</span>
-                ├── <span class="ft-file">start.sh</span> <span class="ft-note">← uvicorn main:app --host 0.0.0.0 --port
-                    7860</span>
-                └── <span class="ft-file">.env</span> <span class="ft-note">← FIREBASE_CREDENTIALS · RETELL_API_KEY
-                    (never committed)</span>
+    <footer class="site-footer">
+        <div>
+            <div class="footer-top">
+                <p class="footer-mark">Hassan<span>.</span></p>
+                <nav class="footer-links" aria-label="Project links">
+                    <a href="index.html">Portfolio</a>
+                    <a href="https://hassangull-apis.hf.space/getdata/" target="_blank" rel="noopener">HF Space</a>
+                    <a href="https://kommodo.ai/recordings/ruidAln9CtyxIpxAk2Vy?onlyRecording=1" target="_blank"
+                        rel="noopener">Live demo</a>
+                    <a href="https://www.linkedin.com/posts/muhammadhassan00_ai-voiceai-fastapi-activity-7435021401150963712-avN9"
+                        target="_blank" rel="noopener">LinkedIn post</a>
+                </nav>
             </div>
-        </div>
-
-    </div><!-- end page -->
-
-    <footer>
-        <div class="footer-left">
-            AI Voice Agent · Only Restaurant · Deployed on Hugging Face Spaces
-        </div>
-        <div class="footer-links">
-            <a href="https://hassangull-apis.hf.space/getdata/" target="_blank">HF Space</a>
-            <a href="https://kommodo.ai/recordings/ruidAln9CtyxIpxAk2Vy?onlyRecording=1" target="_blank">Live Demo</a>
-            <a href="https://www.linkedin.com/posts/muhammadhassan00_ai-voiceai-fastapi-activity-7435021401150963712-avN9?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEs7gXMBYoQEj4XO0fgMa_K_hhiIDxj5nQU"
-                target="_blank">LinkedIn</a>
+            <div class="footer-bottom">
+                <span>© 2026 Muhammad Hassan. All rights reserved</span>
+                <span>Deployed on Hugging Face Spaces</span>
+            </div>
         </div>
     </footer>
 
-    <script>
-        // Force scroll to top on refresh
-        if (history.scrollRestoration) {
-            history.scrollRestoration = 'manual';
-        }
-        window.scrollTo(0, 0);
-
-        // Fallback for some browsers on load
-        window.addEventListener('load', () => {
-            window.scrollTo(0, 0);
-        });
-    </script>
-
+    <script src="js/site.js" defer></script>
 </body>
 
 </html>

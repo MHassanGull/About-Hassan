@@ -1,0 +1,91 @@
+/* ══════════════════════════════════════════════════════════════
+   HASSAN — DESIGN TOKENS
+   Palette: Red + Black. Near-black ground, warm paper text,
+   signal red accent. One inverted band (.invert) flips the same
+   semantic variables so every component works in both.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Semantic surface + text ────────────────────────────── */
+  --bg:          #0E0D0D;   /* page ground */
+  --fg:          #F2ECE7;   /* headings, primary text */
+  --fg-body:     #C3B9B4;   /* running copy */
+  --fg-muted:    #8A807C;   /* labels, meta, captions */
+
+  --line:        #2E2828;   /* structural rules + borders */
+  --line-soft:   #3A3232;   /* input underlines, inactive marks */
+
+  --panel:       #171514;   /* raised surface / row hover */
+  --well:        #1C1918;   /* media wells */
+  --well-alt:    #221D1D;   /* placeholder stripe */
+
+  --accent:      #E0565C;   /* accent text, links, hairlines */
+  --accent-solid:#B01E24;   /* saturated fills, dots, selection */
+
+  --btn-bg:      #F2ECE7;   /* primary button ground */
+  --btn-fg:      #0E0D0D;
+
+  /* ── Type families ──────────────────────────────────────── */
+  --f-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --f-mono:    'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --f-sans:    ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+               'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+  /* ── Type scale ─────────────────────────────────────────── */
+  --t-hero:    clamp(56px, 11vw, 168px);
+  --t-h2:      clamp(34px, 5vw, 68px);
+  --t-h2-lg:   clamp(36px, 5.6vw, 82px);
+  --t-lead:    clamp(26px, 3.4vw, 48px);
+  --t-work:    clamp(30px, 4.4vw, 62px);
+  --t-quote:   clamp(28px, 4.4vw, 64px);
+  --t-h3:      clamp(22px, 2.4vw, 34px);
+  --t-body:    16px;
+  --t-body-lg: clamp(16px, 1.35vw, 20px);
+  --t-label:   11px;
+  --t-tag:     10px;
+
+  /* ── Layout ─────────────────────────────────────────────── */
+  --wrap:    1440px;
+  --gutter:  clamp(20px, 4vw, 64px);
+  --section: clamp(80px, 11vw, 150px);
+  --header-h: 74px;
+
+  /* ── Motion ─────────────────────────────────────────────── */
+  --ease:      cubic-bezier(.2, .7, .2, 1);
+  --dur-fast:  .3s;
+  --dur:       .5s;
+  --dur-slow:  .8s;
+}
+
+/* ── Inverted band: same semantics, light ground ──────────── */
+.invert {
+  --bg:          #F2ECE7;
+  --fg:          #0E0D0D;
+  --fg-body:     #3F3A33;
+  --fg-muted:    #6E6461;
+
+  --line:        #D9CFC9;
+  --line-soft:   #BDB1AB;
+
+  --panel:       #E9E1DB;
+  --well:        #E3DAD4;
+  --well-alt:    #DCD2CB;
+
+  --accent:      #8E1A20;
+  --accent-solid:#8E1A20;
+
+  --btn-bg:      #0E0D0D;
+  --btn-fg:      #F2ECE7;
+
+  background: var(--bg);
+  color: var(--fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
