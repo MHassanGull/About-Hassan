@@ -37,7 +37,11 @@
   --t-h2-lg:   clamp(36px, 5.6vw, 82px);
   --t-lead:    clamp(26px, 3.4vw, 48px);
   --t-work:    clamp(30px, 4.4vw, 62px);
-  --t-quote:   clamp(28px, 4.4vw, 64px);
+  /* Testimonials vary wildly in length, so the quote has three steps.
+     reviews.js picks one per review via [data-len]. */
+  --t-quote:    clamp(25px, 3.2vw, 44px);
+  --t-quote-md: clamp(22px, 2.4vw, 33px);
+  --t-quote-sm: clamp(19px, 1.7vw, 25px);
   --t-h3:      clamp(22px, 2.4vw, 34px);
   --t-body:    16px;
   --t-body-lg: clamp(16px, 1.35vw, 20px);
@@ -55,6 +59,15 @@
   --dur-fast:  .3s;
   --dur:       .5s;
   --dur-slow:  .8s;
+}
+
+/* Tighter rhythm and chrome on small screens. */
+@media (max-width: 600px) {
+  :root {
+    --gutter:   18px;
+    --section:  64px;
+    --header-h: 64px;
+  }
 }
 
 /* ── Inverted band: same semantics, light ground ──────────── */

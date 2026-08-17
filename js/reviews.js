@@ -162,7 +162,17 @@ function render() {
   const r = reviews[index];
   const stars = Math.max(0, Math.min(5, Number(r.rating) || 0));
 
-  quoteText.textContent = escape(r.description);
+  const body = escape(r.description);
+  quoteText.textContent = body;
+
+  // Step the display size down for longer testimonials so the band
+  // stays proportionate instead of becoming a wall of display type.
+  if (quoteEl) {
+    if (body.length > 320) quoteEl.dataset.len = 'xlong';
+    else if (body.length > 150) quoteEl.dataset.len = 'long';
+    else delete quoteEl.dataset.len;
+  }
+
   if (quoteName) quoteName.textContent = escape(r.name);
 
   if (quoteStars) {

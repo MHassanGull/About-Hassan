@@ -238,6 +238,12 @@ a:hover { color: var(--fg); }
     background: var(--bg);
     border-bottom: 1px solid var(--line);
     padding: 8px var(--gutter) 28px;
+    /* Six links + CTA can outrun a short landscape viewport, so let the
+       sheet scroll rather than run off the bottom with no way back. */
+    max-height: calc(100vh - var(--header-h));
+    max-height: calc(100dvh - var(--header-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
     transform: translateY(-12px);
     opacity: 0;
     pointer-events: none;
@@ -381,7 +387,10 @@ a:hover { color: var(--fg); }
 .modal.is-open { display: flex; }
 .modal-panel {
   width: min(520px, 100%);
+  /* dvh keeps the panel whole when mobile browser chrome and the
+     on-screen keyboard shrink the visual viewport. vh is the fallback. */
   max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -440,15 +449,22 @@ a:hover { color: var(--fg); }
 .assistant {
   position: fixed;
   right: clamp(16px, 3vw, 34px);
-  bottom: clamp(16px, 3vw, 34px);
+  bottom: calc(clamp(16px, 3vw, 34px) + env(safe-area-inset-bottom, 0px));
   z-index: 95;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
 }
+/* Anchored to the viewport, not to the buddy's flex column — otherwise
+   dragging the robot drags the panel off-screen with it. */
 .assistant-panel {
+  position: fixed;
+  right: clamp(16px, 3vw, 34px);
+  bottom: calc(clamp(16px, 3vw, 34px) + env(safe-area-inset-bottom, 0px));
   width: min(372px, calc(100vw - 32px));
+  max-height: min(560px, calc(100vh - 88px));
+  max-height: min(560px, calc(100dvh - 88px));
   background: var(--panel);
   border: 1px solid var(--line);
   box-shadow: 0 26px 70px rgba(0, 0, 0, .5);
@@ -514,8 +530,10 @@ a:hover { color: var(--fg); }
   display: flex;
   flex-direction: column;
   gap: 12px;
-  max-height: 330px;
+  flex: 1;
+  min-height: 120px;
   overflow-y: auto;
+  overscroll-behavior: contain;
   font-size: 14px;
   line-height: 1.65;
 }
@@ -585,8 +603,17 @@ a:hover { color: var(--fg); }
 .assistant--nogl .assistant-fallback { display: block; }
 .assistant.is-open .assistant-fallback { display: none; }
 
-@media (max-width: 520px) {
-  .assistant-stage { width: 92px; height: 106px; }
+@media (max-width: 560px) {
+  .assistant-stage { width: 88px; height: 100px; }
+  /* Full-width bottom sheet — a 372px card on a 360px screen is unusable. */
+  .assistant-panel {
+    right: 12px;
+    left: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-height: min(70vh, calc(100vh - 80px));
+    max-height: min(70dvh, calc(100dvh - 80px));
+  }
 }
 
 /* ── Reveal on scroll ─────────────────────────────────────── */

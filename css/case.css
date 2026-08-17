@@ -341,3 +341,33 @@
 }
 .case-cta h2 em { font-style: italic; color: var(--accent); }
 .case-cta .case-actions { margin-bottom: 0; }
+
+/* ══ RESPONSIVE ═══════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 760px) {
+  .case-hero { padding-top: clamp(96px, 13vh, 130px); }
+  .case-hero h1 { max-width: none; }
+  .case-actions .btn,
+  .case-actions .btn-ghost { flex: 1 1 auto; justify-content: center; }
+  .case-section h2 { max-width: none; }
+  .diagram { padding: 22px 16px; }
+  .node { width: 100%; }
+}
+
+@media (max-width: 560px) {
+  .metrics { grid-template-columns: 1fr; }
+  .metric { padding: 24px 20px; }
+  .metric b { font-size: 40px; }
+  .flow li { padding-block: 24px; }
+  .flow li:hover { background: transparent; padding-left: 8px; }
+  .tree { font-size: 11px; padding: 18px 14px; }
+  .checks li { grid-template-columns: 16px minmax(0, 1fr); gap: 12px; }
+}
+
+@media (hover: none) {
+  .flow li:hover { background: transparent; padding-left: 8px; }
+  .spec tbody tr:hover { background: transparent; }
+}
