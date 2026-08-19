@@ -30,6 +30,13 @@
   const WEB3FORMS  = 'https://api.web3forms.com/submit';
   const ACCESS_KEY = '1e8ee232-587b-40f2-9e5d-cde7cf815432';
 
+  /* First name, capitalised. Only touches a leading lowercase letter, so
+     non-Latin scripts and deliberate casing are left alone. */
+  function firstName(full) {
+    const f = String(full || '').trim().split(/\s+/)[0] || '';
+    return f ? f.charAt(0).toUpperCase() + f.slice(1) : '';
+  }
+
   function getLead() {
     try { return JSON.parse(localStorage.getItem(LEAD_KEY) || 'null'); }
     catch (_) { return null; }
@@ -86,8 +93,8 @@
     try { localStorage.removeItem(SESS_KEY); } catch (_) { /* ignore */ }
     busy = false;
     input.disabled = false;
-    const who = (getLead() || {}).name;
-    say('bot', 'Cleared.' + (who ? ' Go ahead, ' + who.split(/\s+/)[0] + '.' : '') +
+    const who = firstName((getLead() || {}).name);
+    say('bot', 'Cleared.' + (who ? ' Go ahead, ' + who + '.' : '') +
                " Ask me anything about Hassan's projects, stack, or availability.");
     input.focus();
   }
@@ -105,7 +112,7 @@
       return;
     }
     if (!log.childElementCount) {
-      const who = lead.name ? lead.name.split(/\s+/)[0] : '';
+      const who = firstName(lead.name);
       say('bot', (who ? 'Hi ' + who + '. ' : 'Hi. ') +
                  "Ask me anything about Hassan's projects, stack, or availability.");
     }
@@ -149,8 +156,7 @@
         setGate('');
         gate.reset();
         wrap.classList.remove('needs-lead');
-        say('bot', 'Thanks ' + name.split(/\s+/)[0] +
-                   ". Hassan has your details. Now, what would you like to know?");
+        say('bot', 'Got that, ' + firstName(name) + '. How can I help you?');
         input.focus();
       } catch (err) {
         setGate('Could not send that. Please try again.', 'error');
