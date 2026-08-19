@@ -127,6 +127,11 @@ a:hover { color: var(--fg); }
 
 .btn-sm { padding: 14px 24px; }
 
+@media (max-width: 560px) {
+  .btn, .btn-ghost { padding: 16px 22px; font-size: 11px; letter-spacing: .12em; }
+  .btn-sm { padding: 13px 18px; }
+}
+
 /* Underlined inline CTA — used on work rows + case studies */
 .cta-link {
   font-family: var(--f-mono);
@@ -219,7 +224,7 @@ a:hover { color: var(--fg); }
 }
 .nav-toggle span {
   display: block;
-  width: 22px; height: 1px;
+  width: 22px; height: 2px;
   background: var(--fg);
   transition: transform var(--dur-fast) var(--ease), opacity var(--dur-fast) ease;
 }
