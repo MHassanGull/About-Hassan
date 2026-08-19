@@ -93,9 +93,9 @@
     try { localStorage.removeItem(SESS_KEY); } catch (_) { /* ignore */ }
     busy = false;
     input.disabled = false;
-    const who = firstName((getLead() || {}).name);
-    say('bot', 'Cleared.' + (who ? ' Go ahead, ' + who + '.' : '') +
-               " Ask me anything about Hassan's projects, stack, or availability.");
+    // No "Cleared" banner and no second greeting: the empty transcript is
+    // the confirmation, and the visitor was already greeted by name.
+    say('bot', "Ask me anything about Hassan's projects, stack, or availability.");
     input.focus();
   }
 
