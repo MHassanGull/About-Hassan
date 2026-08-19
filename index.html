@@ -526,9 +526,9 @@
                 </button>
                 <button type="button" class="modal-close" data-assistant-close aria-label="Close chat">✕</button>
             </div>
+
+            <div class="assistant-log" aria-live="polite"></div>
             <form class="assistant-gate" data-assistant-gate>
-                <p class="assistant-gate-intro">Before we start, who am I talking to? Hassan gets these
-                    details so he can follow up personally.</p>
                 <div class="field">
                     <label for="lead-name">Name</label>
                     <input id="lead-name" name="name" required autocomplete="name" placeholder="Your name">
@@ -547,7 +547,6 @@
                 <p class="form-status" data-gate-status role="status" aria-live="polite"></p>
             </form>
 
-            <div class="assistant-log" aria-live="polite"></div>
             <form class="assistant-form">
                 <input type="text" placeholder="Ask about my work" aria-label="Message" autocomplete="off">
                 <button type="submit" aria-label="Send">↑</button>

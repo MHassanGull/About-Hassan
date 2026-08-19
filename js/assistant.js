@@ -103,20 +103,11 @@
   function setOpen(open) {
     wrap.classList.toggle('is-open', open);
     if (!open) return;
-
-    const lead = getLead();
-    wrap.classList.toggle('needs-lead', !lead);
-
-    if (!lead) {
-      if (gate) gate.querySelector('input').focus();
-      return;
-    }
     if (!log.childElementCount) {
-      const who = firstName(lead.name);
-      say('bot', (who ? 'Hi ' + who + '. ' : 'Hi. ') +
-                 "Ask me anything about Hassan's projects, stack, or availability.");
+      say('bot', "Hi, this is Hassan's AI assistant. How can I help you?");
     }
-    input.focus();
+    if (wrap.classList.contains('awaiting-lead')) gate.querySelector('#lead-name').focus();
+    else input.focus();
   }
 
   /* Lead capture — the details go to Hassan by email via the same
@@ -155,7 +146,7 @@
 
         setGate('');
         gate.reset();
-        wrap.classList.remove('needs-lead');
+        wrap.classList.remove('awaiting-lead');
         say('bot', 'Got that, ' + firstName(name) + '. How can I help you?');
         input.focus();
       } catch (err) {
@@ -195,9 +186,22 @@
     const msg = input.value.trim();
     if (!msg || busy) return;
 
-    busy = true;
     say('me', msg);
     input.value = '';
+
+    // First message from an unknown visitor: ask for details before
+    // spending a call on the agent. Their question waits until after.
+    if (!getLead()) {
+      say('bot', 'Happy to help. Could you fill this in first so Hassan knows who he is talking to?');
+      wrap.classList.add('awaiting-lead');
+      // Opening the gate shrinks the log, so the scroll done inside say()
+      // is already stale. Re-pin to the bottom once layout settles.
+      requestAnimationFrame(function () { log.scrollTop = log.scrollHeight; });
+      setTimeout(function () { gate.querySelector('#lead-name').focus(); }, 60);
+      return;
+    }
+
+    busy = true;
     const pending = say('bot', 'Typing…', true);
 
     try {

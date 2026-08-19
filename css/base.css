@@ -552,22 +552,22 @@ a:hover { color: var(--fg); }
 .assistant-gate {
   display: none;
   flex-direction: column;
-  gap: 14px;
-  padding: 18px;
+  gap: 11px;
+  padding: 14px 16px 16px;
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+  flex-shrink: 0;
+  /* Pixels, not a percentage: the panel's height is indefinite, so a
+     percentage max-height is ignored and the gate pushes the log out. */
+  max-height: min(330px, calc(100% - 96px));
   overflow-y: auto;
 }
-/* Only one of gate / transcript is ever on screen. */
-.assistant.needs-lead .assistant-gate { display: flex; }
-.assistant.needs-lead .assistant-log,
-.assistant.needs-lead .assistant-form { display: none; }
+/* The gate drops in under the transcript, replacing the text input, so
+   the conversation so far stays visible while they fill it in. */
+.assistant.awaiting-lead .assistant-gate { display: flex; }
+.assistant.awaiting-lead .assistant-form { display: none; }
 
-.assistant-gate-intro {
-  font-size: 13px;
-  line-height: 1.6;
-  color: var(--fg-body);
-  margin-bottom: 2px;
-}
-.assistant-gate .field { gap: 6px; }
+.assistant-gate .field { gap: 5px; }
 .assistant-gate .field label {
   font-family: var(--f-mono);
   font-size: 9px;
@@ -575,7 +575,7 @@ a:hover { color: var(--fg); }
   text-transform: uppercase;
   color: var(--fg-muted);
 }
-.assistant-gate input { font-size: 14px; padding: 8px 0; }
+.assistant-gate input { font-size: 14px; padding: 6px 0; }
 .assistant-gate .btn { justify-content: center; margin-top: 4px; }
 .assistant-gate .form-status { font-size: 10px; min-height: 12px; margin: 0; }
 
@@ -584,8 +584,8 @@ a:hover { color: var(--fg); }
   display: flex;
   flex-direction: column;
   gap: 12px;
-  flex: 1;
-  min-height: 120px;
+  flex: 1 1 auto;
+  min-height: 96px;
   overflow-y: auto;
   overscroll-behavior: contain;
   font-size: 14px;
