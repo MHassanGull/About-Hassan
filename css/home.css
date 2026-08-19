@@ -107,7 +107,7 @@
 @media (max-width: 900px) {
   .hero-grid { grid-template-columns: minmax(0, 1fr); }
   .hero-grid > * { min-width: 0; }
-  .hero-portrait { max-width: 320px; }
+  .hero-portrait { max-width: 320px; margin-top: 12px; }
 }
 
 /* ══ MARQUEE ══════════════════════════════════════════════ */
@@ -453,7 +453,26 @@
   .hero { padding-top: clamp(96px, 13vh, 130px); }
   .hero h1 + h1 { gap: 12px; }
   .hero h1 em { font-size: .42em; }
-  .hero-portrait { max-width: 260px; }
+  .hero-portrait { max-width: 300px; margin-inline: auto; margin-top: 20px; }
+  /* The figure's aspect-ratio box clips a static caption, so hand the
+     ratio to the image and let the figure be a plain column. */
+  .hero-portrait figure { aspect-ratio: auto; overflow: visible; border: 0; background: none; }
+  .hero-portrait img {
+    aspect-ratio: 4 / 5;
+    height: auto;
+    object-position: center 16%;
+    filter: grayscale(.3) contrast(1.05);
+    border: 1px solid var(--line);
+  }
+  .hero-portrait figcaption {
+    position: static;
+    display: block;
+    text-align: center;
+    padding: 13px 14px;
+    letter-spacing: .16em;
+    border: 1px solid var(--line);
+    border-top: 0;
+  }
   .hero-actions { width: 100%; }
   .hero-actions .btn,
   .hero-actions .btn-ghost { flex: 1 1 100%; justify-content: center; }
@@ -477,6 +496,9 @@
 
 /* Phone */
 @media (max-width: 560px) {
+  .hero-status { align-items: flex-start; letter-spacing: .14em; font-size: 10px; }
+  .hero-status::before { flex: 0 0 auto; margin-top: 5px; }
+
   .stats { grid-template-columns: 1fr; }
   .stat { padding: 24px 20px; }
   .stat b { font-size: 40px; }
