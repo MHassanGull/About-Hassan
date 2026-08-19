@@ -531,18 +531,53 @@ a:hover { color: var(--fg); }
 }
 
 .assistant-clear {
-  font-family: var(--f-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .16em;
-  text-transform: uppercase;
+  width: 30px; height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: var(--fg-muted);
   border: 1px solid var(--line-soft);
-  padding: 6px 10px;
   margin-right: 4px;
-  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+  flex-shrink: 0;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease,
+              background var(--dur-fast) ease;
 }
-.assistant-clear:hover { color: var(--fg); border-color: var(--accent); }
+.assistant-clear:hover {
+  color: #F2ECE7;
+  background: var(--accent-solid);
+  border-color: var(--accent-solid);
+}
+
+/* ── Lead gate ────────────────────────────────────────────── */
+.assistant-gate {
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  overflow-y: auto;
+}
+/* Only one of gate / transcript is ever on screen. */
+.assistant.needs-lead .assistant-gate { display: flex; }
+.assistant.needs-lead .assistant-log,
+.assistant.needs-lead .assistant-form { display: none; }
+
+.assistant-gate-intro {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--fg-body);
+  margin-bottom: 2px;
+}
+.assistant-gate .field { gap: 6px; }
+.assistant-gate .field label {
+  font-family: var(--f-mono);
+  font-size: 9px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+.assistant-gate input { font-size: 14px; padding: 8px 0; }
+.assistant-gate .btn { justify-content: center; margin-top: 4px; }
+.assistant-gate .form-status { font-size: 10px; min-height: 12px; margin: 0; }
 
 .assistant-log {
   padding: 18px;

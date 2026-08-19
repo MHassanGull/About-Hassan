@@ -23,6 +23,17 @@
   const handle   = wrap.querySelector('.assistant-handle');
   const fallback = wrap.querySelector('.assistant-fallback');
   const clearBtn = wrap.querySelector('[data-assistant-clear]');
+  const gate       = wrap.querySelector('[data-assistant-gate]');
+  const gateStatus = gate && gate.querySelector('[data-gate-status]');
+
+  const LEAD_KEY   = 'ai_visitor';
+  const WEB3FORMS  = 'https://api.web3forms.com/submit';
+  const ACCESS_KEY = '1e8ee232-587b-40f2-9e5d-cde7cf815432';
+
+  function getLead() {
+    try { return JSON.parse(localStorage.getItem(LEAD_KEY) || 'null'); }
+    catch (_) { return null; }
+  }
 
   let busy = false;
 
@@ -68,7 +79,9 @@
     try { localStorage.removeItem(SESS_KEY); } catch (_) { /* ignore */ }
     busy = false;
     input.disabled = false;
-    say('bot', "Cleared. Ask me anything about Hassan's projects, stack, or availability.");
+    const who = (getLead() || {}).name;
+    say('bot', 'Cleared.' + (who ? ' Go ahead, ' + who.split(/\s+/)[0] + '.' : '') +
+               " Ask me anything about Hassan's projects, stack, or availability.");
     input.focus();
   }
 
@@ -76,10 +89,74 @@
   function setOpen(open) {
     wrap.classList.toggle('is-open', open);
     if (!open) return;
+
+    const lead = getLead();
+    wrap.classList.toggle('needs-lead', !lead);
+
+    if (!lead) {
+      if (gate) gate.querySelector('input').focus();
+      return;
+    }
     if (!log.childElementCount) {
-      say('bot', "Hi. Ask me anything about Hassan's projects, stack, or availability.");
+      const who = lead.name ? lead.name.split(/\s+/)[0] : '';
+      say('bot', (who ? 'Hi ' + who + '. ' : 'Hi. ') +
+                 "Ask me anything about Hassan's projects, stack, or availability.");
     }
     input.focus();
+  }
+
+  /* Lead capture — the details go to Hassan by email via the same
+     Web3Forms endpoint the contact form uses, then chat unlocks. */
+  if (gate) {
+    gate.addEventListener('submit', async e => {
+      e.preventDefault();
+      const btn   = gate.querySelector('button[type="submit"]');
+      const name  = gate.querySelector('#lead-name').value.trim();
+      const email = gate.querySelector('#lead-email').value.trim();
+      const phone = gate.querySelector('#lead-phone').value.trim();
+
+      if (!name || !email || !phone) { setGate('Please fill in all three.', 'error'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setGate('That email does not look right.', 'error'); return; }
+      if (phone.replace(/[^\d]/g, '').length < 7) { setGate('That phone number looks too short.', 'error'); return; }
+
+      btn.disabled = true;
+      setGate('Sending…');
+      try {
+        const res = await fetch(WEB3FORMS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: ACCESS_KEY,
+            subject: 'New chat lead from Portfolio',
+            from_name: 'Portfolio assistant',
+            name: name, email: email, phone: phone,
+            message: name + ' started a conversation with the portfolio assistant.'
+          })
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!json.success) throw new Error(json.message || 'send failed');
+
+        try { localStorage.setItem(LEAD_KEY, JSON.stringify({ name: name, email: email, phone: phone })); }
+        catch (_) { /* private mode — chat still unlocks for this visit */ }
+
+        setGate('');
+        gate.reset();
+        wrap.classList.remove('needs-lead');
+        say('bot', 'Thanks ' + name.split(/\s+/)[0] +
+                   ". Hassan has your details. Now, what would you like to know?");
+        input.focus();
+      } catch (err) {
+        setGate('Could not send that. Please try again.', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  function setGate(text, state) {
+    if (!gateStatus) return;
+    gateStatus.textContent = text;
+    if (state) gateStatus.dataset.state = state; else delete gateStatus.dataset.state;
   }
 
   wrap.addEventListener('buddy-click', () => setOpen(!wrap.classList.contains('is-open')));
@@ -114,7 +191,11 @@
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, sessionId: sessionId() })
+        body: JSON.stringify({
+          message: msg,
+          sessionId: sessionId(),
+          visitorName: (getLead() || {}).name || ''
+        })
       });
 
       if (!res.ok) {
