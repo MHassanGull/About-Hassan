@@ -53,7 +53,14 @@
   function say(who, text, pending) {
     const el = document.createElement('div');
     el.className = 'msg msg--' + who + (pending ? ' msg--pending' : '');
-    el.textContent = text;
+    if (pending) {
+      // Three animated dots instead of a literal "Typing" label. Assigning
+      // textContent later replaces them, so the reply path needs no change.
+      el.setAttribute('aria-label', 'Assistant is typing');
+      for (let i = 0; i < 3; i++) el.appendChild(document.createElement('i'));
+    } else {
+      el.textContent = text;
+    }
     log.appendChild(el);
     log.scrollTop = log.scrollHeight;
     return el;

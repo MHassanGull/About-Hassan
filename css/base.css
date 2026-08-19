@@ -594,7 +594,31 @@ a:hover { color: var(--fg); }
 .msg { max-width: 88%; padding: 11px 15px; }
 .msg--bot { align-self: flex-start; background: var(--well); border: 1px solid var(--line); color: var(--fg-body); }
 .msg--me  { align-self: flex-end; max-width: 82%; background: var(--btn-bg); color: var(--btn-fg); }
-.msg--pending { color: var(--fg-muted); }
+.msg--pending {
+  color: var(--fg-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding-block: 15px;
+}
+.msg--pending i {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--fg-muted);
+  animation: typingDot 1.25s ease-in-out infinite;
+}
+.msg--pending i:nth-child(2) { animation-delay: .16s; }
+.msg--pending i:nth-child(3) { animation-delay: .32s; }
+
+@keyframes typingDot {
+  0%, 62%, 100% { opacity: .28; transform: translateY(0); }
+  31%           { opacity: 1;   transform: translateY(-4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msg--pending i { animation: typingFade 1.4s ease-in-out infinite; }
+  @keyframes typingFade { 0%, 100% { opacity: .28; } 50% { opacity: .85; } }
+}
 
 .assistant-form {
   display: flex;
