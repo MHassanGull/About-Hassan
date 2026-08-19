@@ -22,6 +22,7 @@
   const stage    = wrap.querySelector('.assistant-stage');
   const handle   = wrap.querySelector('.assistant-handle');
   const fallback = wrap.querySelector('.assistant-fallback');
+  const clearBtn = wrap.querySelector('[data-assistant-clear]');
 
   let busy = false;
 
@@ -59,6 +60,18 @@
       .trim();
   }
 
+  /* Clearing starts a genuinely new conversation. Wiping only the
+     transcript would leave the server-side window memory keyed to the
+     same session, so stale context could still steer the next answer. */
+  function clearChat() {
+    log.textContent = '';
+    try { localStorage.removeItem(SESS_KEY); } catch (_) { /* ignore */ }
+    busy = false;
+    input.disabled = false;
+    say('bot', "Cleared. Ask me anything about Hassan's projects, stack, or availability.");
+    input.focus();
+  }
+
   /* ── Open / close ───────────────────────────────────────── */
   function setOpen(open) {
     wrap.classList.toggle('is-open', open);
@@ -76,6 +89,7 @@
   });
   if (fallback) fallback.addEventListener('click', () => setOpen(true));
   closeBtn.addEventListener('click', () => setOpen(false));
+  if (clearBtn) clearBtn.addEventListener('click', clearChat);
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && wrap.classList.contains('is-open')) setOpen(false);
   });
